@@ -336,9 +336,10 @@ if (graph.zones) {
     });
 
     if (zone.label) {
+      const zlW = Math.max(zone.label.length * STYLE.zoneLabelSize * 0.65 + 12, 40);
       const zlEl = freeText(
         `zone_${zone.id}_label`,
-        zx + 8, zy + 6, 300, 18,
+        zx + 8, zy + 6, zlW, 18,
         zone.label,
         zone.labelColor ?? STYLE.titleColor,
         STYLE.zoneLabelSize,
@@ -590,6 +591,74 @@ function darken(hex) {
     '#fef3c7': '#451a03', '#b45309': '#451a03',
   };
   return darkMap[hex] ?? '#1e293b';
+}
+
+// ── 5. Collision detection: labels vs labels ──────────────────────────────────
+const COLLISION_MARGIN = 4;
+
+function boxesOverlap(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x &&
+         a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function shiftToResolve(movable, fixed, margin) {
+  const shiftDown  = (fixed.y + fixed.h) - movable.y + margin;
+  const shiftUp    = (movable.y + movable.h) - fixed.y + margin;
+  const shiftRight = (fixed.x + fixed.w) - movable.x + margin;
+  const shiftLeft  = (movable.x + movable.w) - fixed.x + margin;
+  const candidates = [
+    { axis: 'y', delta:  shiftDown },
+    { axis: 'y', delta: -shiftUp },
+    { axis: 'x', delta:  shiftRight },
+    { axis: 'x', delta: -shiftLeft },
+  ];
+  candidates.sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta));
+  return candidates[0];
+}
+
+// 5a. Zone label vs zone label: shift overlapping zone labels apart
+const zoneLabelEls = elements.filter(
+  el => el.type === 'text' && el.id.startsWith('zone_') && el.id.endsWith('_label')
+);
+for (let i = 0; i < zoneLabelEls.length; i++) {
+  for (let j = i + 1; j < zoneLabelEls.length; j++) {
+    const a = zoneLabelEls[i], b = zoneLabelEls[j];
+    const aBox = { x: a.x, y: a.y, w: a.width, h: a.height };
+    const bBox = { x: b.x, y: b.y, w: b.width, h: b.height };
+    if (boxesOverlap(aBox, bBox)) {
+      // Shift the second zone label to the right of the first
+      b.x = a.x + a.width + 12;
+    }
+  }
+}
+
+// 5b. Edge label vs zone label: shift edge labels away from zone labels
+const zoneLabelBoxes = zoneLabelEls.map(el => ({
+  id: el.id,
+  x: el.x - COLLISION_MARGIN,
+  y: el.y - COLLISION_MARGIN,
+  w: el.width + COLLISION_MARGIN * 2,
+  h: el.height + COLLISION_MARGIN * 2,
+}));
+
+const edgeLabelEls = elements.filter(
+  el => el.type === 'text' && el.id.startsWith('arrow_') && el.id.endsWith('_label')
+);
+
+// Run up to 3 passes to resolve cascading overlaps
+for (let pass = 0; pass < 3; pass++) {
+  let anyShifted = false;
+  for (const edgeLabel of edgeLabelEls) {
+    for (const zBox of zoneLabelBoxes) {
+      const elBox = { x: edgeLabel.x, y: edgeLabel.y, w: edgeLabel.width, h: edgeLabel.height };
+      if (!boxesOverlap(elBox, zBox)) continue;
+
+      anyShifted = true;
+      const best = shiftToResolve(elBox, zBox, COLLISION_MARGIN);
+      edgeLabel[best.axis] += best.delta;
+    }
+  }
+  if (!anyShifted) break;
 }
 
 // ── Output Excalidraw JSON ────────────────────────────────────────────────────

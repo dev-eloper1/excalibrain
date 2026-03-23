@@ -1,39 +1,92 @@
 # Gantt Chart Recipe
 
-**Tool:** `dagre-layout.js` (graph JSON)
-**Direction:** `LR` (left-to-right timeline)
+**Tool:** `gantt-layout.js` (Gantt JSON)
 
 ## When to use
-Time-phased plans — project timelines, sprint schedules, release roadmaps.
+Time-phased plans -- project timelines, sprint schedules, release roadmaps. Any diagram that needs a horizontal time axis with parallel task bars.
 
-## Graph JSON template
-
-For Gantt charts, dagre provides a structured layout, but the real work is in the graph design. Model each task as a node with width proportional to duration.
+## Gantt JSON format
 
 ```json
 {
-  "direction": "LR",
   "title": "6-Week Feature Launch",
-  "style": {"roughness": 0},
-  "rankSep": 40,
-  "nodeSep": 20,
-  "nodes": [
-    {"id": "design", "label": "Design &\nPlanning", "fill": "#bfdbfe", "stroke": "#1e40af", "width": 200},
-    {"id": "backend", "label": "Backend\nDev", "fill": "#86efac", "stroke": "#15803d", "width": 200},
-    {"id": "frontend", "label": "Frontend\nDev", "fill": "#86efac", "stroke": "#15803d", "width": 280},
-    {"id": "testing", "label": "Testing\n& QA", "fill": "#fef08a", "stroke": "#92400e", "width": 200},
-    {"id": "launch", "label": "Launch", "fill": "#a7f3d0", "stroke": "#047857", "width": 120}
+  "timeUnit": "Week",
+  "columns": 8,
+  "tasks": [
+    {"id": "design", "label": "Design", "start": 1, "duration": 2, "fill": "#bfdbfe", "stroke": "#1e40af"},
+    {"id": "backend", "label": "Backend Dev", "start": 2, "duration": 3, "fill": "#86efac", "stroke": "#15803d"},
+    {"id": "frontend", "label": "Frontend Dev", "start": 3, "duration": 3, "fill": "#86efac", "stroke": "#15803d"},
+    {"id": "testing", "label": "QA Testing", "start": 5, "duration": 2, "fill": "#fef08a", "stroke": "#92400e"},
+    {"id": "launch", "label": "Launch", "start": 7, "duration": 1, "fill": "#a7f3d0", "stroke": "#047857"}
   ],
-  "edges": [
-    {"from": "design", "to": "backend", "label": "Week 2"},
-    {"from": "backend", "to": "frontend"},
+  "dependencies": [
+    {"from": "design", "to": "backend"},
+    {"from": "design", "to": "frontend"},
+    {"from": "backend", "to": "testing"},
     {"from": "frontend", "to": "testing"},
-    {"from": "testing", "to": "launch", "label": "Week 6"}
+    {"from": "testing", "to": "launch"}
   ]
 }
 ```
 
-**Note:** For complex Gantt charts with overlapping parallel tasks, consider using the direct path (writing `.excalidraw` JSON) for precise bar positioning. The dagre path works well for sequential/dependency-based timelines.
+## Field reference
+
+### Top-level fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `title` | string | (none) | Chart title displayed top-left |
+| `timeUnit` | string | `"Week"` | Label prefix for columns (e.g. "Week", "Sprint", "Month") |
+| `columns` | number | `8` | Number of time columns |
+| `tasks` | array | required | Array of task objects |
+| `dependencies` | array | `[]` | Optional dependency arrows |
+| `theme` | string | `"default"` | Theme name (overridden by `--theme` flag) |
+| `labelWidth` | number | `180` | Width of the left label column (px) |
+| `colWidth` | number | `120` | Width per time column (px) |
+| `rowHeight` | number | `50` | Height per task row (px) |
+| `rowGap` | number | `8` | Vertical gap between rows (px) |
+
+### Task fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `id` | string | required | Unique task identifier |
+| `label` | string | required | Display name (shown in left column and on bar if wide enough) |
+| `start` | number | required | Start column (1-based) |
+| `duration` | number | required | Number of columns the bar spans |
+| `fill` | string | `"#bfdbfe"` | Bar background color |
+| `stroke` | string | theme default | Bar border color |
+| `textColor` | string | auto-darkened | Text color inside bar |
+| `strokeWidth` | number | theme default | Bar border width |
+
+### Dependency fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `from` | string | required | Source task id |
+| `to` | string | required | Target task id |
+| `stroke` | string | theme default | Arrow color |
+| `style` | string | `"solid"` | `solid`, `dashed`, or `dotted` |
+| `width` | number | theme default | Arrow stroke width |
+
+## CLI usage
+
+```bash
+node ~/Documents/excalibrain/tools/gantt-layout.js gantt.json [--theme name] [--output path]
+cat gantt.json | node ~/Documents/excalibrain/tools/gantt-layout.js --output out.excalidraw
+```
+
+## What the renderer produces
+
+- **Title text** top-left
+- **Time axis labels** ("Week 1", "Week 2", ...) centered in each column
+- **Axis divider line** below the header row
+- **Vertical grid lines** between columns (low opacity)
+- **Horizontal grid lines** between task rows (low opacity)
+- **Task name labels** in the left column, vertically centered with their bar
+- **Task bars** -- colored rectangles spanning start to end columns, with rounded corners
+- **Bar labels** -- task name repeated inside the bar (if bar width >= 80px)
+- **Dependency arrows** -- from right edge of source bar to left edge of target bar
 
 ## Color defaults
 
@@ -45,8 +98,19 @@ For Gantt charts, dagre provides a structured layout, but the real work is in th
 | Launch/Deploy | `#a7f3d0` | `#047857` |
 | Infrastructure | `#fed7aa` | `#c2410c` |
 
+## Theme support
+
+All four themes work: `default`, `clean`, `dark`, `blueprint`. Pass via `--theme`:
+
+```bash
+node gantt-layout.js gantt.json --theme dark --output gantt.excalidraw
+```
+
+The theme controls: canvas background, title color, font family, roughness, arrow colors, grid line colors (auto-adjusted for dark backgrounds).
+
 ## Common pitfalls
 
-1. **Yellow bars with amber stroke** — Use `#92400e` (dark brown), not `#a16207`.
-2. **Node width doesn't reflect duration** — Scale width proportionally to time.
-3. **Missing dependencies** — Every task should connect to its prerequisite.
+1. **`start` is 1-based** -- `start: 1` means the first column, not zero.
+2. **`columns` must cover all tasks** -- ensure `columns >= max(start + duration - 1)` across all tasks.
+3. **Short bars hide labels** -- bars narrower than 80px won't show the label inside; the left-column label is always visible.
+4. **Dependencies are optional** -- omit the `dependencies` array entirely for a simple timeline without arrows.

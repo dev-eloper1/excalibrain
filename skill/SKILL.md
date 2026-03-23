@@ -20,7 +20,7 @@ Read these as needed — they are the ground truth for specifics:
 | `references/diagram-type-rubric.md` | **Type selection** — which diagram type to use when |
 | `references/patterns.md` | Visual pattern library with examples |
 | `references/layout-rules.md` | Layout rules + coordinate templates |
-| `references/graph-json-format.md` | Dagre graph JSON input format (architecture, state, mindmap, gantt) |
+| `references/graph-json-format.md` | Dagre graph JSON input format (architecture, state, mindmap) |
 | `references/diagram-recipes/<type>.md` | **Before generating** — complete examples per type |
 
 Available recipes: `flowchart.md`, `sequence.md`, `mindmap.md`, `class-diagram.md`, `state-diagram.md`, `er-diagram.md`, `gantt.md`, `architecture.md`
@@ -76,7 +76,13 @@ Choose the path based on diagram type:
 4. Run: `node ~/Documents/excalibrain/tools/mermaid-convert.js input.mmd [--theme <name>] --output diagram.excalidraw`
 5. Output is a native `.excalidraw` file with vector elements
 
-**Dagre path** (architecture, state, mindmap, gantt):
+**Gantt path** (gantt charts, project timelines, sprint schedules):
+1. Write Gantt JSON to a `.json` file (see `references/diagram-recipes/gantt.md` for full format)
+2. The JSON uses a Gantt-specific format with `tasks` (id, label, start, duration, fill, stroke) and optional `dependencies`
+3. Run: `node ~/Documents/excalibrain/tools/gantt-layout.js gantt.json [--theme <name>] --output diagram.excalidraw`
+4. Output is a proper Gantt chart with horizontal time axis, parallel task bars, grid lines, and dependency arrows
+
+**Dagre path** (architecture, state, mindmap):
 1. Write graph JSON to a `.json` file (see `references/graph-json-format.md` for full format)
 2. **Do NOT override `style.roughness` or `style.fontFamily`** in graph JSON unless the user explicitly asks for a clean/technical look — let the theme control these
 3. Run: `node ~/Documents/excalibrain/tools/dagre-layout.js graph.json [--theme <name>] --output diagram.excalidraw`
