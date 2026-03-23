@@ -29,9 +29,24 @@ Available recipes: `flowchart.md`, `sequence.md`, `mindmap.md`, `class-diagram.m
 
 ## Workflow
 
-### 1. Type selection
-Read `references/diagram-type-rubric.md`. Pick the best type silently.
-Say: *"I'll generate a [type] diagram for this."* — user can redirect before you proceed.
+### 1. Type & theme selection
+
+Present the user with options before generating:
+
+*"I'll generate a **[type]** diagram for this. Here are the available themes:"*
+
+| Theme | Look |
+|-------|------|
+| `default` | Hand-drawn Excalidraw style (Virgil font, slight roughness) |
+| `clean` | Professional, precise lines (monospace font, no roughness) |
+| `dark` | Dark background with vibrant colors |
+| `blueprint` | Technical blueprint style (dark blue/white) |
+
+*"Want me to use the default theme, or would you prefer a different one?"*
+
+If the user doesn't specify or says to proceed, use `default`. If the user specifies a theme, pass `--theme <name>` to both dagre-layout.js and mermaid-convert.js.
+
+**Type selection:** Read `references/diagram-type-rubric.md`. If the user's request clearly matches one type, state it and proceed. If ambiguous, ask which type they prefer.
 
 ### 2. Content sourcing
 
@@ -56,13 +71,16 @@ Choose the path based on diagram type:
 
 **Mermaid path** (flowchart, sequence, class, ER):
 1. Write the Mermaid syntax to a `.mmd` file
-2. Run: `node ~/Documents/excalibrain/tools/mermaid-convert.js input.mmd --output diagram.excalidraw`
-3. Output is a native `.excalidraw` file with vector elements
+2. **Flowcharts**: Always include `classDef` color classes from the recipe — without them the output is monochrome
+3. **ER diagrams**: Use `style ENTITY fill:#hex,stroke:#hex` for colored entities
+4. Run: `node ~/Documents/excalibrain/tools/mermaid-convert.js input.mmd [--theme <name>] --output diagram.excalidraw`
+5. Output is a native `.excalidraw` file with vector elements
 
 **Dagre path** (architecture, state, mindmap, gantt):
 1. Write graph JSON to a `.json` file (see `references/graph-json-format.md` for full format)
-2. Run: `node ~/Documents/excalibrain/tools/dagre-layout.js graph.json --output diagram.excalidraw`
-3. Output is a fully-positioned `.excalidraw` file with bound arrows and auto-sized nodes
+2. **Do NOT override `style.roughness` or `style.fontFamily`** in graph JSON unless the user explicitly asks for a clean/technical look — let the theme control these
+3. Run: `node ~/Documents/excalibrain/tools/dagre-layout.js graph.json [--theme <name>] --output diagram.excalidraw`
+4. Output is a fully-positioned `.excalidraw` file with bound arrows and auto-sized nodes
 
 **Direct path** (freehand, creative, mixed):
 1. Write `.excalidraw` JSON directly following Excalidraw's element format
