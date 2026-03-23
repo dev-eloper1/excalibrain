@@ -1,0 +1,6 @@
+flowchart TB
+    A[User Request] --> B{Auth Check}
+    B -->|Valid| C[API Gateway]
+    B -->|Invalid| D[401 Error]
+    C --> E[Service Layer]
+    E --> F[(Database)]

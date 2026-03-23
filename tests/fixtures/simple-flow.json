@@ -1,0 +1,13 @@
+{
+  "direction": "TB",
+  "title": "Simple Test",
+  "nodes": [
+    {"id": "a", "label": "Start", "fill": "#a7f3d0", "stroke": "#047857", "shape": "ellipse"},
+    {"id": "b", "label": "Process", "fill": "#bfdbfe", "stroke": "#1e40af"},
+    {"id": "c", "label": "End", "fill": "#a7f3d0", "stroke": "#047857", "shape": "ellipse"}
+  ],
+  "edges": [
+    {"from": "a", "to": "b"},
+    {"from": "b", "to": "c"}
+  ]
+}

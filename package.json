@@ -1,0 +1,24 @@
+{
+  "name": "excalibrain",
+  "version": "1.0.0",
+  "description": "Claude Code skill that turns ideas and code into visual arguments using Excalidraw",
+  "private": true,
+  "scripts": {
+    "build-bundle": "node scripts/build-bundle.js",
+    "test": "bash tests/test-all.sh",
+    "test:dagre": "node tests/test-dagre.js",
+    "test:mermaid": "node tests/test-mermaid.js",
+    "test:export": "node tests/test-export.js"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^2.0.4",
+    "puppeteer": "^23.0.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "@excalidraw/excalidraw": "0.17.6",
+    "react": "^18",
+    "react-dom": "^18",
+    "esbuild": "^0.24.0"
+  }
+}

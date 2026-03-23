@@ -1,0 +1,12 @@
+{
+  "direction": "LR",
+  "nodes": [
+    {"id": "a", "label": "Authentication\nService", "fill": "#fed7aa", "stroke": "#c2410c"},
+    {"id": "b", "label": "API Gateway\n(Load Balanced)", "fill": "#bbf7d0", "stroke": "#15803d"},
+    {"id": "c", "label": "PostgreSQL\nRead Replica\nCluster", "fill": "#ddd6fe", "stroke": "#6d28d9"}
+  ],
+  "edges": [
+    {"from": "a", "to": "b"},
+    {"from": "b", "to": "c"}
+  ]
+}

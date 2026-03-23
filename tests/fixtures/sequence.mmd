@@ -1,0 +1,5 @@
+sequenceDiagram
+    User->>Gateway: POST /login
+    Gateway->>Auth: validate(token)
+    Auth-->>Gateway: 200 OK
+    Gateway-->>User: session cookie

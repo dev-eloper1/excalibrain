@@ -1,0 +1,28 @@
+{
+  "direction": "TB",
+  "title": "Microservices Architecture",
+  "rankSep": 80,
+  "nodeSep": 40,
+  "zones": [
+    {"id": "clients", "label": "CLIENTS", "labelColor": "#1e40af", "fill": "#dbeafe", "stroke": "#93c5fd", "nodeIds": ["web", "mobile"]},
+    {"id": "services", "label": "SERVICES", "labelColor": "#15803d", "fill": "#dcfce7", "stroke": "#86efac", "nodeIds": ["gw", "auth", "orders"]},
+    {"id": "data", "label": "DATA", "labelColor": "#6d28d9", "fill": "#ede9fe", "stroke": "#c4b5fd", "nodeIds": ["pg", "redis"]}
+  ],
+  "nodes": [
+    {"id": "web", "label": "Web App", "fill": "#bfdbfe", "stroke": "#1e40af"},
+    {"id": "mobile", "label": "Mobile App", "fill": "#bfdbfe", "stroke": "#1e40af"},
+    {"id": "gw", "label": "API Gateway", "fill": "#bbf7d0", "stroke": "#15803d"},
+    {"id": "auth", "label": "Auth Service", "fill": "#fed7aa", "stroke": "#c2410c"},
+    {"id": "orders", "label": "Order Service", "fill": "#86efac", "stroke": "#15803d"},
+    {"id": "pg", "label": "PostgreSQL", "fill": "#ddd6fe", "stroke": "#6d28d9"},
+    {"id": "redis", "label": "Redis", "fill": "#fef08a", "stroke": "#92400e"}
+  ],
+  "edges": [
+    {"from": "web", "to": "gw"},
+    {"from": "mobile", "to": "gw"},
+    {"from": "gw", "to": "auth", "stroke": "#c2410c"},
+    {"from": "gw", "to": "orders"},
+    {"from": "orders", "to": "pg", "stroke": "#6d28d9"},
+    {"from": "orders", "to": "redis", "stroke": "#a16207", "style": "dashed"}
+  ]
+}
