@@ -7,6 +7,7 @@
  *
  * Usage:
  *   node mermaid-convert.js input.mmd --output diagram.excalidraw
+ *   node mermaid-convert.js input.mmd --theme dark --output diagram.excalidraw
  *   cat input.mmd | node mermaid-convert.js --output diagram.excalidraw
  */
 
@@ -21,6 +22,7 @@ let inputPath = null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--output') { flags.output = args[++i]; }
+  else if (args[i] === '--theme') { flags.theme = args[++i]; }
   else if (!args[i].startsWith('--')) { inputPath = args[i]; }
 }
 
@@ -45,6 +47,20 @@ if (!flags.output) {
     flags.output = 'output.excalidraw';
   }
 }
+
+// ── Theme loading ─────────────────────────────────────────────────────────────
+const THEMES_DIR = path.join(__dirname, 'themes');
+const themeName = flags.theme ?? 'default';
+let theme = {};
+try {
+  const themePath = path.join(THEMES_DIR, `${themeName}.json`);
+  theme = JSON.parse(fs.readFileSync(themePath, 'utf8'));
+} catch {
+  if (themeName !== 'default') {
+    console.error(`Warning: theme "${themeName}" not found, using defaults`);
+  }
+}
+const canvasBackground = theme.canvas?.background ?? '#ffffff';
 
 const TEMPLATE = path.join(__dirname, 'mermaid_template.html');
 
@@ -82,7 +98,7 @@ async function main() {
         'Consider using dagre-layout.js for this diagram type.');
     }
 
-    // The mermaid_template.html now uses convertToExcalidrawElements() from the
+    // The mermaid_template.html uses convertToExcalidrawElements() from the
     // excalidraw bundle to properly convert label properties into bound text
     // elements. No custom post-processing needed here.
     const allElements = result.elements;
@@ -94,7 +110,7 @@ async function main() {
       source: 'https://excalidraw.com',
       elements: allElements,
       appState: {
-        viewBackgroundColor: '#ffffff',
+        viewBackgroundColor: canvasBackground,
         gridSize: 20,
       },
       files: result.files || {},
@@ -106,6 +122,7 @@ async function main() {
     const info = {
       success: true,
       output: flags.output,
+      theme: themeName,
       elementCount: allElements.length,
       nativeElements: allElements.filter(e => e.type !== 'image').length,
       imageElements: imageElements.length,

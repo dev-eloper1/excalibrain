@@ -1,14 +1,21 @@
 flowchart TB
-    A([User Request]) --> B[Load Balancer]
-    B --> C{Rate Limited?}
-    C -->|No| D[API Gateway]
-    C -->|Yes| E[429 Too Many Requests]
-    D --> F{Authenticated?}
-    F -->|Yes| G[Route to Service]
-    F -->|No| H[401 Unauthorized]
-    G --> I[Process Request]
-    I --> J[(Database)]
-    J --> K[Return Response]
-    E --> L([End])
+    A([User Request]):::start --> B[Load Balancer]:::process
+    B --> C{Rate Limited?}:::decision
+    C -->|No| D[API Gateway]:::process
+    C -->|Yes| E[429 Too Many Requests]:::error
+    D --> F{Authenticated?}:::decision
+    F -->|Yes| G[Route to Service]:::success
+    F -->|No| H[401 Unauthorized]:::error
+    G --> I[Process Request]:::process
+    I --> J[(Database)]:::data
+    J --> K[Return Response]:::success
+    E --> L([End]):::start
     H --> L
     K --> L
+
+    classDef start fill:#dbeafe,stroke:#1e40af,color:#1e40af
+    classDef process fill:#86efac,stroke:#15803d,color:#15803d
+    classDef decision fill:#fef3c7,stroke:#b45309,color:#b45309
+    classDef error fill:#fecaca,stroke:#b91c1c,color:#b91c1c
+    classDef success fill:#a7f3d0,stroke:#047857,color:#047857
+    classDef data fill:#ddd6fe,stroke:#6d28d9,color:#6d28d9
