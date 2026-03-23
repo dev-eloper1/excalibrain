@@ -16,6 +16,7 @@
     "zoneLabelFont": 2,
     "zoneLabelSize": 13,
     "edgeLabelSize": 13,
+    "edgeLabelColor": "#e2e8f0",
     "titleSize": 22,
     "titleColor": "#e2e8f0",
     "defaultArrowColor": "#cbd5e1",
