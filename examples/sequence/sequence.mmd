@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant Browser
+    participant CDN
+    participant Gateway
+    participant Auth
+    participant API
+    participant DB
+
+    Browser->>CDN: GET /app.js
+    CDN-->>Browser: cached bundle
+
+    Browser->>Gateway: POST /api/login
+    Gateway->>Auth: validateToken(jwt)
+    Auth-->>Gateway: valid + claims
+
+    Gateway->>API: GET /users/me
+    API->>DB: SELECT * FROM users
+    DB-->>API: user record
+    API-->>Gateway: 200 {user}
+    Gateway-->>Browser: 200 {user}

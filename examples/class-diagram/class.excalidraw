@@ -1,0 +1,838 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "Vehicle",
+      "type": "rectangle",
+      "x": 180.8671875,
+      "y": 8,
+      "width": 181.9375,
+      "height": 252,
+      "label": {
+        "text": "Vehicle",
+        "fontSize": 18,
+        "verticalAlign": "top",
+        "strokeColor": "#000",
+        "groupIds": [
+          "4W_c0DvwYgx2qJRskEiv4"
+        ]
+      },
+      "fillStyle": "solid",
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "boundElements": [
+        {
+          "id": "Vehicle_label_90000",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "Car",
+      "type": "rectangle",
+      "x": 34.453125,
+      "y": 310,
+      "width": 191.59375,
+      "height": 192,
+      "label": {
+        "text": "Car",
+        "fontSize": 18,
+        "verticalAlign": "top",
+        "strokeColor": "#000",
+        "groupIds": [
+          "EGAljjHDES83qWs4dq2Cw"
+        ]
+      },
+      "fillStyle": "solid",
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "boundElements": [
+        {
+          "id": "Car_label_90003",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "Motorcycle",
+      "type": "rectangle",
+      "x": 276.046875,
+      "y": 325,
+      "width": 274.75,
+      "height": 162,
+      "label": {
+        "text": "Motorcycle",
+        "fontSize": 18,
+        "verticalAlign": "top",
+        "strokeColor": "#000",
+        "groupIds": [
+          "oGn_SA6HU1f6xj_FFCnCC"
+        ]
+      },
+      "fillStyle": "solid",
+      "groupIds": [
+        "oGn_SA6HU1f6xj_FFCnCC"
+      ],
+      "boundElements": [
+        {
+          "id": "Motorcycle_label_90006",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "Electric",
+      "type": "rectangle",
+      "x": 8,
+      "y": 552,
+      "width": 244.5,
+      "height": 192,
+      "label": {
+        "text": "Electric",
+        "fontSize": 18,
+        "verticalAlign": "top",
+        "strokeColor": "#000",
+        "groupIds": [
+          "QjIZNZjj85UxQyFZTAa00"
+        ]
+      },
+      "fillStyle": "solid",
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "boundElements": [
+        {
+          "id": "Electric_label_90009",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "line",
+      "x": 180.8671875,
+      "y": 62,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          181.9375,
+          0
+        ]
+      ],
+      "width": 181.9375,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "jTWW0gZVZmGsAzDvvwz0R"
+    },
+    {
+      "type": "line",
+      "x": 180.8671875,
+      "y": 176,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          181.9375,
+          0
+        ]
+      ],
+      "width": 181.9375,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "somH4jjrPZ03usu2T4CEl"
+    },
+    {
+      "type": "line",
+      "x": 34.453125,
+      "y": 364,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          191.59375,
+          0
+        ]
+      ],
+      "width": 191.59375,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "id": "pMz2y2eIWXiDxZSRQgio4"
+    },
+    {
+      "type": "line",
+      "x": 34.453125,
+      "y": 448,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          191.59375,
+          0
+        ]
+      ],
+      "width": 191.59375,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "id": "vZhXbSlkh23NiakWcoNXv"
+    },
+    {
+      "type": "line",
+      "x": 276.046875,
+      "y": 379,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          274.75,
+          0
+        ]
+      ],
+      "width": 274.75,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "oGn_SA6HU1f6xj_FFCnCC"
+      ],
+      "id": "XLAyf9FPhAHusFC0Z-hYN"
+    },
+    {
+      "type": "line",
+      "x": 276.046875,
+      "y": 433,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          274.75,
+          0
+        ]
+      ],
+      "width": 274.75,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "oGn_SA6HU1f6xj_FFCnCC"
+      ],
+      "id": "Hrj7GIOJBpJnxkmY7VPG6"
+    },
+    {
+      "type": "line",
+      "x": 8,
+      "y": 606,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          244.5,
+          0
+        ]
+      ],
+      "width": 244.5,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "id": "CBY7to5ejFLxaUslMagAh"
+    },
+    {
+      "type": "line",
+      "x": 8,
+      "y": 690,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          244.5,
+          0
+        ]
+      ],
+      "width": 244.5,
+      "height": 0,
+      "strokeStyle": "solid",
+      "strokeColor": "#000",
+      "strokeWidth": 1,
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "id": "2oRSjcFMme39Y4PFhbhzl"
+    },
+    {
+      "type": "arrow",
+      "x": 169.068,
+      "y": 227.601,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -38.81800000000001,
+          82.399
+        ]
+      ],
+      "width": -38.81800000000001,
+      "height": 82.399,
+      "strokeStyle": "solid",
+      "endArrowhead": null,
+      "startArrowhead": "triangle_outline",
+      "label": {
+        "text": "",
+        "fontSize": 16
+      },
+      "roundness": {
+        "type": 2
+      },
+      "start": {
+        "type": "rectangle",
+        "id": "Vehicle"
+      },
+      "end": {
+        "type": "rectangle",
+        "id": "Car"
+      }
+    },
+    {
+      "type": "arrow",
+      "x": 374.604,
+      "y": 227.601,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          38.81800000000004,
+          97.399
+        ]
+      ],
+      "width": 38.81800000000004,
+      "height": 97.399,
+      "strokeStyle": "solid",
+      "endArrowhead": null,
+      "startArrowhead": "triangle_outline",
+      "label": {
+        "text": "",
+        "fontSize": 16
+      },
+      "roundness": {
+        "type": 2
+      },
+      "start": {
+        "type": "rectangle",
+        "id": "Vehicle"
+      },
+      "end": {
+        "type": "rectangle",
+        "id": "Motorcycle"
+      }
+    },
+    {
+      "type": "arrow",
+      "x": 130.25,
+      "y": 503.25,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          48.75
+        ]
+      ],
+      "width": 0,
+      "height": 48.75,
+      "strokeStyle": "solid",
+      "endArrowhead": null,
+      "startArrowhead": "triangle_outline",
+      "label": {
+        "text": "",
+        "fontSize": 16
+      },
+      "roundness": {
+        "type": 2
+      },
+      "start": {
+        "type": "rectangle",
+        "id": "Car"
+      },
+      "end": {
+        "type": "rectangle",
+        "id": "Electric"
+      }
+    },
+    {
+      "type": "text",
+      "x": 184.8671875,
+      "y": 71,
+      "width": 173.9375,
+      "height": 30,
+      "text": "+String make",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "rbF5xLlHs73nlbXQz8ekN"
+    },
+    {
+      "type": "text",
+      "x": 184.8671875,
+      "y": 101,
+      "width": 173.9375,
+      "height": 30,
+      "text": "+String model",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "o5IqhquC2LqYRt9my2tII"
+    },
+    {
+      "type": "text",
+      "x": 184.8671875,
+      "y": 131,
+      "width": 173.9375,
+      "height": 30,
+      "text": "+int year",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "2bAj2EbIPjqXdo21K5l0j"
+    },
+    {
+      "type": "text",
+      "x": 184.8671875,
+      "y": 185,
+      "width": 173.9375,
+      "height": 30,
+      "text": "+start()",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "lMYCISVcNQnCOYyk8lzUN"
+    },
+    {
+      "type": "text",
+      "x": 184.8671875,
+      "y": 215,
+      "width": 173.9375,
+      "height": 30,
+      "text": "+stop()",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "id": "QZ7BE9Z9MkDL_kqblTrEW"
+    },
+    {
+      "type": "text",
+      "x": 38.453125,
+      "y": 373,
+      "width": 183.59375,
+      "height": 30,
+      "text": "+int numDoors",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "id": "s_M1cbnu4hP9RWY7O5gDn"
+    },
+    {
+      "type": "text",
+      "x": 38.453125,
+      "y": 403,
+      "width": 183.59375,
+      "height": 30,
+      "text": "+String trunkSize",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "id": "uptnSsipa3snCgZobZdNu"
+    },
+    {
+      "type": "text",
+      "x": 38.453125,
+      "y": 457,
+      "width": 183.59375,
+      "height": 30,
+      "text": "+openTrunk()",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "id": "bgGAgS6OmbF3IV_edHCe3"
+    },
+    {
+      "type": "text",
+      "x": 280.046875,
+      "y": 388,
+      "width": 266.75,
+      "height": 30,
+      "text": "+String handlebarType",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "oGn_SA6HU1f6xj_FFCnCC"
+      ],
+      "id": "juCgbh_a9A7nqka07IBzT"
+    },
+    {
+      "type": "text",
+      "x": 280.046875,
+      "y": 442,
+      "width": 266.75,
+      "height": 30,
+      "text": "+wheelie()",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "oGn_SA6HU1f6xj_FFCnCC"
+      ],
+      "id": "jtmQ2AxqRYMu_jfGOXdkQ"
+    },
+    {
+      "type": "text",
+      "x": 12,
+      "y": 615,
+      "width": 236.5,
+      "height": 30,
+      "text": "+int batteryCapacity",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "id": "CfVjPHrkLXamtrK-Ei7Y_"
+    },
+    {
+      "type": "text",
+      "x": 12,
+      "y": 645,
+      "width": 236.5,
+      "height": 30,
+      "text": "+int range",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "id": "l5MA9XMxfcHydIpL04OCO"
+    },
+    {
+      "type": "text",
+      "x": 12,
+      "y": 699,
+      "width": 236.5,
+      "height": 30,
+      "text": "+charge()",
+      "fontSize": 18,
+      "verticalAlign": "top",
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "id": "gWsIsKXb2lw7M-g8AqRol"
+    },
+    {
+      "type": "text",
+      "id": "Vehicle_label_90000",
+      "x": 199.0609375,
+      "y": 122.75,
+      "width": 145.55,
+      "height": 22.5,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [
+        "4W_c0DvwYgx2qJRskEiv4"
+      ],
+      "roundness": null,
+      "seed": 90001,
+      "version": 1,
+      "versionNonce": 90002,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "Vehicle",
+      "originalText": "Vehicle",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "Vehicle",
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "id": "Car_label_90003",
+      "x": 53.6125,
+      "y": 394.75,
+      "width": 153.275,
+      "height": 22.5,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [
+        "EGAljjHDES83qWs4dq2Cw"
+      ],
+      "roundness": null,
+      "seed": 90004,
+      "version": 1,
+      "versionNonce": 90005,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "Car",
+      "originalText": "Car",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "Car",
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "id": "Motorcycle_label_90006",
+      "x": 303.521875,
+      "y": 394.75,
+      "width": 219.8,
+      "height": 22.5,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [
+        "oGn_SA6HU1f6xj_FFCnCC"
+      ],
+      "roundness": null,
+      "seed": 90007,
+      "version": 1,
+      "versionNonce": 90008,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "Motorcycle",
+      "originalText": "Motorcycle",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "Motorcycle",
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "id": "Electric_label_90009",
+      "x": 32.45,
+      "y": 636.75,
+      "width": 195.60000000000002,
+      "height": 22.5,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [
+        "QjIZNZjj85UxQyFZTAa00"
+      ],
+      "roundness": null,
+      "seed": 90010,
+      "version": 1,
+      "versionNonce": 90011,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "Electric",
+      "originalText": "Electric",
+      "fontSize": 18,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "Electric",
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "id": "undefined_label_90012",
+      "x": 70.25,
+      "y": 290,
+      "width": 130,
+      "height": 20,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "roundness": null,
+      "seed": 90013,
+      "version": 1,
+      "versionNonce": 90014,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "[object Object]",
+      "originalText": "[object Object]",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "top",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "id": "undefined_label_90015",
+      "x": 353.422,
+      "y": 305,
+      "width": 130,
+      "height": 20,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "roundness": null,
+      "seed": 90016,
+      "version": 1,
+      "versionNonce": 90017,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "[object Object]",
+      "originalText": "[object Object]",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "top",
+      "containerId": null,
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "id": "undefined_label_90018",
+      "x": 70.25,
+      "y": 532,
+      "width": 130,
+      "height": 20,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "opacity": 100,
+      "groupIds": [],
+      "roundness": null,
+      "seed": 90019,
+      "version": 1,
+      "versionNonce": 90020,
+      "isDeleted": false,
+      "boundElements": null,
+      "link": null,
+      "locked": false,
+      "text": "[object Object]",
+      "originalText": "[object Object]",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "verticalAlign": "top",
+      "containerId": null,
+      "lineHeight": 1.25
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  },
+  "files": {}
+}

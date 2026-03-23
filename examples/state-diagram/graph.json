@@ -1,0 +1,91 @@
+{
+  "direction": "LR",
+  "title": "Order Lifecycle",
+  "rankSep": 80,
+  "nodeSep": 50,
+  "style": {
+    "roughness": 0,
+    "fontFamily": 2,
+    "fontSize": 16
+  },
+  "nodes": [
+    {
+      "id": "start",
+      "label": "",
+      "shape": "ellipse",
+      "width": 30,
+      "height": 30,
+      "fill": "#374151",
+      "stroke": "#374151",
+      "fillStyle": "solid"
+    },
+    {
+      "id": "placed",
+      "label": "Placed",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "processing",
+      "label": "Processing",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "shipped",
+      "label": "Shipped",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "delivered",
+      "label": "Delivered",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "cancelled",
+      "label": "Cancelled",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fecaca",
+      "stroke": "#b91c1c"
+    },
+    {
+      "id": "refunded",
+      "label": "Refunded",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fed7aa",
+      "stroke": "#c2410c"
+    },
+    {
+      "id": "end",
+      "label": "",
+      "shape": "ellipse",
+      "width": 30,
+      "height": 30,
+      "fill": "#374151",
+      "stroke": "#374151",
+      "fillStyle": "solid"
+    }
+  ],
+  "edges": [
+    { "from": "start", "to": "placed", "stroke": "#15803d" },
+    { "from": "placed", "to": "processing", "stroke": "#15803d" },
+    { "from": "processing", "to": "shipped", "stroke": "#15803d" },
+    { "from": "shipped", "to": "delivered", "stroke": "#15803d" },
+    { "from": "delivered", "to": "end", "stroke": "#15803d" },
+    { "from": "placed", "to": "cancelled", "stroke": "#b91c1c", "style": "dashed", "label": "cancel" },
+    { "from": "processing", "to": "cancelled", "stroke": "#b91c1c", "style": "dashed", "label": "cancel" },
+    { "from": "delivered", "to": "refunded", "stroke": "#c2410c", "style": "dashed", "label": "refund" }
+  ]
+}

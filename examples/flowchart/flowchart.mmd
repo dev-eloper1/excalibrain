@@ -1,0 +1,14 @@
+flowchart TB
+    A([User Request]) --> B[Load Balancer]
+    B --> C{Rate Limited?}
+    C -->|No| D[API Gateway]
+    C -->|Yes| E[429 Too Many Requests]
+    D --> F{Authenticated?}
+    F -->|Yes| G[Route to Service]
+    F -->|No| H[401 Unauthorized]
+    G --> I[Process Request]
+    I --> J[(Database)]
+    J --> K[Return Response]
+    E --> L([End])
+    H --> L
+    K --> L

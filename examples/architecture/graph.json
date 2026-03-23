@@ -1,0 +1,220 @@
+{
+  "direction": "TB",
+  "title": "Microservices Architecture",
+  "rankSep": 100,
+  "nodeSep": 50,
+  "zones": [
+    {
+      "id": "zone_clients",
+      "label": "CLIENTS",
+      "labelColor": "#0369a1",
+      "fill": "#e0f2fe",
+      "stroke": "#7dd3fc",
+      "nodeIds": ["browser", "mobile"]
+    },
+    {
+      "id": "zone_gateway",
+      "label": "GATEWAY",
+      "labelColor": "#166534",
+      "fill": "#f0fdf4",
+      "stroke": "#86efac",
+      "nodeIds": ["api_gateway"]
+    },
+    {
+      "id": "zone_services",
+      "label": "SERVICES",
+      "labelColor": "#9a3412",
+      "fill": "#fff7ed",
+      "stroke": "#fdba74",
+      "nodeIds": ["auth", "users", "orders", "payments"]
+    },
+    {
+      "id": "zone_data",
+      "label": "DATA",
+      "labelColor": "#6b21a8",
+      "fill": "#faf5ff",
+      "stroke": "#d8b4fe",
+      "nodeIds": ["postgresql", "redis", "rabbitmq"]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "browser",
+      "label": "Browser",
+      "fill": "#bae6fd",
+      "stroke": "#0284c7",
+      "shape": "rectangle",
+      "rounded": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile App",
+      "fill": "#bae6fd",
+      "stroke": "#0284c7",
+      "shape": "rectangle",
+      "rounded": true
+    },
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "fill": "#bbf7d0",
+      "stroke": "#16a34a",
+      "shape": "rectangle",
+      "rounded": true
+    },
+    {
+      "id": "auth",
+      "label": "Auth Service",
+      "fill": "#fed7aa",
+      "stroke": "#ea580c",
+      "shape": "rectangle",
+      "rounded": false
+    },
+    {
+      "id": "users",
+      "label": "Users Service",
+      "fill": "#fed7aa",
+      "stroke": "#ea580c",
+      "shape": "rectangle",
+      "rounded": false
+    },
+    {
+      "id": "orders",
+      "label": "Orders Service",
+      "fill": "#fed7aa",
+      "stroke": "#ea580c",
+      "shape": "rectangle",
+      "rounded": false
+    },
+    {
+      "id": "payments",
+      "label": "Payments Service",
+      "fill": "#fed7aa",
+      "stroke": "#ea580c",
+      "shape": "rectangle",
+      "rounded": false
+    },
+    {
+      "id": "postgresql",
+      "label": "PostgreSQL",
+      "fill": "#e9d5ff",
+      "stroke": "#7c3aed",
+      "shape": "rectangle",
+      "rounded": false
+    },
+    {
+      "id": "redis",
+      "label": "Redis",
+      "fill": "#e9d5ff",
+      "stroke": "#7c3aed",
+      "shape": "rectangle",
+      "rounded": false
+    },
+    {
+      "id": "rabbitmq",
+      "label": "RabbitMQ",
+      "fill": "#e9d5ff",
+      "stroke": "#7c3aed",
+      "shape": "rectangle",
+      "rounded": false
+    }
+  ],
+  "edges": [
+    {
+      "from": "browser",
+      "to": "api_gateway",
+      "label": "HTTPS",
+      "stroke": "#374151",
+      "style": "solid",
+      "width": 2
+    },
+    {
+      "from": "mobile",
+      "to": "api_gateway",
+      "label": "HTTPS",
+      "stroke": "#374151",
+      "style": "solid",
+      "width": 2
+    },
+    {
+      "from": "api_gateway",
+      "to": "auth",
+      "label": "verify token",
+      "stroke": "#ea580c",
+      "style": "solid",
+      "width": 2
+    },
+    {
+      "from": "api_gateway",
+      "to": "users",
+      "label": "REST",
+      "stroke": "#374151",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "api_gateway",
+      "to": "orders",
+      "label": "REST",
+      "stroke": "#374151",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "api_gateway",
+      "to": "payments",
+      "label": "REST",
+      "stroke": "#374151",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "auth",
+      "to": "redis",
+      "label": "sessions",
+      "stroke": "#7c3aed",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "users",
+      "to": "postgresql",
+      "label": "read/write",
+      "stroke": "#7c3aed",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "orders",
+      "to": "postgresql",
+      "label": "read/write",
+      "stroke": "#7c3aed",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "payments",
+      "to": "postgresql",
+      "label": "read/write",
+      "stroke": "#7c3aed",
+      "style": "solid",
+      "width": 1.5
+    },
+    {
+      "from": "orders",
+      "to": "rabbitmq",
+      "label": "order.created",
+      "stroke": "#d97706",
+      "style": "dashed",
+      "width": 1.5
+    },
+    {
+      "from": "rabbitmq",
+      "to": "payments",
+      "label": "process payment",
+      "stroke": "#d97706",
+      "style": "dashed",
+      "width": 1.5
+    }
+  ]
+}

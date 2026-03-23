@@ -1,0 +1,59 @@
+{
+  "name": "default",
+  "description": "Hand-drawn Excalidraw style with semantic colors",
+  "canvas": {
+    "background": "#ffffff"
+  },
+  "style": {
+    "roughness": 1,
+    "fontFamily": 1,
+    "fontSize": 16,
+    "nodeFill": "none",
+    "nodeWidth": 2,
+    "arrowWidth": 1.5,
+    "zoneFill": "solid",
+    "zoneOpacity": 30,
+    "zoneLabelFont": 2,
+    "zoneLabelSize": 13,
+    "edgeLabelSize": 13,
+    "titleSize": 22,
+    "titleColor": "#1e293b",
+    "defaultArrowColor": "#374151",
+    "defaultNodeStroke": "#1e40af",
+    "defaultNodeFill": "none"
+  },
+  "palette": {
+    "clients":      { "fill": "#bfdbfe", "stroke": "#1e40af" },
+    "security":     { "fill": "#fed7aa", "stroke": "#c2410c" },
+    "gateway":      { "fill": "#bbf7d0", "stroke": "#15803d" },
+    "service":      { "fill": "#86efac", "stroke": "#15803d" },
+    "async":        { "fill": "#fef08a", "stroke": "#92400e" },
+    "data":         { "fill": "#ddd6fe", "stroke": "#6d28d9" },
+    "observability": { "fill": "#fecdd3", "stroke": "#be123c" },
+    "ai":           { "fill": "#ddd6fe", "stroke": "#6d28d9" },
+    "external":     { "fill": "#fed7aa", "stroke": "#c2410c" },
+    "decision":     { "fill": "#fef3c7", "stroke": "#b45309" },
+    "start":        { "fill": "#dbeafe", "stroke": "#1e40af" },
+    "success":      { "fill": "#a7f3d0", "stroke": "#047857" },
+    "error":        { "fill": "#fecaca", "stroke": "#b91c1c" },
+    "legacy":       { "fill": "#f1f5f9", "stroke": "#475569" },
+    "neutral":      { "fill": "#e2e8f0", "stroke": "#334155" }
+  },
+  "zones": {
+    "clients":      { "fill": "#dbeafe", "stroke": "#93c5fd", "labelColor": "#1e40af" },
+    "services":     { "fill": "#dcfce7", "stroke": "#86efac", "labelColor": "#15803d" },
+    "data":         { "fill": "#ede9fe", "stroke": "#c4b5fd", "labelColor": "#6d28d9" },
+    "async":        { "fill": "#fef9c3", "stroke": "#fbbf24", "labelColor": "#a16207" },
+    "security":     { "fill": "#ffedd5", "stroke": "#fdba74", "labelColor": "#c2410c" },
+    "observability": { "fill": "#ffe4e6", "stroke": "#fda4af", "labelColor": "#be123c" }
+  },
+  "arrows": {
+    "primary":  { "stroke": "#1e1e1e", "style": "solid", "width": 2 },
+    "async":    { "stroke": "#a16207", "style": "dashed", "width": 1.5 },
+    "error":    { "stroke": "#dc2626", "style": "dashed", "width": 2 },
+    "auth":     { "stroke": "#c2410c", "style": "solid", "width": 2 },
+    "data":     { "stroke": "#6d28d9", "style": "solid", "width": 2 },
+    "external": { "stroke": "#0891b2", "style": "dashed", "width": 1.5 },
+    "spoke":    { "stroke": "#94a3b8", "style": "dotted", "width": 1 }
+  }
+}

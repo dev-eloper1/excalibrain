@@ -1,0 +1,59 @@
+{
+  "name": "blueprint",
+  "description": "Technical blueprint style — blue/white with precise lines",
+  "canvas": {
+    "background": "#0c1929"
+  },
+  "style": {
+    "roughness": 0,
+    "fontFamily": 3,
+    "fontSize": 14,
+    "nodeFill": "solid",
+    "nodeWidth": 1,
+    "arrowWidth": 1,
+    "zoneFill": "solid",
+    "zoneOpacity": 10,
+    "zoneLabelFont": 3,
+    "zoneLabelSize": 11,
+    "edgeLabelSize": 11,
+    "titleSize": 18,
+    "titleColor": "#93c5fd",
+    "defaultArrowColor": "#60a5fa",
+    "defaultNodeStroke": "#3b82f6",
+    "defaultNodeFill": "solid"
+  },
+  "palette": {
+    "clients":      { "fill": "#0f2847", "stroke": "#3b82f6", "textColor": "#93c5fd" },
+    "security":     { "fill": "#1a1a2e", "stroke": "#f59e0b", "textColor": "#fcd34d" },
+    "gateway":      { "fill": "#0f2847", "stroke": "#06b6d4", "textColor": "#67e8f9" },
+    "service":      { "fill": "#0f2847", "stroke": "#3b82f6", "textColor": "#93c5fd" },
+    "async":        { "fill": "#1a1a2e", "stroke": "#f59e0b", "textColor": "#fcd34d" },
+    "data":         { "fill": "#1a1a2e", "stroke": "#8b5cf6", "textColor": "#c4b5fd" },
+    "observability": { "fill": "#1a1a2e", "stroke": "#ec4899", "textColor": "#f9a8d4" },
+    "ai":           { "fill": "#1a1a2e", "stroke": "#8b5cf6", "textColor": "#c4b5fd" },
+    "external":     { "fill": "#1a1a2e", "stroke": "#f59e0b", "textColor": "#fcd34d" },
+    "decision":     { "fill": "#1a1a2e", "stroke": "#f59e0b", "textColor": "#fcd34d" },
+    "start":        { "fill": "#0f2847", "stroke": "#06b6d4", "textColor": "#67e8f9" },
+    "success":      { "fill": "#0f2847", "stroke": "#10b981", "textColor": "#6ee7b7" },
+    "error":        { "fill": "#1a1a2e", "stroke": "#ef4444", "textColor": "#fca5a5" },
+    "legacy":       { "fill": "#111827", "stroke": "#4b5563", "textColor": "#9ca3af" },
+    "neutral":      { "fill": "#111827", "stroke": "#6b7280", "textColor": "#d1d5db" }
+  },
+  "zones": {
+    "clients":      { "fill": "#0f2847", "stroke": "#1e40af", "labelColor": "#60a5fa" },
+    "services":     { "fill": "#0f2847", "stroke": "#1e40af", "labelColor": "#3b82f6" },
+    "data":         { "fill": "#1a1a2e", "stroke": "#4c1d95", "labelColor": "#8b5cf6" },
+    "async":        { "fill": "#1a1a2e", "stroke": "#78350f", "labelColor": "#f59e0b" },
+    "security":     { "fill": "#1a1a2e", "stroke": "#78350f", "labelColor": "#f59e0b" },
+    "observability": { "fill": "#1a1a2e", "stroke": "#831843", "labelColor": "#ec4899" }
+  },
+  "arrows": {
+    "primary":  { "stroke": "#60a5fa", "style": "solid", "width": 1 },
+    "async":    { "stroke": "#f59e0b", "style": "dashed", "width": 1 },
+    "error":    { "stroke": "#ef4444", "style": "dashed", "width": 1 },
+    "auth":     { "stroke": "#f59e0b", "style": "solid", "width": 1 },
+    "data":     { "stroke": "#8b5cf6", "style": "solid", "width": 1 },
+    "external": { "stroke": "#06b6d4", "style": "dashed", "width": 1 },
+    "spoke":    { "stroke": "#4b5563", "style": "solid", "width": 0.5 }
+  }
+}

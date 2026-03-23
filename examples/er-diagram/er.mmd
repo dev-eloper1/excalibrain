@@ -1,0 +1,28 @@
+erDiagram
+    USER ||--o{ POST : creates
+    USER ||--o{ COMMENT : writes
+    POST ||--|{ COMMENT : has
+    POST }o--o{ TAG : tagged_with
+    USER {
+        bigint id PK
+        varchar username
+        varchar email
+        timestamp created_at
+    }
+    POST {
+        bigint id PK
+        bigint user_id FK
+        varchar title
+        text body
+    }
+    COMMENT {
+        bigint id PK
+        bigint post_id FK
+        bigint user_id FK
+        text body
+    }
+    TAG {
+        bigint id PK
+        varchar name
+        varchar slug
+    }

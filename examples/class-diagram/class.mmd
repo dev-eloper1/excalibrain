@@ -1,0 +1,25 @@
+classDiagram
+    class Vehicle {
+        +String make
+        +String model
+        +int year
+        +start()
+        +stop()
+    }
+    class Car {
+        +int numDoors
+        +String trunkSize
+        +openTrunk()
+    }
+    class Motorcycle {
+        +String handlebarType
+        +wheelie()
+    }
+    class Electric {
+        +int batteryCapacity
+        +int range
+        +charge()
+    }
+    Vehicle <|-- Car
+    Vehicle <|-- Motorcycle
+    Car <|-- Electric

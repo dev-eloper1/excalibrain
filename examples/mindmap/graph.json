@@ -1,0 +1,161 @@
+{
+  "direction": "LR",
+  "rankSep": 100,
+  "nodeSep": 30,
+  "arrowhead": null,
+  "style": {
+    "roughness": 0,
+    "fontFamily": 2,
+    "fontSize": 15,
+    "defaultArrowColor": "#94a3b8"
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "Software\nEngineering",
+      "shape": "ellipse",
+      "width": 180,
+      "height": 70,
+      "fill": "#1e293b",
+      "stroke": "#e2e8f0",
+      "textColor": "#ffffff"
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#bfdbfe",
+      "stroke": "#1e40af"
+    },
+    {
+      "id": "backend",
+      "label": "Backend",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "devops",
+      "label": "DevOps",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fed7aa",
+      "stroke": "#c2410c"
+    },
+    {
+      "id": "testing",
+      "label": "Testing",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fef08a",
+      "stroke": "#92400e"
+    },
+    {
+      "id": "architecture",
+      "label": "Architecture",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#ddd6fe",
+      "stroke": "#6d28d9"
+    },
+    {
+      "id": "fe_react",
+      "label": "React",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#dbeafe",
+      "stroke": "#3b82f6"
+    },
+    {
+      "id": "fe_css",
+      "label": "CSS / Tailwind",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#dbeafe",
+      "stroke": "#3b82f6"
+    },
+    {
+      "id": "be_api",
+      "label": "REST APIs",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#a7f3d0",
+      "stroke": "#047857"
+    },
+    {
+      "id": "be_db",
+      "label": "Databases",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#a7f3d0",
+      "stroke": "#047857"
+    },
+    {
+      "id": "do_ci",
+      "label": "CI / CD",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fef3c7",
+      "stroke": "#b45309"
+    },
+    {
+      "id": "do_containers",
+      "label": "Containers",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fef3c7",
+      "stroke": "#b45309"
+    },
+    {
+      "id": "t_unit",
+      "label": "Unit Tests",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fef9c3",
+      "stroke": "#a16207"
+    },
+    {
+      "id": "t_e2e",
+      "label": "E2E Tests",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fef9c3",
+      "stroke": "#a16207"
+    },
+    {
+      "id": "a_patterns",
+      "label": "Design Patterns",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#ede9fe",
+      "stroke": "#7c3aed"
+    },
+    {
+      "id": "a_micro",
+      "label": "Microservices",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#ede9fe",
+      "stroke": "#7c3aed"
+    }
+  ],
+  "edges": [
+    { "from": "root", "to": "frontend", "stroke": "#94a3b8" },
+    { "from": "root", "to": "backend", "stroke": "#94a3b8" },
+    { "from": "root", "to": "devops", "stroke": "#94a3b8" },
+    { "from": "root", "to": "testing", "stroke": "#94a3b8" },
+    { "from": "root", "to": "architecture", "stroke": "#94a3b8" },
+    { "from": "frontend", "to": "fe_react", "stroke": "#94a3b8" },
+    { "from": "frontend", "to": "fe_css", "stroke": "#94a3b8" },
+    { "from": "backend", "to": "be_api", "stroke": "#94a3b8" },
+    { "from": "backend", "to": "be_db", "stroke": "#94a3b8" },
+    { "from": "devops", "to": "do_ci", "stroke": "#94a3b8" },
+    { "from": "devops", "to": "do_containers", "stroke": "#94a3b8" },
+    { "from": "testing", "to": "t_unit", "stroke": "#94a3b8" },
+    { "from": "testing", "to": "t_e2e", "stroke": "#94a3b8" },
+    { "from": "architecture", "to": "a_patterns", "stroke": "#94a3b8" },
+    { "from": "architecture", "to": "a_micro", "stroke": "#94a3b8" }
+  ]
+}

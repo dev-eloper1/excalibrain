@@ -52,6 +52,7 @@
 
 const dagre = require('@dagrejs/dagre');
 const fs = require('fs');
+const path = require('path');
 
 // ── CLI arg parsing ───────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -59,6 +60,7 @@ const flags = {};
 let inputPath = null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--clean') { flags.clean = true; }
+  else if (args[i] === '--theme')       { flags.theme      = args[++i]; }
   else if (args[i] === '--roughness')   { flags.roughness  = Number(args[++i]); }
   else if (args[i] === '--font')        { flags.font       = args[++i]; }
   else if (args[i] === '--fill')        { flags.fill       = args[++i]; }
@@ -85,17 +87,56 @@ if (inputPath) {
 }
 const graph = JSON.parse(raw);
 
-// Merge CLI flags → graph.style (graph.style keys take highest priority)
+// ── Theme loading ─────────────────────────────────────────────────────────────
+// Priority: theme defaults → CLI flags → graph.style (highest)
+const THEMES_DIR = path.join(__dirname, 'themes');
+const themeName = flags.theme ?? graph.theme ?? 'default';
+let theme = {};
+try {
+  const themePath = path.join(THEMES_DIR, `${themeName}.json`);
+  theme = JSON.parse(fs.readFileSync(themePath, 'utf8'));
+} catch {
+  if (themeName !== 'default') {
+    console.error(`Warning: theme "${themeName}" not found, using defaults`);
+  }
+}
+const themeStyle = theme.style ?? {};
+
+// Merge: theme defaults → CLI flags → graph.style (highest priority)
 graph.style = {
-  roughness:   flags.roughness  ?? 1,
-  fontFamily:  FONT_MAP[flags.font ?? '1'] ?? 1,
-  nodeFill:    flags.fill       ?? 'none',
-  zoneFill:    'solid',
-  zoneOpacity: 30,
-  arrowWidth:  flags.arrowWidth ?? 1.5,     // FIX 3: was 1
-  nodeWidth:   flags.nodeWidth  ?? 2,
+  roughness:   themeStyle.roughness   ?? 1,
+  fontFamily:  themeStyle.fontFamily  ?? 1,
+  fontSize:    themeStyle.fontSize    ?? 16,
+  nodeFill:    themeStyle.nodeFill    ?? 'none',
+  zoneFill:    themeStyle.zoneFill    ?? 'solid',
+  zoneOpacity: themeStyle.zoneOpacity ?? 30,
+  arrowWidth:  themeStyle.arrowWidth  ?? 1.5,
+  nodeWidth:   themeStyle.nodeWidth   ?? 2,
+  zoneLabelFont: themeStyle.zoneLabelFont ?? 2,
+  zoneLabelSize: themeStyle.zoneLabelSize ?? 13,
+  edgeLabelSize: themeStyle.edgeLabelSize ?? 13,
+  titleSize:     themeStyle.titleSize     ?? 22,
+  titleColor:    themeStyle.titleColor    ?? '#1e293b',
+  defaultArrowColor: themeStyle.defaultArrowColor ?? '#374151',
+  defaultNodeStroke: themeStyle.defaultNodeStroke ?? '#1e40af',
+  defaultNodeFill:   themeStyle.defaultNodeFill   ?? 'none',
+  // CLI flags override theme
+  ...(flags.roughness  !== undefined ? { roughness: flags.roughness } : {}),
+  ...(flags.font       !== undefined ? { fontFamily: FONT_MAP[flags.font] ?? 1 } : {}),
+  ...(flags.fill       !== undefined ? { nodeFill: flags.fill } : {}),
+  ...(flags.arrowWidth !== undefined ? { arrowWidth: flags.arrowWidth } : {}),
+  ...(flags.nodeWidth  !== undefined ? { nodeWidth: flags.nodeWidth } : {}),
+  // graph.style from JSON has highest priority
   ...graph.style,
 };
+
+// Canvas background from theme
+const canvasBackground = graph.style?.background ?? theme.canvas?.background ?? '#ffffff';
+
+// Make theme palette/zones/arrows available for lookups
+const themePalette = theme.palette ?? {};
+const themeZones   = theme.zones   ?? {};
+const themeArrows  = theme.arrows  ?? {};
 
 // ── Seed counter for deterministic IDs ───────────────────────────────────────
 let seedCounter = 10000;
@@ -162,15 +203,24 @@ for (const n of graph.nodes) {
 // ── Build Excalidraw elements ─────────────────────────────────────────────────
 const elements = [];
 
-// ── Style defaults ──────────────────────────────────────────────────────────
+// ── Style defaults (fully resolved from theme + overrides) ──────────────────
 const STYLE = {
-  roughness:   graph.style?.roughness   ?? 1,
-  fontFamily:  graph.style?.fontFamily  ?? 1,
-  fontSize:    graph.style?.fontSize    ?? 16,    // FIX 3: was 14
-  nodeFill:    graph.style?.nodeFill    ?? 'none',
-  zoneFill:    graph.style?.zoneFill    ?? 'solid',
-  arrowWidth:  graph.style?.arrowWidth  ?? 1.5,   // FIX 3: was 1
-  nodeWidth:   graph.style?.nodeWidth   ?? 2,
+  roughness:     graph.style?.roughness     ?? 1,
+  fontFamily:    graph.style?.fontFamily    ?? 1,
+  fontSize:      graph.style?.fontSize      ?? 16,
+  nodeFill:      graph.style?.nodeFill      ?? 'none',
+  zoneFill:      graph.style?.zoneFill      ?? 'solid',
+  zoneOpacity:   graph.style?.zoneOpacity   ?? 30,
+  arrowWidth:    graph.style?.arrowWidth    ?? 1.5,
+  nodeWidth:     graph.style?.nodeWidth     ?? 2,
+  zoneLabelFont: graph.style?.zoneLabelFont ?? 2,
+  zoneLabelSize: graph.style?.zoneLabelSize ?? 13,
+  edgeLabelSize: graph.style?.edgeLabelSize ?? 13,
+  titleSize:     graph.style?.titleSize     ?? 22,
+  titleColor:    graph.style?.titleColor    ?? '#1e293b',
+  defaultArrowColor: graph.style?.defaultArrowColor ?? '#374151',
+  defaultNodeStroke: graph.style?.defaultNodeStroke ?? '#1e40af',
+  defaultNodeFill:   graph.style?.defaultNodeFill   ?? 'none',
 };
 
 // Helper: base element fields
@@ -247,7 +297,7 @@ for (const id of Object.keys(nodeMap)) {
 }
 
 if (graph.title) {
-  elements.push(freeText('title', 20, 12, 800, 36, graph.title, '#1e293b', 22));
+  elements.push(freeText('title', 20, 12, 800, 36, graph.title, STYLE.titleColor, STYLE.titleSize));
 }
 
 // ── 2. Zone backgrounds (drawn first, behind nodes) ──────────────────────────
@@ -277,7 +327,7 @@ if (graph.zones) {
         strokeColor: zone.stroke ?? '#94a3b8',
         backgroundColor: zone.fill ?? '#f8fafc',
         fillStyle: STYLE.zoneFill,
-        opacity: zone.opacity ?? STYLE.zoneOpacity ?? 30,
+        opacity: zone.opacity ?? STYLE.zoneOpacity,
         roundness: { type: 3 },   // FIX 3: was null
       }}),
       boundElements: null,
@@ -288,10 +338,10 @@ if (graph.zones) {
         `zone_${zone.id}_label`,
         zx + 8, zy + 6, 300, 18,
         zone.label,
-        zone.labelColor ?? '#1e293b',
-        13,   // FIX 3: was 12
+        zone.labelColor ?? STYLE.titleColor,
+        STYLE.zoneLabelSize,
       );
-      zlEl.fontFamily = 2;
+      zlEl.fontFamily = STYLE.zoneLabelFont;
       zlEl.opacity = 100;
       elements.push(zlEl);
     }
@@ -325,8 +375,8 @@ for (const [i, e] of graph.edges.entries()) {
 for (const n of graph.nodes) {
   const p = nodeMap[n.id];
   const nid = n.id;
-  const fill = n.fill ?? 'none';
-  const stroke = n.stroke ?? '#1e40af';
+  const fill = n.fill ?? STYLE.defaultNodeFill;
+  const stroke = n.stroke ?? STYLE.defaultNodeStroke;
   const textColor = n.textColor ?? darken(stroke);
   const fontSize = n.fontSize ?? 16;   // FIX 3: was 14
 
@@ -452,7 +502,7 @@ for (let idx = 0; idx < arrowData.length; idx++) {
       style: e.style ?? 'solid',
       roughness: STYLE.roughness,
       props: {
-        strokeColor: e.stroke ?? '#374151',
+        strokeColor: e.stroke ?? STYLE.defaultArrowColor,
         backgroundColor: 'transparent',
         fillStyle: 'solid',
       },
@@ -494,8 +544,8 @@ for (let idx = 0; idx < arrowData.length; idx++) {
       mid.y + oy - 9,
       labelW, 18,
       e.label,
-      e.stroke ?? '#374151',
-      13,   // FIX 3: was 11
+      e.stroke ?? STYLE.defaultArrowColor,
+      STYLE.edgeLabelSize,
       'center',
     ));
   }
@@ -547,7 +597,7 @@ const output = {
   source: 'https://excalidraw.com',
   elements,
   appState: {
-    viewBackgroundColor: '#ffffff',
+    viewBackgroundColor: canvasBackground,
     gridSize: 20,
   },
   files: {},

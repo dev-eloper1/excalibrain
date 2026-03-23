@@ -1,0 +1,92 @@
+{
+  "direction": "LR",
+  "title": "Product Launch Timeline",
+  "rankSep": 60,
+  "nodeSep": 40,
+  "style": {
+    "roughness": 0,
+    "fontFamily": 2,
+    "fontSize": 15
+  },
+  "nodes": [
+    {
+      "id": "research",
+      "label": "Research",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 180,
+      "height": 50,
+      "fill": "#bfdbfe",
+      "stroke": "#1e40af"
+    },
+    {
+      "id": "design",
+      "label": "Design",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 200,
+      "height": 50,
+      "fill": "#bfdbfe",
+      "stroke": "#1e40af"
+    },
+    {
+      "id": "backend",
+      "label": "Backend Dev",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 240,
+      "height": 50,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend Dev",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 240,
+      "height": 50,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "qa",
+      "label": "QA & Testing",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 180,
+      "height": 50,
+      "fill": "#fef08a",
+      "stroke": "#92400e"
+    },
+    {
+      "id": "beta",
+      "label": "Beta Release",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 160,
+      "height": 50,
+      "fill": "#fed7aa",
+      "stroke": "#c2410c"
+    },
+    {
+      "id": "launch",
+      "label": "Launch!",
+      "shape": "rectangle",
+      "rounded": true,
+      "width": 140,
+      "height": 50,
+      "fill": "#86efac",
+      "stroke": "#15803d"
+    }
+  ],
+  "edges": [
+    { "from": "research", "to": "design", "label": "Week 2", "stroke": "#1e40af" },
+    { "from": "design", "to": "backend", "label": "Week 4", "stroke": "#15803d" },
+    { "from": "design", "to": "frontend", "label": "Week 4", "stroke": "#15803d" },
+    { "from": "backend", "to": "qa", "stroke": "#92400e" },
+    { "from": "frontend", "to": "qa", "stroke": "#92400e" },
+    { "from": "qa", "to": "beta", "label": "Week 10", "stroke": "#c2410c" },
+    { "from": "beta", "to": "launch", "label": "Week 12", "stroke": "#15803d" }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "clean",
+  "description": "Professional clean-line style with monospace font, no hand-drawn effect",
+  "canvas": {
+    "background": "#ffffff"
+  },
+  "style": {
+    "roughness": 0,
+    "fontFamily": 3,
+    "fontSize": 14,
+    "nodeFill": "solid",
+    "nodeWidth": 1.5,
+    "arrowWidth": 1.5,
+    "zoneFill": "solid",
+    "zoneOpacity": 20,
+    "zoneLabelFont": 2,
+    "zoneLabelSize": 12,
+    "edgeLabelSize": 12,
+    "titleSize": 20,
+    "titleColor": "#111827",
+    "defaultArrowColor": "#374151",
+    "defaultNodeStroke": "#1e40af",
+    "defaultNodeFill": "none"
+  },
+  "palette": {
+    "clients":      { "fill": "#dbeafe", "stroke": "#1e40af" },
+    "security":     { "fill": "#ffedd5", "stroke": "#c2410c" },
+    "gateway":      { "fill": "#d1fae5", "stroke": "#059669" },
+    "service":      { "fill": "#d1fae5", "stroke": "#059669" },
+    "async":        { "fill": "#fef9c3", "stroke": "#92400e" },
+    "data":         { "fill": "#ede9fe", "stroke": "#6d28d9" },
+    "observability": { "fill": "#ffe4e6", "stroke": "#9f1239" },
+    "ai":           { "fill": "#ede9fe", "stroke": "#6d28d9" },
+    "external":     { "fill": "#ffedd5", "stroke": "#c2410c" },
+    "decision":     { "fill": "#fef3c7", "stroke": "#92400e" },
+    "start":        { "fill": "#dbeafe", "stroke": "#1e40af" },
+    "success":      { "fill": "#d1fae5", "stroke": "#059669" },
+    "error":        { "fill": "#fee2e2", "stroke": "#b91c1c" },
+    "legacy":       { "fill": "#f1f5f9", "stroke": "#64748b" },
+    "neutral":      { "fill": "#f1f5f9", "stroke": "#475569" }
+  },
+  "zones": {
+    "clients":      { "fill": "#eff6ff", "stroke": "#bfdbfe", "labelColor": "#1e40af" },
+    "services":     { "fill": "#ecfdf5", "stroke": "#a7f3d0", "labelColor": "#059669" },
+    "data":         { "fill": "#f5f3ff", "stroke": "#ddd6fe", "labelColor": "#6d28d9" },
+    "async":        { "fill": "#fefce8", "stroke": "#fde68a", "labelColor": "#92400e" },
+    "security":     { "fill": "#fff7ed", "stroke": "#fed7aa", "labelColor": "#c2410c" },
+    "observability": { "fill": "#fff1f2", "stroke": "#fecdd3", "labelColor": "#9f1239" }
+  },
+  "arrows": {
+    "primary":  { "stroke": "#374151", "style": "solid", "width": 1.5 },
+    "async":    { "stroke": "#92400e", "style": "dashed", "width": 1 },
+    "error":    { "stroke": "#b91c1c", "style": "dashed", "width": 1.5 },
+    "auth":     { "stroke": "#c2410c", "style": "solid", "width": 1.5 },
+    "data":     { "stroke": "#6d28d9", "style": "solid", "width": 1.5 },
+    "external": { "stroke": "#0891b2", "style": "dashed", "width": 1 },
+    "spoke":    { "stroke": "#94a3b8", "style": "solid", "width": 1 }
+  }
+}
