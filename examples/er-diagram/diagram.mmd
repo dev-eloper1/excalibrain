@@ -1,0 +1,31 @@
+erDiagram
+    STUDENT ||--o{ ENROLLMENT : enrolls_in
+    COURSE ||--o{ ENROLLMENT : has
+    PROFESSOR ||--o{ COURSE : teaches
+
+    STUDENT {
+        bigint id PK
+        varchar name
+        varchar email
+        date enrollment_date
+    }
+
+    COURSE {
+        bigint id PK
+        varchar title
+        int credits
+        varchar department
+    }
+
+    ENROLLMENT {
+        bigint student_id FK
+        bigint course_id FK
+        varchar semester
+        varchar grade
+    }
+
+    PROFESSOR {
+        bigint id PK
+        varchar name
+        varchar department
+    }

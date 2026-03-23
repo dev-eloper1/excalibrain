@@ -1,0 +1,18 @@
+flowchart TB
+    A([Code Push]):::start --> B[Build]:::process
+    B --> C[Run Unit Tests]:::process
+    C --> D{Tests Pass?}:::decision
+    D -->|Yes| E[Deploy to Staging]:::success
+    D -->|No| F[Notify Team]:::error
+    E --> G[Run Integration Tests]:::process
+    G --> H{Integration Tests Pass?}:::decision
+    H -->|Yes| I[Deploy to Production]:::success
+    H -->|No| F
+    F --> J([Stop]):::start
+
+    classDef start fill:#dbeafe,stroke:#1e40af,color:#1e40af
+    classDef process fill:#86efac,stroke:#15803d,color:#15803d
+    classDef decision fill:#fef3c7,stroke:#b45309,color:#b45309
+    classDef error fill:#fecaca,stroke:#b91c1c,color:#b91c1c
+    classDef success fill:#a7f3d0,stroke:#047857,color:#047857
+    classDef data fill:#ddd6fe,stroke:#6d28d9,color:#6d28d9

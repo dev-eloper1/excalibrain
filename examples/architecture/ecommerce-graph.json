@@ -1,0 +1,217 @@
+{
+  "direction": "TB",
+  "title": "E-Commerce Microservices Architecture",
+  "rankSep": 90,
+  "nodeSep": 45,
+  "style": {
+    "roughness": 1,
+    "fontFamily": 2,
+    "fontSize": 16,
+    "nodeFill": "solid",
+    "zoneFill": "solid",
+    "zoneOpacity": 30,
+    "arrowWidth": 1.5,
+    "nodeWidth": 2
+  },
+  "zones": [
+    {
+      "id": "zone_clients",
+      "label": "CLIENTS",
+      "labelColor": "#1e40af",
+      "fill": "#dbeafe",
+      "stroke": "#93c5fd",
+      "nodeIds": ["browser", "mobile"]
+    },
+    {
+      "id": "zone_gateway",
+      "label": "GATEWAY",
+      "labelColor": "#15803d",
+      "fill": "#dcfce7",
+      "stroke": "#86efac",
+      "nodeIds": ["api_gateway"]
+    },
+    {
+      "id": "zone_services",
+      "label": "SERVICES",
+      "labelColor": "#c2410c",
+      "fill": "#ffedd5",
+      "stroke": "#fdba74",
+      "nodeIds": ["auth", "catalog", "orders", "payments"]
+    },
+    {
+      "id": "zone_async",
+      "label": "ASYNC",
+      "labelColor": "#a16207",
+      "fill": "#fef9c3",
+      "stroke": "#fbbf24",
+      "nodeIds": ["rabbitmq"]
+    },
+    {
+      "id": "zone_data",
+      "label": "DATA",
+      "labelColor": "#6d28d9",
+      "fill": "#ede9fe",
+      "stroke": "#c4b5fd",
+      "nodeIds": ["postgres", "redis"]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "browser",
+      "label": "Browser",
+      "fill": "#bfdbfe",
+      "stroke": "#1e40af",
+      "shape": "rectangle",
+      "rounded": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile App",
+      "fill": "#bfdbfe",
+      "stroke": "#1e40af",
+      "shape": "rectangle",
+      "rounded": true
+    },
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "fill": "#bbf7d0",
+      "stroke": "#15803d",
+      "shape": "rectangle",
+      "rounded": true
+    },
+    {
+      "id": "auth",
+      "label": "Auth Service",
+      "fill": "#fed7aa",
+      "stroke": "#c2410c",
+      "shape": "rectangle"
+    },
+    {
+      "id": "catalog",
+      "label": "Product Catalog",
+      "fill": "#86efac",
+      "stroke": "#15803d",
+      "shape": "rectangle"
+    },
+    {
+      "id": "orders",
+      "label": "Order Service",
+      "fill": "#86efac",
+      "stroke": "#15803d",
+      "shape": "rectangle"
+    },
+    {
+      "id": "payments",
+      "label": "Payment Service",
+      "fill": "#86efac",
+      "stroke": "#15803d",
+      "shape": "rectangle"
+    },
+    {
+      "id": "rabbitmq",
+      "label": "RabbitMQ",
+      "fill": "#fef08a",
+      "stroke": "#92400e",
+      "shape": "rectangle"
+    },
+    {
+      "id": "postgres",
+      "label": "PostgreSQL",
+      "fill": "#ddd6fe",
+      "stroke": "#6d28d9",
+      "shape": "rectangle"
+    },
+    {
+      "id": "redis",
+      "label": "Redis Cache",
+      "fill": "#fef08a",
+      "stroke": "#92400e",
+      "shape": "rectangle"
+    }
+  ],
+  "edges": [
+    {
+      "from": "browser",
+      "to": "api_gateway",
+      "label": "HTTPS",
+      "stroke": "#1e1e1e"
+    },
+    {
+      "from": "mobile",
+      "to": "api_gateway",
+      "label": "HTTPS",
+      "stroke": "#1e1e1e"
+    },
+    {
+      "from": "api_gateway",
+      "to": "auth",
+      "label": "verify token",
+      "stroke": "#c2410c"
+    },
+    {
+      "from": "api_gateway",
+      "to": "catalog",
+      "label": "REST",
+      "stroke": "#1e1e1e"
+    },
+    {
+      "from": "api_gateway",
+      "to": "orders",
+      "label": "REST",
+      "stroke": "#1e1e1e"
+    },
+    {
+      "from": "api_gateway",
+      "to": "payments",
+      "label": "REST",
+      "stroke": "#1e1e1e"
+    },
+    {
+      "from": "orders",
+      "to": "rabbitmq",
+      "label": "order.created",
+      "stroke": "#a16207",
+      "style": "dashed"
+    },
+    {
+      "from": "rabbitmq",
+      "to": "payments",
+      "label": "process payment",
+      "stroke": "#a16207",
+      "style": "dashed"
+    },
+    {
+      "from": "auth",
+      "to": "redis",
+      "label": "sessions",
+      "stroke": "#a16207",
+      "style": "dashed"
+    },
+    {
+      "from": "catalog",
+      "to": "postgres",
+      "label": "read",
+      "stroke": "#6d28d9"
+    },
+    {
+      "from": "catalog",
+      "to": "redis",
+      "label": "cache",
+      "stroke": "#a16207",
+      "style": "dashed"
+    },
+    {
+      "from": "orders",
+      "to": "postgres",
+      "label": "read/write",
+      "stroke": "#6d28d9"
+    },
+    {
+      "from": "payments",
+      "to": "postgres",
+      "label": "read/write",
+      "stroke": "#6d28d9"
+    }
+  ]
+}

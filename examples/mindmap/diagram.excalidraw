@@ -23,52 +23,71 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Microservices Architecture",
-      "originalText": "Microservices Architecture",
+      "text": "Cloud Computing Concepts",
+      "originalText": "Cloud Computing Concepts",
       "fontSize": 22,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#1e293b",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "containerId": null,
       "lineHeight": 1.25
     },
     {
-      "type": "rectangle",
-      "id": "zone_zone_clients",
-      "x": 115.5,
-      "y": 43,
-      "width": 434,
-      "height": 134,
+      "type": "ellipse",
+      "id": "root",
+      "x": 40,
+      "y": 547.5,
+      "width": 180,
+      "height": 90,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
-      "opacity": 15,
+      "opacity": 100,
       "seed": 10002,
       "version": 1,
       "versionNonce": 10003,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "root_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_0",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_1",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_2",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_3",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#7dd3fc",
-      "backgroundColor": "#e0f2fe",
+      "strokeColor": "#e2e8f0",
+      "backgroundColor": "#1e293b",
       "fillStyle": "solid",
-      "roundness": {
-        "type": 3
-      }
+      "roundness": null
     },
     {
       "type": "text",
-      "id": "zone_zone_clients_label",
-      "x": 123.5,
-      "y": 49,
-      "width": 300,
-      "height": 18,
+      "id": "root_text",
+      "x": 40,
+      "y": 572.5,
+      "width": 180,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -82,40 +101,61 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "CLIENTS",
-      "originalText": "CLIENTS",
-      "fontSize": 13,
+      "text": "Cloud\nComputing",
+      "originalText": "Cloud\nComputing",
+      "fontSize": 16,
       "fontFamily": 2,
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "strokeColor": "#0369a1",
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#e2e8f0",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "root",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "zone_zone_gateway",
-      "x": 220.5,
-      "y": 193,
-      "width": 224,
-      "height": 134,
+      "id": "iaas",
+      "x": 320,
+      "y": 955,
+      "width": 160,
+      "height": 50,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
-      "opacity": 15,
+      "opacity": 100,
       "seed": 10006,
       "version": 1,
       "versionNonce": 10007,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "iaas_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_0",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_4",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_5",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_6",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#86efac",
-      "backgroundColor": "#f0fdf4",
+      "strokeColor": "#1e40af",
+      "backgroundColor": "#bfdbfe",
       "fillStyle": "solid",
       "roundness": {
         "type": 3
@@ -123,11 +163,11 @@
     },
     {
       "type": "text",
-      "id": "zone_zone_gateway_label",
-      "x": 228.5,
-      "y": 199,
-      "width": 300,
-      "height": 18,
+      "id": "iaas_text",
+      "x": 320,
+      "y": 970,
+      "width": 160,
+      "height": 20,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -141,40 +181,61 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "GATEWAY",
-      "originalText": "GATEWAY",
-      "fontSize": 13,
+      "text": "IaaS",
+      "originalText": "IaaS",
+      "fontSize": 16,
       "fontFamily": 2,
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "strokeColor": "#166534",
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#1e3a8a",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "iaas",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "zone_zone_services",
-      "x": 8,
-      "y": 343,
-      "width": 669,
-      "height": 434,
+      "id": "paas",
+      "x": 320,
+      "y": 700,
+      "width": 160,
+      "height": 50,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
-      "opacity": 15,
+      "opacity": 100,
       "seed": 10010,
       "version": 1,
       "versionNonce": 10011,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "paas_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_1",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_7",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_8",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_9",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#fdba74",
-      "backgroundColor": "#fff7ed",
+      "strokeColor": "#15803d",
+      "backgroundColor": "#86efac",
       "fillStyle": "solid",
       "roundness": {
         "type": 3
@@ -182,11 +243,11 @@
     },
     {
       "type": "text",
-      "id": "zone_zone_services_label",
-      "x": 16,
-      "y": 349,
-      "width": 300,
-      "height": 18,
+      "id": "paas_text",
+      "x": 320,
+      "y": 715,
+      "width": 160,
+      "height": 20,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -200,40 +261,61 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "SERVICES",
-      "originalText": "SERVICES",
-      "fontSize": 13,
+      "text": "PaaS",
+      "originalText": "PaaS",
+      "fontSize": 16,
       "fontFamily": 2,
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "strokeColor": "#9a3412",
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#14532d",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "paas",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "zone_zone_data",
-      "x": 90.5,
-      "y": 493,
-      "width": 586.5,
-      "height": 434,
+      "id": "saas",
+      "x": 320,
+      "y": 435,
+      "width": 160,
+      "height": 50,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
-      "opacity": 15,
+      "opacity": 100,
       "seed": 10014,
       "version": 1,
       "versionNonce": 10015,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "saas_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_2",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_10",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_11",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_12",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#d8b4fe",
-      "backgroundColor": "#faf5ff",
+      "strokeColor": "#6d28d9",
+      "backgroundColor": "#ddd6fe",
       "fillStyle": "solid",
       "roundness": {
         "type": 3
@@ -241,11 +323,11 @@
     },
     {
       "type": "text",
-      "id": "zone_zone_data_label",
-      "x": 98.5,
-      "y": 499,
-      "width": 300,
-      "height": 18,
+      "id": "saas_text",
+      "x": 320,
+      "y": 450,
+      "width": 160,
+      "height": 20,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -259,27 +341,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "DATA",
-      "originalText": "DATA",
-      "fontSize": 13,
+      "text": "SaaS",
+      "originalText": "SaaS",
+      "fontSize": 16,
       "fontFamily": 2,
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "strokeColor": "#6b21a8",
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "strokeColor": "#4c1d95",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "saas",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "browser",
-      "x": 357.5,
-      "y": 95,
+      "id": "serverless",
+      "x": 320,
+      "y": 190,
       "width": 160,
       "height": 50,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -290,18 +372,30 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "browser_text",
+          "id": "serverless_text",
           "type": "text"
         },
         {
-          "id": "arrow_0",
+          "id": "arrow_3",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_13",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_14",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow_15",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#0284c7",
-      "backgroundColor": "#bae6fd",
+      "strokeColor": "#92400e",
+      "backgroundColor": "#fef08a",
       "fillStyle": "solid",
       "roundness": {
         "type": 3
@@ -309,9 +403,9 @@
     },
     {
       "type": "text",
-      "id": "browser_text",
-      "x": 357.5,
-      "y": 110,
+      "id": "serverless_text",
+      "x": 320,
+      "y": 205,
       "width": 160,
       "height": 20,
       "angle": 0,
@@ -327,27 +421,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Browser",
-      "originalText": "Browser",
+      "text": "Serverless",
+      "originalText": "Serverless",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#451a03",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "browser",
+      "containerId": "serverless",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "mobile",
-      "x": 147.5,
-      "y": 95,
+      "id": "ec2",
+      "x": 580,
+      "y": 1035,
       "width": 160,
       "height": 50,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -358,18 +452,18 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "mobile_text",
+          "id": "ec2_text",
           "type": "text"
         },
         {
-          "id": "arrow_1",
+          "id": "arrow_4",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#0284c7",
-      "backgroundColor": "#bae6fd",
+      "strokeColor": "#1e40af",
+      "backgroundColor": "#dbeafe",
       "fillStyle": "solid",
       "roundness": {
         "type": 3
@@ -377,9 +471,9 @@
     },
     {
       "type": "text",
-      "id": "mobile_text",
-      "x": 147.5,
-      "y": 110,
+      "id": "ec2_text",
+      "x": 580,
+      "y": 1050,
       "width": 160,
       "height": 20,
       "angle": 0,
@@ -395,27 +489,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Mobile App",
-      "originalText": "Mobile App",
+      "text": "Amazon EC2",
+      "originalText": "Amazon EC2",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#1e3a8a",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "mobile",
+      "containerId": "ec2",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "api_gateway",
-      "x": 252.5,
-      "y": 245,
+      "id": "azure_vms",
+      "x": 580,
+      "y": 955,
       "width": 160,
       "height": 50,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -426,28 +520,8 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "api_gateway_text",
+          "id": "azure_vms_text",
           "type": "text"
-        },
-        {
-          "id": "arrow_0",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_1",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_2",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_3",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_4",
-          "type": "arrow"
         },
         {
           "id": "arrow_5",
@@ -456,8 +530,8 @@
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#16a34a",
-      "backgroundColor": "#bbf7d0",
+      "strokeColor": "#1e40af",
+      "backgroundColor": "#dbeafe",
       "fillStyle": "solid",
       "roundness": {
         "type": 3
@@ -465,9 +539,9 @@
     },
     {
       "type": "text",
-      "id": "api_gateway_text",
-      "x": 252.5,
-      "y": 260,
+      "id": "azure_vms_text",
+      "x": 580,
+      "y": 970,
       "width": 160,
       "height": 20,
       "angle": 0,
@@ -483,27 +557,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "API Gateway",
-      "originalText": "API Gateway",
+      "text": "Azure VMs",
+      "originalText": "Azure VMs",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#1e3a8a",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "api_gateway",
+      "containerId": "azure_vms",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "auth",
-      "x": 485,
-      "y": 395,
+      "id": "gcp_compute",
+      "x": 580,
+      "y": 865,
       "width": 160,
-      "height": 50,
+      "height": 60,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -514,12 +588,8 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "auth_text",
+          "id": "gcp_compute_text",
           "type": "text"
-        },
-        {
-          "id": "arrow_2",
-          "type": "arrow"
         },
         {
           "id": "arrow_6",
@@ -528,18 +598,20 @@
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#ea580c",
-      "backgroundColor": "#fed7aa",
+      "strokeColor": "#1e40af",
+      "backgroundColor": "#dbeafe",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "auth_text",
-      "x": 485,
-      "y": 410,
+      "id": "gcp_compute_text",
+      "x": 580,
+      "y": 875,
       "width": 160,
-      "height": 20,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -553,27 +625,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Auth Service",
-      "originalText": "Auth Service",
+      "text": "GCP Compute\nEngine",
+      "originalText": "GCP Compute\nEngine",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#1e3a8a",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "auth",
+      "containerId": "gcp_compute",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "users",
-      "x": 365,
-      "y": 695,
-      "width": 170,
+      "id": "heroku",
+      "x": 580,
+      "y": 785,
+      "width": 160,
       "height": 50,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -584,12 +656,8 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "users_text",
+          "id": "heroku_text",
           "type": "text"
-        },
-        {
-          "id": "arrow_3",
-          "type": "arrow"
         },
         {
           "id": "arrow_7",
@@ -598,17 +666,19 @@
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#ea580c",
-      "backgroundColor": "#fed7aa",
+      "strokeColor": "#15803d",
+      "backgroundColor": "#bbf7d0",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "users_text",
-      "x": 365,
-      "y": 710,
-      "width": 170,
+      "id": "heroku_text",
+      "x": 580,
+      "y": 800,
+      "width": 160,
       "height": 20,
       "angle": 0,
       "strokeWidth": 1,
@@ -623,27 +693,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Users Service",
-      "originalText": "Users Service",
+      "text": "Heroku",
+      "originalText": "Heroku",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#14532d",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "users",
+      "containerId": "heroku",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "orders",
-      "x": 180,
-      "y": 395,
-      "width": 180,
-      "height": 50,
+      "id": "app_engine",
+      "x": 580,
+      "y": 695,
+      "width": 160,
+      "height": 60,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -654,36 +724,30 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "orders_text",
+          "id": "app_engine_text",
           "type": "text"
         },
         {
-          "id": "arrow_4",
-          "type": "arrow"
-        },
-        {
           "id": "arrow_8",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_10",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#ea580c",
-      "backgroundColor": "#fed7aa",
+      "strokeColor": "#15803d",
+      "backgroundColor": "#bbf7d0",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "orders_text",
-      "x": 180,
-      "y": 410,
-      "width": 180,
-      "height": 20,
+      "id": "app_engine_text",
+      "x": 580,
+      "y": 705,
+      "width": 160,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -697,27 +761,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Orders Service",
-      "originalText": "Orders Service",
+      "text": "Google App\nEngine",
+      "originalText": "Google App\nEngine",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#14532d",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "orders",
+      "containerId": "app_engine",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "payments",
-      "x": 40,
-      "y": 695,
-      "width": 200,
-      "height": 50,
+      "id": "elastic_beanstalk",
+      "x": 580,
+      "y": 605,
+      "width": 160,
+      "height": 60,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -728,36 +792,30 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "payments_text",
+          "id": "elastic_beanstalk_text",
           "type": "text"
         },
         {
-          "id": "arrow_5",
-          "type": "arrow"
-        },
-        {
           "id": "arrow_9",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_11",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#ea580c",
-      "backgroundColor": "#fed7aa",
+      "strokeColor": "#15803d",
+      "backgroundColor": "#bbf7d0",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "payments_text",
-      "x": 40,
-      "y": 710,
-      "width": 200,
-      "height": 20,
+      "id": "elastic_beanstalk_text",
+      "x": 580,
+      "y": 615,
+      "width": 160,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -771,27 +829,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Payments Service",
-      "originalText": "Payments Service",
+      "text": "AWS Elastic\nBeanstalk",
+      "originalText": "AWS Elastic\nBeanstalk",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#14532d",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "payments",
+      "containerId": "elastic_beanstalk",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "postgresql",
-      "x": 247.5,
-      "y": 845,
+      "id": "google_workspace",
+      "x": 580,
+      "y": 515,
       "width": 160,
-      "height": 50,
+      "height": 60,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -802,36 +860,30 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "postgresql_text",
+          "id": "google_workspace_text",
           "type": "text"
         },
         {
-          "id": "arrow_7",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_8",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_9",
+          "id": "arrow_10",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
-      "backgroundColor": "#e9d5ff",
+      "strokeColor": "#6d28d9",
+      "backgroundColor": "#ede9fe",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "postgresql_text",
-      "x": 247.5,
-      "y": 860,
+      "id": "google_workspace_text",
+      "x": 580,
+      "y": 525,
       "width": 160,
-      "height": 20,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -845,27 +897,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "PostgreSQL",
-      "originalText": "PostgreSQL",
+      "text": "Google\nWorkspace",
+      "originalText": "Google\nWorkspace",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#4c1d95",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "postgresql",
+      "containerId": "google_workspace",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "redis",
-      "x": 485,
-      "y": 545,
+      "id": "salesforce",
+      "x": 580,
+      "y": 435,
       "width": 160,
       "height": 50,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -876,26 +928,28 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "redis_text",
+          "id": "salesforce_text",
           "type": "text"
         },
         {
-          "id": "arrow_6",
+          "id": "arrow_11",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
-      "backgroundColor": "#e9d5ff",
+      "strokeColor": "#6d28d9",
+      "backgroundColor": "#ede9fe",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "redis_text",
-      "x": 485,
-      "y": 560,
+      "id": "salesforce_text",
+      "x": 580,
+      "y": 450,
       "width": 160,
       "height": 20,
       "angle": 0,
@@ -911,27 +965,27 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Redis",
-      "originalText": "Redis",
+      "text": "Salesforce",
+      "originalText": "Salesforce",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#4c1d95",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "redis",
+      "containerId": "salesforce",
       "lineHeight": 1.25
     },
     {
       "type": "rectangle",
-      "id": "rabbitmq",
-      "x": 122.5,
-      "y": 545,
+      "id": "dropbox",
+      "x": 580,
+      "y": 355,
       "width": 160,
       "height": 50,
       "angle": 0,
-      "strokeWidth": 1.5,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -942,30 +996,28 @@
       "groupIds": [],
       "boundElements": [
         {
-          "id": "rabbitmq_text",
+          "id": "dropbox_text",
           "type": "text"
         },
         {
-          "id": "arrow_10",
-          "type": "arrow"
-        },
-        {
-          "id": "arrow_11",
+          "id": "arrow_12",
           "type": "arrow"
         }
       ],
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
-      "backgroundColor": "#e9d5ff",
+      "strokeColor": "#6d28d9",
+      "backgroundColor": "#ede9fe",
       "fillStyle": "solid",
-      "roundness": null
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "rabbitmq_text",
-      "x": 122.5,
-      "y": 560,
+      "id": "dropbox_text",
+      "x": 580,
+      "y": 370,
       "width": 160,
       "height": 20,
       "angle": 0,
@@ -981,25 +1033,25 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "RabbitMQ",
-      "originalText": "RabbitMQ",
+      "text": "Dropbox",
+      "originalText": "Dropbox",
       "fontSize": 16,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "strokeColor": "#1e293b",
+      "strokeColor": "#4c1d95",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": "rabbitmq",
+      "containerId": "dropbox",
       "lineHeight": 1.25
     },
     {
-      "type": "arrow",
-      "id": "arrow_0",
-      "x": 437.5,
-      "y": 145,
-      "width": 70,
-      "height": 100,
+      "type": "rectangle",
+      "id": "lambda",
+      "x": 580,
+      "y": 275,
+      "width": 160,
+      "height": 50,
       "angle": 0,
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -1010,46 +1062,32 @@
       "versionNonce": 10059,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "lambda_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_13",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#374151",
-      "backgroundColor": "transparent",
+      "strokeColor": "#92400e",
+      "backgroundColor": "#fef9c3",
       "fillStyle": "solid",
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          50
-        ],
-        [
-          -70,
-          100
-        ]
-      ],
-      "startBinding": {
-        "elementId": "browser",
-        "focus": 0,
-        "gap": 4
-      },
-      "endBinding": {
-        "elementId": "api_gateway",
-        "focus": 0,
-        "gap": 4
-      },
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "arrow_0_label",
-      "x": 435,
-      "y": 186,
-      "width": 45,
-      "height": 18,
+      "id": "lambda_text",
+      "x": 580,
+      "y": 290,
+      "width": 160,
+      "height": 20,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -1063,25 +1101,25 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "HTTPS",
-      "originalText": "HTTPS",
-      "fontSize": 13,
-      "fontFamily": 1,
+      "text": "AWS Lambda",
+      "originalText": "AWS Lambda",
+      "fontSize": 16,
+      "fontFamily": 2,
       "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "verticalAlign": "middle",
+      "strokeColor": "#451a03",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "lambda",
       "lineHeight": 1.25
     },
     {
-      "type": "arrow",
-      "id": "arrow_1",
-      "x": 227.5,
-      "y": 145,
-      "width": 70,
-      "height": 100,
+      "type": "rectangle",
+      "id": "cloud_functions",
+      "x": 580,
+      "y": 185,
+      "width": 160,
+      "height": 60,
       "angle": 0,
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -1092,46 +1130,32 @@
       "versionNonce": 10063,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "cloud_functions_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_14",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#374151",
-      "backgroundColor": "transparent",
+      "strokeColor": "#92400e",
+      "backgroundColor": "#fef9c3",
       "fillStyle": "solid",
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          50
-        ],
-        [
-          70,
-          100
-        ]
-      ],
-      "startBinding": {
-        "elementId": "mobile",
-        "focus": 0,
-        "gap": 4
-      },
-      "endBinding": {
-        "elementId": "api_gateway",
-        "focus": 0,
-        "gap": 4
-      },
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "arrow_1_label",
-      "x": 225,
-      "y": 186,
-      "width": 45,
-      "height": 18,
+      "id": "cloud_functions_text",
+      "x": 580,
+      "y": 195,
+      "width": 160,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -1145,25 +1169,25 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "HTTPS",
-      "originalText": "HTTPS",
-      "fontSize": 13,
-      "fontFamily": 1,
+      "text": "GCP Cloud\nFunctions",
+      "originalText": "GCP Cloud\nFunctions",
+      "fontSize": 16,
+      "fontFamily": 2,
       "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "verticalAlign": "middle",
+      "strokeColor": "#451a03",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "cloud_functions",
       "lineHeight": 1.25
     },
     {
-      "type": "arrow",
-      "id": "arrow_2",
-      "x": 410,
-      "y": 295,
-      "width": 155,
-      "height": 100,
+      "type": "rectangle",
+      "id": "azure_functions",
+      "x": 580,
+      "y": 95,
+      "width": 160,
+      "height": 60,
       "angle": 0,
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -1174,46 +1198,32 @@
       "versionNonce": 10067,
       "isDeleted": false,
       "groupIds": [],
-      "boundElements": null,
+      "boundElements": [
+        {
+          "id": "azure_functions_text",
+          "type": "text"
+        },
+        {
+          "id": "arrow_15",
+          "type": "arrow"
+        }
+      ],
       "link": null,
       "locked": false,
-      "strokeColor": "#ea580c",
-      "backgroundColor": "transparent",
+      "strokeColor": "#92400e",
+      "backgroundColor": "#fef9c3",
       "fillStyle": "solid",
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          155,
-          50
-        ],
-        [
-          155,
-          100
-        ]
-      ],
-      "startBinding": {
-        "elementId": "api_gateway",
-        "focus": 0,
-        "gap": 4
-      },
-      "endBinding": {
-        "elementId": "auth",
-        "focus": 0,
-        "gap": 4
-      },
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "type": "text",
-      "id": "arrow_2_label",
-      "x": 524.1400555984552,
-      "y": 316.965827644789,
-      "width": 94,
-      "height": 18,
+      "id": "azure_functions_text",
+      "x": 580,
+      "y": 105,
+      "width": 160,
+      "height": 40,
       "angle": 0,
       "strokeWidth": 1,
       "strokeStyle": "solid",
@@ -1227,25 +1237,25 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "verify token",
-      "originalText": "verify token",
-      "fontSize": 13,
-      "fontFamily": 1,
+      "text": "Azure\nFunctions",
+      "originalText": "Azure\nFunctions",
+      "fontSize": 16,
+      "fontFamily": 2,
       "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "verticalAlign": "middle",
+      "strokeColor": "#451a03",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
+      "containerId": "azure_functions",
       "lineHeight": 1.25
     },
     {
       "type": "arrow",
-      "id": "arrow_3",
-      "x": 371.6666666666667,
-      "y": 295,
-      "width": 78.33333333333331,
-      "height": 400,
+      "id": "arrow_0",
+      "x": 146.25806451612902,
+      "y": 637.5,
+      "width": 173.74193548387098,
+      "height": 342.5,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1259,7 +1269,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#374151",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1268,52 +1278,36 @@
           0
         ],
         [
-          78.3,
-          50
+          123.7,
+          342.5
         ],
         [
-          78.3,
-          125
-        ],
-        [
-          78.3,
-          200
-        ],
-        [
-          78.3,
-          275
-        ],
-        [
-          78.3,
-          350
-        ],
-        [
-          78.3,
-          400
+          173.7,
+          342.5
         ]
       ],
       "startBinding": {
-        "elementId": "api_gateway",
+        "elementId": "root",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "users",
+        "elementId": "iaas",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_3_label",
-      "x": 448,
-      "y": 486,
-      "width": 44,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_1",
+      "x": 177.54716981132077,
+      "y": 637.5,
+      "width": 142.45283018867923,
+      "height": 87.5,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1325,25 +1319,43 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "REST",
-      "originalText": "REST",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          92.5,
+          87.5
+        ],
+        [
+          142.5,
+          87.5
+        ]
+      ],
+      "startBinding": {
+        "elementId": "root",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "paas",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
-      "id": "arrow_4",
-      "x": 311.6666666666667,
-      "y": 295,
-      "width": 41.666666666666686,
-      "height": 100,
+      "id": "arrow_2",
+      "x": 177.54716981132077,
+      "y": 547.5,
+      "width": 142.45283018867923,
+      "height": 87.5,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1357,7 +1369,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#374151",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1366,36 +1378,36 @@
           0
         ],
         [
-          -41.7,
-          50
+          92.5,
+          -87.5
         ],
         [
-          -41.7,
-          100
+          142.5,
+          -87.5
         ]
       ],
       "startBinding": {
-        "elementId": "api_gateway",
+        "elementId": "root",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "orders",
+        "elementId": "saas",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_4_label",
-      "x": 263.3644255919475,
-      "y": 348.8036879932896,
-      "width": 44,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_3",
+      "x": 146.6887417218543,
+      "y": 547.5,
+      "width": 173.3112582781457,
+      "height": 332.5,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1407,25 +1419,43 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "REST",
-      "originalText": "REST",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          123.3,
+          -332.5
+        ],
+        [
+          173.3,
+          -332.5
+        ]
+      ],
+      "startBinding": {
+        "elementId": "root",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "serverless",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
-      "id": "arrow_5",
-      "x": 252.5,
-      "y": 294,
-      "width": 131.66666666666669,
-      "height": 401,
+      "id": "arrow_4",
+      "x": 440.625,
+      "y": 1005,
+      "width": 139.375,
+      "height": 55,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1439,7 +1469,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#374151",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1448,52 +1478,36 @@
           0
         ],
         [
-          -170,
-          51
+          89.4,
+          55
         ],
         [
-          -170,
-          126
-        ],
-        [
-          -170,
-          201
-        ],
-        [
-          -170,
-          276
-        ],
-        [
-          -170,
-          351
-        ],
-        [
-          -131.7,
-          401
+          139.4,
+          55
         ]
       ],
       "startBinding": {
-        "elementId": "api_gateway",
+        "elementId": "iaas",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "payments",
+        "elementId": "ec2",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_5_label",
-      "x": 80.5,
-      "y": 486,
-      "width": 44,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_5",
+      "x": 480,
+      "y": 980,
+      "width": 100,
+      "height": 0,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1505,25 +1519,43 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "REST",
-      "originalText": "REST",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          50,
+          0
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "iaas",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "azure_vms",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
       "id": "arrow_6",
-      "x": 565,
-      "y": 445,
-      "width": 0,
-      "height": 100,
+      "x": 438.2352941176471,
+      "y": 955,
+      "width": 141.76470588235293,
+      "height": 60,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1537,7 +1569,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1546,36 +1578,36 @@
           0
         ],
         [
-          0,
-          50
+          91.8,
+          -60
         ],
         [
-          0,
-          100
+          141.8,
+          -60
         ]
       ],
       "startBinding": {
-        "elementId": "auth",
+        "elementId": "iaas",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "redis",
+        "elementId": "gcp_compute",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_6_label",
-      "x": 552,
-      "y": 486,
-      "width": 66,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_7",
+      "x": 438.2352941176471,
+      "y": 750,
+      "width": 141.76470588235293,
+      "height": 60,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1587,25 +1619,43 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "sessions",
-      "originalText": "sessions",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          91.8,
+          60
+        ],
+        [
+          141.8,
+          60
+        ]
+      ],
+      "startBinding": {
+        "elementId": "paas",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "heroku",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
-      "id": "arrow_7",
-      "x": 450,
-      "y": 745,
-      "width": 81.66666666666669,
-      "height": 100,
+      "id": "arrow_8",
+      "x": 480,
+      "y": 725,
+      "width": 100,
+      "height": 0,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1619,7 +1669,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1628,36 +1678,36 @@
           0
         ],
         [
-          0,
-          50
+          50,
+          0
         ],
         [
-          -81.7,
-          100
+          100,
+          0
         ]
       ],
       "startBinding": {
-        "elementId": "users",
+        "elementId": "paas",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "postgresql",
+        "elementId": "app_engine",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_7_label",
-      "x": 430,
-      "y": 786,
-      "width": 80,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_9",
+      "x": 436.1111111111111,
+      "y": 700,
+      "width": 143.8888888888889,
+      "height": 65,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1669,25 +1719,43 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "read/write",
-      "originalText": "read/write",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          93.9,
+          -65
+        ],
+        [
+          143.9,
+          -65
+        ]
+      ],
+      "startBinding": {
+        "elementId": "paas",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "elastic_beanstalk",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
-      "id": "arrow_8",
-      "x": 289.1666666666667,
-      "y": 445,
-      "width": 38.333333333333314,
-      "height": 400,
+      "id": "arrow_10",
+      "x": 438.2352941176471,
+      "y": 485,
+      "width": 141.76470588235293,
+      "height": 60,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1701,7 +1769,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1710,52 +1778,36 @@
           0
         ],
         [
-          38.3,
-          50
+          91.8,
+          60
         ],
         [
-          38.3,
-          125
-        ],
-        [
-          38.3,
-          200
-        ],
-        [
-          38.3,
-          275
-        ],
-        [
-          38.3,
-          350
-        ],
-        [
-          38.3,
-          400
+          141.8,
+          60
         ]
       ],
       "startBinding": {
-        "elementId": "orders",
+        "elementId": "saas",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "postgresql",
+        "elementId": "google_workspace",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_8_label",
-      "x": 307.5,
-      "y": 636,
-      "width": 80,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_11",
+      "x": 480,
+      "y": 460,
+      "width": 100,
+      "height": 0,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1767,25 +1819,43 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "read/write",
-      "originalText": "read/write",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          50,
+          0
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "saas",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "salesforce",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
-      "id": "arrow_9",
-      "x": 140,
-      "y": 745,
-      "width": 125,
-      "height": 100,
+      "id": "arrow_12",
+      "x": 440.625,
+      "y": 435,
+      "width": 139.375,
+      "height": 55,
       "angle": 0,
       "strokeWidth": 1.5,
       "strokeStyle": "solid",
@@ -1799,7 +1869,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#7c3aed",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1808,36 +1878,36 @@
           0
         ],
         [
-          0,
-          50
+          89.4,
+          -55
         ],
         [
-          125,
-          100
+          139.4,
+          -55
         ]
       ],
       "startBinding": {
-        "elementId": "payments",
+        "elementId": "saas",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "postgresql",
+        "elementId": "dropbox",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_9_label",
-      "x": 120,
-      "y": 786,
-      "width": 80,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_13",
+      "x": 438.2352941176471,
+      "y": 240,
+      "width": 141.76470588235293,
+      "height": 60,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1849,28 +1919,46 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "read/write",
-      "originalText": "read/write",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          91.8,
+          60
+        ],
+        [
+          141.8,
+          60
+        ]
+      ],
+      "startBinding": {
+        "elementId": "serverless",
+        "focus": 0,
+        "gap": 4
+      },
+      "endBinding": {
+        "elementId": "lambda",
+        "focus": 0,
+        "gap": 4
+      },
+      "startArrowhead": null,
+      "endArrowhead": null
     },
     {
       "type": "arrow",
-      "id": "arrow_10",
-      "x": 247.5,
-      "y": 445,
-      "width": 45,
-      "height": 100,
+      "id": "arrow_14",
+      "x": 480,
+      "y": 215,
+      "width": 100,
+      "height": 0,
       "angle": 0,
       "strokeWidth": 1.5,
-      "strokeStyle": "dashed",
+      "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
       "seed": 10098,
@@ -1881,7 +1969,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "strokeColor": "#d97706",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1890,36 +1978,36 @@
           0
         ],
         [
-          -45,
-          50
+          50,
+          0
         ],
         [
-          -45,
-          100
+          100,
+          0
         ]
       ],
       "startBinding": {
-        "elementId": "orders",
+        "elementId": "serverless",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "rabbitmq",
+        "elementId": "cloud_functions",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
+      "endArrowhead": null
     },
     {
-      "type": "text",
-      "id": "arrow_10_label",
-      "x": 166.86588292494332,
-      "y": 499.379294632449,
-      "width": 101,
-      "height": 18,
+      "type": "arrow",
+      "id": "arrow_15",
+      "x": 436.1111111111111,
+      "y": 190,
+      "width": 143.8888888888889,
+      "height": 65,
       "angle": 0,
-      "strokeWidth": 1,
+      "strokeWidth": 1.5,
       "strokeStyle": "solid",
       "roughness": 0,
       "opacity": 100,
@@ -1931,39 +2019,7 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "order.created",
-      "originalText": "order.created",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
-    },
-    {
-      "type": "arrow",
-      "id": "arrow_11",
-      "x": 202.5,
-      "y": 595,
-      "width": 41.66666666666666,
-      "height": 100,
-      "angle": 0,
-      "strokeWidth": 1.5,
-      "strokeStyle": "dashed",
-      "roughness": 0,
-      "opacity": 100,
-      "seed": 10102,
-      "version": 1,
-      "versionNonce": 10103,
-      "isDeleted": false,
-      "groupIds": [],
-      "boundElements": null,
-      "link": null,
-      "locked": false,
-      "strokeColor": "#d97706",
+      "strokeColor": "#94a3b8",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "points": [
@@ -1972,62 +2028,30 @@
           0
         ],
         [
-          0,
-          50
+          93.9,
+          -65
         ],
         [
-          -41.7,
-          100
+          143.9,
+          -65
         ]
       ],
       "startBinding": {
-        "elementId": "rabbitmq",
+        "elementId": "serverless",
         "focus": 0,
         "gap": 4
       },
       "endBinding": {
-        "elementId": "payments",
+        "elementId": "azure_functions",
         "focus": 0,
         "gap": 4
       },
       "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "text",
-      "id": "arrow_11_label",
-      "x": 165,
-      "y": 636,
-      "width": 115,
-      "height": 18,
-      "angle": 0,
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "roughness": 0,
-      "opacity": 100,
-      "seed": 10104,
-      "version": 1,
-      "versionNonce": 10105,
-      "isDeleted": false,
-      "groupIds": [],
-      "boundElements": null,
-      "link": null,
-      "locked": false,
-      "text": "process payment",
-      "originalText": "process payment",
-      "fontSize": 13,
-      "fontFamily": 1,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "strokeColor": "#e2e8f0",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "containerId": null,
-      "lineHeight": 1.25
+      "endArrowhead": null
     }
   ],
   "appState": {
-    "viewBackgroundColor": "#0f172a",
+    "viewBackgroundColor": "#ffffff",
     "gridSize": 20
   },
   "files": {}

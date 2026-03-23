@@ -1,6 +1,6 @@
 {
   "direction": "LR",
-  "title": "Order Lifecycle",
+  "title": "Support Ticket Lifecycle",
   "rankSep": 80,
   "nodeSep": 50,
   "style": {
@@ -11,45 +11,61 @@
   "nodes": [
     {
       "id": "start",
-      "label": "",
+      "label": "●",
       "shape": "ellipse",
-      "width": 30,
-      "height": 30,
-      "fill": "#374151",
-      "stroke": "#374151",
+      "width": 40,
+      "height": 40,
+      "fill": "#1e40af",
+      "stroke": "#1e40af",
       "fillStyle": "solid"
     },
     {
-      "id": "placed",
-      "label": "Placed",
+      "id": "new",
+      "label": "New",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#dbeafe",
+      "stroke": "#1e40af"
+    },
+    {
+      "id": "triaged",
+      "label": "Triaged",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#86efac",
       "stroke": "#15803d"
     },
     {
-      "id": "processing",
-      "label": "Processing",
+      "id": "in_progress",
+      "label": "In Progress",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#86efac",
       "stroke": "#15803d"
     },
     {
-      "id": "shipped",
-      "label": "Shipped",
+      "id": "waiting",
+      "label": "Waiting on\nCustomer",
       "shape": "rectangle",
       "rounded": true,
-      "fill": "#86efac",
-      "stroke": "#15803d"
+      "fill": "#fef08a",
+      "stroke": "#92400e"
     },
     {
-      "id": "delivered",
-      "label": "Delivered",
+      "id": "resolved",
+      "label": "Resolved",
       "shape": "rectangle",
       "rounded": true,
-      "fill": "#86efac",
-      "stroke": "#15803d"
+      "fill": "#a7f3d0",
+      "stroke": "#047857"
+    },
+    {
+      "id": "closed",
+      "label": "Closed",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#a7f3d0",
+      "stroke": "#047857"
     },
     {
       "id": "cancelled",
@@ -60,32 +76,31 @@
       "stroke": "#b91c1c"
     },
     {
-      "id": "refunded",
-      "label": "Refunded",
-      "shape": "rectangle",
-      "rounded": true,
-      "fill": "#fed7aa",
-      "stroke": "#c2410c"
-    },
-    {
       "id": "end",
-      "label": "",
+      "label": "◉",
       "shape": "ellipse",
-      "width": 30,
-      "height": 30,
-      "fill": "#374151",
-      "stroke": "#374151",
+      "width": 40,
+      "height": 40,
+      "fill": "#047857",
+      "stroke": "#047857",
       "fillStyle": "solid"
     }
   ],
   "edges": [
-    { "from": "start", "to": "placed", "stroke": "#15803d" },
-    { "from": "placed", "to": "processing", "stroke": "#15803d" },
-    { "from": "processing", "to": "shipped", "stroke": "#15803d" },
-    { "from": "shipped", "to": "delivered", "stroke": "#15803d" },
-    { "from": "delivered", "to": "end", "stroke": "#15803d" },
-    { "from": "placed", "to": "cancelled", "stroke": "#b91c1c", "style": "dashed", "label": "cancel" },
-    { "from": "processing", "to": "cancelled", "stroke": "#b91c1c", "style": "dashed", "label": "cancel" },
-    { "from": "delivered", "to": "refunded", "stroke": "#c2410c", "style": "dashed", "label": "refund" }
+    {"from": "start", "to": "new", "label": "created"},
+    {"from": "new", "to": "triaged", "label": "triage"},
+    {"from": "triaged", "to": "in_progress", "label": "assign"},
+    {"from": "in_progress", "to": "waiting", "label": "need info"},
+    {"from": "waiting", "to": "in_progress", "label": "reply received"},
+    {"from": "in_progress", "to": "resolved", "label": "fix applied"},
+    {"from": "resolved", "to": "closed", "label": "confirmed"},
+    {"from": "resolved", "to": "in_progress", "label": "reopen", "stroke": "#c2410c", "style": "dashed"},
+    {"from": "closed", "to": "end"},
+    {"from": "new", "to": "cancelled", "label": "cancel", "stroke": "#dc2626", "style": "dashed"},
+    {"from": "triaged", "to": "cancelled", "label": "cancel", "stroke": "#dc2626", "style": "dashed"},
+    {"from": "in_progress", "to": "cancelled", "label": "cancel", "stroke": "#dc2626", "style": "dashed"},
+    {"from": "waiting", "to": "cancelled", "label": "cancel", "stroke": "#dc2626", "style": "dashed"},
+    {"from": "resolved", "to": "cancelled", "label": "cancel", "stroke": "#dc2626", "style": "dashed"},
+    {"from": "cancelled", "to": "end"}
   ]
 }

@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant User
+    participant App
+    participant AuthServer as Auth Server
+    participant ResourceServer as Resource Server
+
+    User->>App: Opens application
+    App->>AuthServer: Redirect to /authorize (client_id, redirect_uri, scope, state)
+    Note over User,AuthServer: User authenticates with Auth Server
+    User->>AuthServer: Submits credentials (username, password)
+    AuthServer-->>App: Redirect to redirect_uri with authorization_code + state
+    App->>AuthServer: POST /token (authorization_code, client_id, client_secret)
+    AuthServer-->>App: 200 OK { access_token, refresh_token, expires_in }
+    App->>ResourceServer: GET /resource (Authorization: Bearer access_token)
+    ResourceServer-->>App: 200 OK { protected data }
