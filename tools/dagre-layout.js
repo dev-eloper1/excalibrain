@@ -1,0 +1,516 @@
+#!/usr/bin/env node
+/**
+ * dagre-layout.js
+ *
+ * Takes a graph description JSON (stdin or file) and outputs a fully-positioned
+ * Excalidraw JSON file with no overlapping nodes or crossing edges.
+ *
+ * Input format (graph.json):
+ * {
+ *   "direction": "LR",          // TB (top→bottom) | LR (left→right) | BT | RL
+ *   "rankSep": 80,              // vertical gap between ranks (optional, default 80)
+ *   "nodeSep": 40,              // horizontal gap between nodes in same rank (optional, default 40)
+ *   "title": "My Diagram",      // optional title text
+ *   "zones": [                  // optional background zone rectangles
+ *     {
+ *       "id": "zone_cp",
+ *       "label": "CONTROL PLANE",
+ *       "labelColor": "#c2410c",
+ *       "fill": "#fff7ed",
+ *       "stroke": "#fdba74",
+ *       "nodeIds": ["api", "etcd", "cm", "sched"]  // nodes that belong in this zone
+ *     }
+ *   ],
+ *   "nodes": [
+ *     {
+ *       "id": "api",
+ *       "label": "kube-apiserver",
+ *       "width": 180,           // optional, auto-calculated from label
+ *       "height": 60,           // optional, auto-calculated from label
+ *       "fill": "#fed7aa",
+ *       "stroke": "#c2410c",
+ *       "shape": "rectangle",   // rectangle | diamond | ellipse (default: rectangle)
+ *       "rounded": false        // rounded corners (default: false)
+ *     }
+ *   ],
+ *   "edges": [
+ *     {
+ *       "from": "api",
+ *       "to": "etcd",
+ *       "label": "",            // optional
+ *       "stroke": "#6d28d9",    // optional, default "#374151"
+ *       "style": "solid",       // solid | dashed | dotted (default: solid)
+ *       "width": 2              // optional, default 1.5
+ *     }
+ *   ]
+ * }
+ *
+ * Usage:
+ *   node dagre-layout.js graph.json > out.excalidraw
+ *   cat graph.json | node dagre-layout.js > out.excalidraw
+ */
+
+const dagre = require('@dagrejs/dagre');
+const fs = require('fs');
+
+// ── CLI arg parsing ───────────────────────────────────────────────────────────
+const args = process.argv.slice(2);
+const flags = {};
+let inputPath = null;
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--clean') { flags.clean = true; }
+  else if (args[i] === '--roughness')   { flags.roughness  = Number(args[++i]); }
+  else if (args[i] === '--font')        { flags.font       = args[++i]; }
+  else if (args[i] === '--fill')        { flags.fill       = args[++i]; }
+  else if (args[i] === '--arrow-width') { flags.arrowWidth = Number(args[++i]); }
+  else if (args[i] === '--node-width')  { flags.nodeWidth  = Number(args[++i]); }
+  else if (args[i] === '--output')      { flags.output     = args[++i]; }
+  else if (!args[i].startsWith('--'))   { inputPath = args[i]; }
+}
+
+const FONT_MAP = { virgil: 1, normal: 2, mono: 3, '1': 1, '2': 2, '3': 3 };
+
+if (flags.clean) {
+  flags.roughness  = flags.roughness  ?? 0;
+  flags.font       = flags.font       ?? '3';
+  flags.fill       = flags.fill       ?? 'solid';
+}
+
+// ── Read input ────────────────────────────────────────────────────────────────
+let raw;
+if (inputPath) {
+  raw = fs.readFileSync(inputPath, 'utf8');
+} else {
+  raw = fs.readFileSync('/dev/stdin', 'utf8');
+}
+const graph = JSON.parse(raw);
+
+// Merge CLI flags → graph.style (graph.style keys take highest priority)
+graph.style = {
+  roughness:   flags.roughness  ?? 1,
+  fontFamily:  FONT_MAP[flags.font ?? '1'] ?? 1,
+  nodeFill:    flags.fill       ?? 'none',
+  zoneFill:    'solid',
+  zoneOpacity: 30,
+  arrowWidth:  flags.arrowWidth ?? 1.5,     // FIX 3: was 1
+  nodeWidth:   flags.nodeWidth  ?? 2,
+  ...graph.style,
+};
+
+// ── Seed counter for deterministic IDs ───────────────────────────────────────
+let seedCounter = 10000;
+function nextSeed() { return seedCounter++; }
+
+// ── Build dagre graph ────────────────────────────────────────────────────────
+const g = new dagre.graphlib.Graph({ multigraph: true });
+g.setDefaultEdgeLabel(() => ({}));
+g.setGraph({
+  rankdir: graph.direction || 'LR',
+  ranksep: graph.rankSep ?? 80,
+  nodesep: graph.nodeSep ?? 40,
+  marginx: 40,
+  marginy: 40,
+  edgesep: 20,
+  acyclicer: 'greedy',
+  ranker: 'network-simplex',
+});
+
+const DEFAULT_W = 160;
+const DEFAULT_H = 50;
+
+// ── FIX 2: Multiline label auto-sizing ───────────────────────────────────────
+for (const n of graph.nodes) {
+  const label = n.label || n.id;
+  const lines = label.split('\n');
+  const maxLineLen = Math.max(...lines.map(l => l.length), 1);
+  const fontSize = n.fontSize ?? 16;  // FIX 3: was 14
+  const calcW = Math.max(DEFAULT_W, Math.ceil((maxLineLen * fontSize * 0.65 + 32) / 10) * 10);
+  const calcH = Math.max(DEFAULT_H, Math.ceil((lines.length * fontSize * 1.25 + 20) / 10) * 10);
+
+  g.setNode(n.id, {
+    width: n.width ?? calcW,
+    height: n.height ?? calcH,
+    label: n.id,
+  });
+}
+
+for (const e of graph.edges) {
+  const name = `${e.from}->${e.to}:${e.label || ''}`;
+  g.setEdge(e.from, e.to, {}, name);
+}
+
+dagre.layout(g);
+
+// Build a quick lookup: nodeId → shape spec
+const nodeShapeMap = {};
+for (const n of graph.nodes) nodeShapeMap[n.id] = n;
+
+// ── Collect positioned nodes ─────────────────────────────────────────────────
+const nodeMap = {};
+for (const n of graph.nodes) {
+  const pos = g.node(n.id);
+  nodeMap[n.id] = {
+    x: pos.x - pos.width / 2,
+    y: pos.y - pos.height / 2,
+    width: pos.width,
+    height: pos.height,
+    cx: pos.x,
+    cy: pos.y,
+  };
+}
+
+// ── Build Excalidraw elements ─────────────────────────────────────────────────
+const elements = [];
+
+// ── Style defaults ──────────────────────────────────────────────────────────
+const STYLE = {
+  roughness:   graph.style?.roughness   ?? 1,
+  fontFamily:  graph.style?.fontFamily  ?? 1,
+  fontSize:    graph.style?.fontSize    ?? 16,    // FIX 3: was 14
+  nodeFill:    graph.style?.nodeFill    ?? 'none',
+  zoneFill:    graph.style?.zoneFill    ?? 'solid',
+  arrowWidth:  graph.style?.arrowWidth  ?? 1.5,   // FIX 3: was 1
+  nodeWidth:   graph.style?.nodeWidth   ?? 2,
+};
+
+// Helper: base element fields
+function base(id, type, x, y, w, h, extra = {}) {
+  return {
+    type,
+    id,
+    x, y, width: w, height: h,
+    angle: 0,
+    strokeWidth: extra.sw ?? STYLE.nodeWidth,
+    strokeStyle: extra.style ?? 'solid',
+    roughness: extra.roughness ?? STYLE.roughness,
+    opacity: 100,
+    seed: nextSeed(),
+    version: 1,
+    versionNonce: nextSeed(),
+    isDeleted: false,
+    groupIds: [],
+    boundElements: extra.boundElements ?? [],
+    link: null,
+    locked: false,
+    ...extra.props,
+  };
+}
+
+// Helper: text element inside a shape
+function shapeText(containerId, x, y, w, h, text, color, fontSize = STYLE.fontSize) {
+  const id        = `${containerId}_text`;
+  const LINE_H    = 1.25;
+  const lines     = text.split('\n').length;
+  const textH     = lines * fontSize * LINE_H;
+  const centeredY = y + (h - textH) / 2;
+  return {
+    ...base(id, 'text', x, centeredY, w, textH, { sw: 1, roughness: 0 }),
+    text,
+    originalText: text,
+    fontSize,
+    fontFamily: STYLE.fontFamily,
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    strokeColor: color,
+    backgroundColor: 'transparent',
+    fillStyle: 'solid',
+    containerId,
+    lineHeight: LINE_H,
+    boundElements: null,
+  };
+}
+
+// Helper: free-floating text
+function freeText(id, x, y, w, h, text, color, fontSize = 13, align = 'left') {
+  return {
+    ...base(id, 'text', x, y, w, h, { sw: 1, roughness: 0 }),
+    text,
+    originalText: text,
+    fontSize,
+    fontFamily: STYLE.fontFamily,
+    textAlign: align,
+    verticalAlign: 'top',
+    strokeColor: color,
+    backgroundColor: 'transparent',
+    fillStyle: 'solid',
+    containerId: null,
+    lineHeight: 1.25,
+    boundElements: null,
+  };
+}
+
+// ── 1. Title ─────────────────────────────────────────────────────────────────
+const TITLE_OFFSET = graph.title ? 55 : 10;
+for (const id of Object.keys(nodeMap)) {
+  nodeMap[id].y  += TITLE_OFFSET;
+  nodeMap[id].cy += TITLE_OFFSET;
+}
+
+if (graph.title) {
+  elements.push(freeText('title', 20, 12, 800, 36, graph.title, '#1e293b', 22));
+}
+
+// ── 2. Zone backgrounds (drawn first, behind nodes) ──────────────────────────
+const ZONE_PAD = 32;
+if (graph.zones) {
+  for (const zone of graph.zones) {
+    if (!zone.nodeIds || zone.nodeIds.length === 0) continue;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const nid of zone.nodeIds) {
+      const p = nodeMap[nid];
+      if (!p) continue;
+      minX = Math.min(minX, p.x);
+      minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x + p.width);
+      maxY = Math.max(maxY, p.y + p.height);
+    }
+
+    const zx = minX - ZONE_PAD;
+    const zy = minY - ZONE_PAD - 20;
+    const zw = maxX - minX + ZONE_PAD * 2;
+    const zh = maxY - minY + ZONE_PAD * 2 + 20;
+
+    const zid = `zone_${zone.id}`;
+    elements.push({
+      ...base(zid, 'rectangle', zx, zy, zw, zh, { sw: 1, roughness: 0, props: {
+        strokeColor: zone.stroke ?? '#94a3b8',
+        backgroundColor: zone.fill ?? '#f8fafc',
+        fillStyle: STYLE.zoneFill,
+        opacity: zone.opacity ?? STYLE.zoneOpacity ?? 30,
+        roundness: { type: 3 },   // FIX 3: was null
+      }}),
+      boundElements: null,
+    });
+
+    if (zone.label) {
+      const zlEl = freeText(
+        `zone_${zone.id}_label`,
+        zx + 8, zy + 6, 300, 18,
+        zone.label,
+        zone.labelColor ?? '#1e293b',
+        13,   // FIX 3: was 12
+      );
+      zlEl.fontFamily = 2;
+      zlEl.opacity = 100;
+      elements.push(zlEl);
+    }
+  }
+}
+
+// ── 3. Nodes ──────────────────────────────────────────────────────────────────
+const nodeBoundElements = {};
+for (const n of graph.nodes) {
+  nodeBoundElements[n.id] = [];
+}
+
+for (const n of graph.nodes) {
+  nodeBoundElements[n.id].push({ id: `${n.id}_text`, type: 'text' });
+}
+
+const arrowData = [];
+
+for (const [i, e] of graph.edges.entries()) {
+  const name = `${e.from}->${e.to}:${e.label || ''}`;
+  const edgeObj = g.edge(e.from, e.to, name) ?? g.edge(e.from, e.to);
+  const arrowId = `arrow_${i}`;
+
+  arrowData.push({ e, arrowId, edgeObj, name });
+
+  nodeBoundElements[e.from]?.push({ id: arrowId, type: 'arrow' });
+  nodeBoundElements[e.to]?.push({ id: arrowId, type: 'arrow' });
+}
+
+// Emit nodes
+for (const n of graph.nodes) {
+  const p = nodeMap[n.id];
+  const nid = n.id;
+  const fill = n.fill ?? 'none';
+  const stroke = n.stroke ?? '#1e40af';
+  const textColor = n.textColor ?? darken(stroke);
+  const fontSize = n.fontSize ?? 16;   // FIX 3: was 14
+
+  let shapeType = 'rectangle';
+  let roundness = null;
+  if (n.shape === 'diamond') shapeType = 'diamond';
+  else if (n.shape === 'ellipse') shapeType = 'ellipse';
+  if (n.rounded) roundness = { type: 3 };
+
+  const el = {
+    ...base(nid, shapeType, p.x, p.y, p.width, p.height, {
+      sw: n.strokeWidth ?? STYLE.nodeWidth,
+      style: n.strokeStyle ?? 'solid',
+      boundElements: nodeBoundElements[nid],
+      props: (() => {
+        const hasWhiteText = textColor === '#ffffff' || textColor === '#fff';
+        const isTransparent = fill === 'none' || fill === 'transparent';
+        const backgroundColor = isTransparent ? 'transparent' : fill;
+        let resolvedFill;
+        if (isTransparent) {
+          resolvedFill = 'solid';
+        } else if (n.fillStyle === 'none') {
+          resolvedFill = 'solid';
+        } else if (n.fillStyle) {
+          resolvedFill = n.fillStyle;
+        } else if (hasWhiteText) {
+          resolvedFill = 'solid';
+        } else {
+          resolvedFill = STYLE.nodeFill === 'none' ? 'solid' : STYLE.nodeFill;
+        }
+        const p = { strokeColor: stroke, backgroundColor, fillStyle: resolvedFill, roundness };
+        if (n.roughness !== undefined) p.roughness = n.roughness;
+        else if (hasWhiteText) p.roughness = 0;
+        return p;
+      })(),
+    }),
+  };
+  elements.push(el);
+
+  const txt = shapeText(nid, p.x, p.y, p.width, p.height, n.label, textColor, fontSize);
+  elements.push(txt);
+}
+
+// ── 4. Arrows ─────────────────────────────────────────────────────────────────
+const rankDir = (graph.direction || 'LR').toUpperCase();
+const isLR    = rankDir === 'LR' || rankDir === 'RL';
+
+// ── Bidirectional pair detection ───────────────────────────────────────────
+const edgeIdxByKey = new Map();
+for (let i = 0; i < arrowData.length; i++) {
+  const e = arrowData[i].e;
+  edgeIdxByKey.set(`${e.from}→${e.to}`, i);
+}
+const bidirSet = new Set();
+const skipSet  = new Set();
+
+for (let i = 0; i < arrowData.length; i++) {
+  if (skipSet.has(i)) continue;
+  const { edgeObj } = arrowData[i];
+  if (!edgeObj?.points?.length) {
+    const e = arrowData[i].e;
+    const twinIdx = edgeIdxByKey.get(`${e.to}→${e.from}`);
+    if (twinIdx !== undefined) {
+      bidirSet.add(twinIdx);
+      skipSet.add(i);
+    }
+  }
+}
+
+// Graph-level default arrowhead
+const graphArrowhead = graph.arrowhead !== undefined ? graph.arrowhead : 'triangle';
+
+for (let idx = 0; idx < arrowData.length; idx++) {
+  if (skipSet.has(idx)) continue;
+  const { e, arrowId, edgeObj } = arrowData[idx];
+  const from = nodeMap[e.from];
+  const to   = nodeMap[e.to];
+  if (!from || !to) continue;
+
+  const rawPts = (edgeObj?.points ?? []).map(p => ({ x: p.x, y: p.y + TITLE_OFFSET }));
+
+  let points, startPt, endPt, startBinding, endBinding;
+
+  // ── FIX 1: Always bind arrows to source/target shapes ──────────────────
+  // Excalidraw's renderer handles edge intersection when bindings are set.
+  // This replaces the old conditional that left arrows unbound when dagre
+  // provided waypoints, which caused arrows to cut through nodes.
+  startBinding = { elementId: e.from, focus: 0, gap: 4 };
+  endBinding   = { elementId: e.to,   focus: 0, gap: 4 };
+
+  // Use center-to-center for the points array.
+  // Excalidraw re-routes from shape edge automatically.
+  startPt = { x: from.cx, y: from.cy };
+  endPt   = { x: to.cx, y: to.cy };
+  points  = [[0, 0], [+(endPt.x - startPt.x).toFixed(1), +(endPt.y - startPt.y).toFixed(1)]];
+
+  // Per-edge arrowhead → graph default → 'triangle'
+  const arrowhead   = e.arrowhead !== undefined ? e.arrowhead : graphArrowhead;
+  const endHead     = arrowhead === 'none' ? null : (arrowhead ?? null);
+  const startHead   = bidirSet.has(idx) ? endHead : null;
+
+  const arrowEl = {
+    ...base(arrowId, 'arrow', startPt.x, startPt.y, 0, 0, {
+      sw: e.width ?? STYLE.arrowWidth,
+      style: e.style ?? 'solid',
+      roughness: STYLE.roughness,
+      props: {
+        strokeColor: e.stroke ?? '#374151',
+        backgroundColor: 'transparent',
+        fillStyle: 'solid',
+      },
+    }),
+    width:  Math.abs(endPt.x - startPt.x),
+    height: Math.abs(endPt.y - startPt.y),
+    points,
+    startBinding,
+    endBinding,
+    startArrowhead: startHead,
+    endArrowhead:   endHead,
+    boundElements: null,
+  };
+
+  elements.push(arrowEl);
+
+  // ── Edge label ──────────────────────────────────────────────────────────
+  if (e.label) {
+    const mid = { x: (from.cx + to.cx) / 2, y: (from.cy + to.cy) / 2 };
+    const dx = to.cx - from.cx, dy = to.cy - from.cy;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+
+    const LABEL_OFFSET = 20;
+    let ox = (-dy / len) * LABEL_OFFSET;
+    let oy = ( dx / len) * LABEL_OFFSET;
+    if (isLR  && oy > 0) { ox = -ox; oy = -oy; }
+    if (!isLR && ox < 0) { ox = -ox; oy = -oy; }
+
+    const labelId = `${arrowId}_label`;
+    const labelW  = Math.max(e.label.length * 7 + 10, 44);
+    elements.push(freeText(
+      labelId,
+      mid.x + ox - labelW / 2,
+      mid.y + oy - 9,
+      labelW, 18,
+      e.label,
+      e.stroke ?? '#374151',
+      13,   // FIX 3: was 11
+      'center',
+    ));
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function darken(hex) {
+  const darkMap = {
+    '#fed7aa': '#7c2d12', '#c2410c': '#7c2d12',
+    '#ddd6fe': '#4c1d95', '#6d28d9': '#4c1d95',
+    '#86efac': '#14532d', '#15803d': '#14532d',
+    '#bfdbfe': '#1e3a8a', '#1e40af': '#1e3a8a',
+    '#fef08a': '#451a03', '#92400e': '#451a03',
+    '#fecdd3': '#881337', '#9f1239': '#881337',
+    '#fecaca': '#7f1d1d', '#b91c1c': '#7f1d1d',
+    '#a7f3d0': '#064e3b', '#047857': '#064e3b',
+    '#fef3c7': '#451a03', '#b45309': '#451a03',
+  };
+  return darkMap[hex] ?? '#1e293b';
+}
+
+// ── Output Excalidraw JSON ────────────────────────────────────────────────────
+const output = {
+  type: 'excalidraw',
+  version: 2,
+  source: 'https://excalidraw.com',
+  elements,
+  appState: {
+    viewBackgroundColor: '#ffffff',
+    gridSize: 20,
+  },
+  files: {},
+};
+
+const outJson = JSON.stringify(output, null, 2);
+if (flags.output) {
+  fs.writeFileSync(flags.output, outJson);
+} else {
+  process.stdout.write(outJson);
+}
