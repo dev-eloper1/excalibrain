@@ -18,7 +18,7 @@
     "edgeLabelSize": 11,
     "titleSize": 18,
     "titleColor": "#93c5fd",
-    "defaultArrowColor": "#60a5fa",
+    "defaultArrowColor": "#93c5fd",
     "defaultNodeStroke": "#3b82f6",
     "defaultNodeFill": "solid"
   },

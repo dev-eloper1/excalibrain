@@ -18,7 +18,7 @@
     "edgeLabelSize": 13,
     "titleSize": 22,
     "titleColor": "#e2e8f0",
-    "defaultArrowColor": "#94a3b8",
+    "defaultArrowColor": "#cbd5e1",
     "defaultNodeStroke": "#60a5fa",
     "defaultNodeFill": "solid"
   },
@@ -48,7 +48,7 @@
     "observability": { "fill": "#4c0519", "stroke": "#9f1239", "labelColor": "#f43f5e" }
   },
   "arrows": {
-    "primary":  { "stroke": "#94a3b8", "style": "solid", "width": 1.5 },
+    "primary":  { "stroke": "#cbd5e1", "style": "solid", "width": 1.5 },
     "async":    { "stroke": "#fbbf24", "style": "dashed", "width": 1.5 },
     "error":    { "stroke": "#f87171", "style": "dashed", "width": 1.5 },
     "auth":     { "stroke": "#fb923c", "style": "solid", "width": 1.5 },

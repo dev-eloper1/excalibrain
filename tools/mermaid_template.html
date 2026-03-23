@@ -3,6 +3,12 @@
 <head>
   <meta charset="utf-8">
   <title>Mermaid to Excalidraw Converter</title>
+  <script>
+    // Process polyfill for excalidraw bundle
+    window.process = { env: { NODE_ENV: 'production' } };
+    window.global = window;
+  </script>
+  <script src="./excalidraw-bundle.js"></script>
 </head>
 <body>
   <script type="module">
@@ -11,9 +17,22 @@
     window.__parseMermaid = async function(syntax) {
       try {
         const { elements, files } = await parseMermaidToExcalidraw(syntax);
+
+        // Use the library's convertToExcalidrawElements to transform
+        // the skeleton format (with label properties) into proper
+        // Excalidraw elements (with bound text elements).
+        let fullElements = elements || [];
+        if (window.__convertToExcalidrawElements && fullElements.length > 0) {
+          try {
+            fullElements = window.__convertToExcalidrawElements(fullElements);
+          } catch (e) {
+            console.warn('convertToExcalidrawElements failed, using raw elements:', e);
+          }
+        }
+
         return {
           success: true,
-          elements: elements || [],
+          elements: fullElements,
           files: files || {},
         };
       } catch (err) {

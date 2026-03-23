@@ -25,8 +25,9 @@ async function build() {
   try {
     // Entry file: import exportToSvg and expose on window
     fs.writeFileSync(entryFile, `
-import { exportToSvg } from "@excalidraw/excalidraw";
+import { exportToSvg, convertToExcalidrawElements } from "@excalidraw/excalidraw";
 window.__exportToSvg = exportToSvg;
+window.__convertToExcalidrawElements = convertToExcalidrawElements;
 `);
 
     // Process shim for browser environment
