@@ -1,18 +1,14 @@
 {
   "direction": "LR",
-  "title": "Cloud Computing Concepts",
+  "title": "JavaScript Ecosystem",
   "rankSep": 100,
   "nodeSep": 30,
   "arrowhead": null,
-  "style": {
-    "roughness": 0,
-    "fontFamily": 2,
-    "fontSize": 15
-  },
+  "style": {},
   "nodes": [
     {
       "id": "root",
-      "label": "Cloud\nComputing",
+      "label": "JavaScript",
       "shape": "ellipse",
       "width": 180,
       "height": 90,
@@ -21,150 +17,177 @@
       "textColor": "#e2e8f0"
     },
     {
-      "id": "iaas",
-      "label": "IaaS",
+      "id": "core",
+      "label": "Core",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#bfdbfe",
       "stroke": "#1e40af"
     },
     {
-      "id": "paas",
-      "label": "PaaS",
+      "id": "frontend",
+      "label": "Frontend",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#86efac",
       "stroke": "#15803d"
     },
     {
-      "id": "saas",
-      "label": "SaaS",
+      "id": "backend",
+      "label": "Backend",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#ddd6fe",
       "stroke": "#6d28d9"
     },
     {
-      "id": "serverless",
-      "label": "Serverless",
+      "id": "testing",
+      "label": "Testing",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#fef08a",
       "stroke": "#92400e"
     },
     {
-      "id": "ec2",
-      "label": "Amazon EC2",
+      "id": "build",
+      "label": "Build Tools",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#fed7aa",
+      "stroke": "#c2410c"
+    },
+    {
+      "id": "esmodules",
+      "label": "ES Modules",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#dbeafe",
       "stroke": "#1e40af"
     },
     {
-      "id": "azure_vms",
-      "label": "Azure VMs",
+      "id": "promises",
+      "label": "Promises",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#dbeafe",
       "stroke": "#1e40af"
     },
     {
-      "id": "gcp_compute",
-      "label": "GCP Compute\nEngine",
+      "id": "closures",
+      "label": "Closures",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#dbeafe",
       "stroke": "#1e40af"
     },
     {
-      "id": "heroku",
-      "label": "Heroku",
+      "id": "react",
+      "label": "React",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#bbf7d0",
       "stroke": "#15803d"
     },
     {
-      "id": "app_engine",
-      "label": "Google App\nEngine",
+      "id": "vue",
+      "label": "Vue",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#bbf7d0",
       "stroke": "#15803d"
     },
     {
-      "id": "elastic_beanstalk",
-      "label": "AWS Elastic\nBeanstalk",
+      "id": "svelte",
+      "label": "Svelte",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#bbf7d0",
       "stroke": "#15803d"
     },
     {
-      "id": "google_workspace",
-      "label": "Google\nWorkspace",
+      "id": "angular",
+      "label": "Angular",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#bbf7d0",
+      "stroke": "#15803d"
+    },
+    {
+      "id": "nodejs",
+      "label": "Node.js",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#ede9fe",
       "stroke": "#6d28d9"
     },
     {
-      "id": "salesforce",
-      "label": "Salesforce",
+      "id": "deno",
+      "label": "Deno",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#ede9fe",
       "stroke": "#6d28d9"
     },
     {
-      "id": "dropbox",
-      "label": "Dropbox",
-      "shape": "rectangle",
-      "rounded": true,
-      "fill": "#ede9fe",
-      "stroke": "#6d28d9"
-    },
-    {
-      "id": "lambda",
-      "label": "AWS Lambda",
+      "id": "jest",
+      "label": "Jest",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#fef9c3",
       "stroke": "#92400e"
     },
     {
-      "id": "cloud_functions",
-      "label": "GCP Cloud\nFunctions",
+      "id": "vitest",
+      "label": "Vitest",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#fef9c3",
       "stroke": "#92400e"
     },
     {
-      "id": "azure_functions",
-      "label": "Azure\nFunctions",
+      "id": "playwright",
+      "label": "Playwright",
       "shape": "rectangle",
       "rounded": true,
       "fill": "#fef9c3",
       "stroke": "#92400e"
+    },
+    {
+      "id": "vite",
+      "label": "Vite",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#ffedd5",
+      "stroke": "#c2410c"
+    },
+    {
+      "id": "esbuild",
+      "label": "esbuild",
+      "shape": "rectangle",
+      "rounded": true,
+      "fill": "#ffedd5",
+      "stroke": "#c2410c"
     }
   ],
   "edges": [
-    {"from": "root", "to": "iaas", "stroke": "#94a3b8"},
-    {"from": "root", "to": "paas", "stroke": "#94a3b8"},
-    {"from": "root", "to": "saas", "stroke": "#94a3b8"},
-    {"from": "root", "to": "serverless", "stroke": "#94a3b8"},
-    {"from": "iaas", "to": "ec2", "stroke": "#94a3b8"},
-    {"from": "iaas", "to": "azure_vms", "stroke": "#94a3b8"},
-    {"from": "iaas", "to": "gcp_compute", "stroke": "#94a3b8"},
-    {"from": "paas", "to": "heroku", "stroke": "#94a3b8"},
-    {"from": "paas", "to": "app_engine", "stroke": "#94a3b8"},
-    {"from": "paas", "to": "elastic_beanstalk", "stroke": "#94a3b8"},
-    {"from": "saas", "to": "google_workspace", "stroke": "#94a3b8"},
-    {"from": "saas", "to": "salesforce", "stroke": "#94a3b8"},
-    {"from": "saas", "to": "dropbox", "stroke": "#94a3b8"},
-    {"from": "serverless", "to": "lambda", "stroke": "#94a3b8"},
-    {"from": "serverless", "to": "cloud_functions", "stroke": "#94a3b8"},
-    {"from": "serverless", "to": "azure_functions", "stroke": "#94a3b8"}
+    {"from": "root", "to": "core", "stroke": "#94a3b8"},
+    {"from": "root", "to": "frontend", "stroke": "#94a3b8"},
+    {"from": "root", "to": "backend", "stroke": "#94a3b8"},
+    {"from": "root", "to": "testing", "stroke": "#94a3b8"},
+    {"from": "root", "to": "build", "stroke": "#94a3b8"},
+    {"from": "core", "to": "esmodules", "stroke": "#94a3b8"},
+    {"from": "core", "to": "promises", "stroke": "#94a3b8"},
+    {"from": "core", "to": "closures", "stroke": "#94a3b8"},
+    {"from": "frontend", "to": "react", "stroke": "#94a3b8"},
+    {"from": "frontend", "to": "vue", "stroke": "#94a3b8"},
+    {"from": "frontend", "to": "svelte", "stroke": "#94a3b8"},
+    {"from": "frontend", "to": "angular", "stroke": "#94a3b8"},
+    {"from": "backend", "to": "nodejs", "stroke": "#94a3b8"},
+    {"from": "backend", "to": "deno", "stroke": "#94a3b8"},
+    {"from": "testing", "to": "jest", "stroke": "#94a3b8"},
+    {"from": "testing", "to": "vitest", "stroke": "#94a3b8"},
+    {"from": "testing", "to": "playwright", "stroke": "#94a3b8"},
+    {"from": "build", "to": "vite", "stroke": "#94a3b8"},
+    {"from": "build", "to": "esbuild", "stroke": "#94a3b8"}
   ]
 }

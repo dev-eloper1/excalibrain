@@ -1,0 +1,12 @@
+erDiagram
+    STUDENT {
+        bigint id PK
+        varchar name
+        varchar email
+    }
+    COURSE {
+        bigint id PK
+        varchar title
+        int credits
+    }
+    STUDENT ||--o{ COURSE : enrolls

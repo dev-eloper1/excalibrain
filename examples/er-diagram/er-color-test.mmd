@@ -1,0 +1,15 @@
+erDiagram
+    STUDENT {
+        bigint id PK
+        varchar name
+        varchar email
+    }
+    COURSE {
+        bigint id PK
+        varchar title
+        int credits
+    }
+    STUDENT ||--o{ COURSE : enrolls
+
+    style STUDENT fill:#dbeafe,stroke:#1e40af
+    style COURSE fill:#a7f3d0,stroke:#047857

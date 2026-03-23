@@ -3,11 +3,7 @@
   "title": "Support Ticket Lifecycle",
   "rankSep": 80,
   "nodeSep": 50,
-  "style": {
-    "roughness": 0,
-    "fontFamily": 2,
-    "fontSize": 16
-  },
+  "style": {},
   "nodes": [
     {
       "id": "start",

@@ -1,25 +1,38 @@
 classDiagram
-    class Vehicle {
-        +String make
-        +String model
-        +int year
-        +start()
-        +stop()
+    class User {
+        +Long id
+        +String username
+        +String email
+        +String passwordHash
+        +createPost() Post
+        +addComment() Comment
     }
-    class Car {
-        +int numDoors
-        +String trunkSize
-        +openTrunk()
+
+    class Post {
+        +Long id
+        +String title
+        +String body
+        +Date publishedAt
+        +Long authorId
+        +publish() void
+        +archive() void
     }
-    class Motorcycle {
-        +String handlebarType
-        +wheelie()
+
+    class Comment {
+        +Long id
+        +String body
+        +Date createdAt
+        +Long postId
+        +Long authorId
     }
-    class Electric {
-        +int batteryCapacity
-        +int range
-        +charge()
+
+    class Tag {
+        +Long id
+        +String name
+        +String slug
     }
-    Vehicle <|-- Car
-    Vehicle <|-- Motorcycle
-    Car <|-- Electric
+
+    User "1" --> "*" Post : writes
+    User "1" --> "*" Comment : writes
+    Post "1" --> "*" Comment : has
+    Post "*" --> "*" Tag : tagged_with

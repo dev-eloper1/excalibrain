@@ -12,6 +12,17 @@ Based on the diagram-type-rubric.md, the keywords "lifecycle", "states", and "tr
 
 **Dagre path** -- state diagrams use `dagre-layout.js` with graph JSON input per the recipe (`skill/references/diagram-recipes/state-diagram.md`).
 
+## Style Fix: Hand-drawn Look
+
+The previous state diagram set `"roughness": 0`, `"fontFamily": 2`, and `"fontSize": 16` in the graph.json style, which overrode the hand-drawn defaults.
+
+**Fix:** The `style` object is now `{}` (empty), which lets dagre-layout.js apply its defaults:
+- `roughness: 1` -- slightly hand-drawn edges
+- `fontFamily: 1` -- Virgil (handwritten font)
+- `fontSize: 16` -- default size
+
+This matches the hand-drawn aesthetic of the architecture diagram and other Excalidraw diagrams.
+
 ## Full Input Content
 
 The graph JSON (`graph.json`) defines:
@@ -33,12 +44,12 @@ The graph JSON (`graph.json`) defines:
 # Step 4: Generate (dagre path)
 node tools/dagre-layout.js examples/state-diagram/graph.json \
   --output examples/state-diagram/diagram.excalidraw
-# Completed in <1s
+# Completed in <0.1s
 
 # Step 5: Validate (export to PNG)
 node tools/export.js examples/state-diagram/diagram.excalidraw \
   --format png --output examples/state-diagram/diagram.png
-# Output: 1180x400px, 36KB
+# Output: 1180x400px, 42KB
 ```
 
 ## Visual Verification Notes
@@ -50,7 +61,7 @@ node tools/export.js examples/state-diagram/diagram.excalidraw \
 - [x] Reopen path: Resolved -> In Progress (dashed orange)
 - [x] Cancel paths: dashed red arrows from New, Triaged, In Progress, Waiting on Customer, and Resolved to Cancelled
 - [x] No cancel arrow from Closed (correct per requirements)
-- [x] Arrow directions correct -- all transitions flow left-to-right with cancel/reopen as cross-flow
+- [x] Hand-drawn style: Virgil font and roughness=1 applied (wobbly edges, handwritten text)
 - [x] Color coding consistent with color-palette.md semantic purposes
 - [x] Isomorphism test: removing text, the structure still shows a linear progression with a loop, a branch-back (reopen), and a sink node (cancelled) collecting dashed edges
 
