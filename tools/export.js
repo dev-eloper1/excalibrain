@@ -69,7 +69,7 @@ async function main() {
 
     // Load the template
     const templateUrl = `file://${TEMPLATE}`;
-    await page.goto(templateUrl, { waitUntil: 'domcontentloaded' });
+    await page.goto(templateUrl, { waitUntil: 'networkidle0', timeout: 30000 });
 
     // Wait for module to be ready
     await page.waitForFunction('window.__moduleReady === true', { timeout: 10000 });

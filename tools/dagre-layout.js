@@ -410,18 +410,36 @@ for (let idx = 0; idx < arrowData.length; idx++) {
 
   let points, startPt, endPt, startBinding, endBinding;
 
-  // ── FIX 1: Always bind arrows to source/target shapes ──────────────────
-  // Excalidraw's renderer handles edge intersection when bindings are set.
-  // This replaces the old conditional that left arrows unbound when dagre
-  // provided waypoints, which caused arrows to cut through nodes.
+  // ── FIX 1: Use dagre boundary waypoints + always bind ──────────────────
+  // Dagre gives boundary-to-boundary waypoints. We use those for the visual
+  // path so arrows render correctly at shape edges in static exports (PNG/SVG).
+  // We ALSO set bindings so Excalidraw can re-route interactively.
   startBinding = { elementId: e.from, focus: 0, gap: 4 };
   endBinding   = { elementId: e.to,   focus: 0, gap: 4 };
 
-  // Use center-to-center for the points array.
-  // Excalidraw re-routes from shape edge automatically.
-  startPt = { x: from.cx, y: from.cy };
-  endPt   = { x: to.cx, y: to.cy };
-  points  = [[0, 0], [+(endPt.x - startPt.x).toFixed(1), +(endPt.y - startPt.y).toFixed(1)]];
+  if (rawPts.length >= 2) {
+    // Dagre has boundary-to-boundary waypoints — use them for visual path
+    let p0 = rawPts[0];
+    let pN = rawPts[rawPts.length - 1];
+
+    // Diamond shapes: snap to nearest visible tip
+    if (nodeShapeMap[e.from]?.shape === 'diamond') p0 = nearestDiamondTip(p0, from);
+    if (nodeShapeMap[e.to]?.shape   === 'diamond') pN = nearestDiamondTip(pN, to);
+
+    startPt = p0;
+    endPt   = pN;
+    const ox = p0.x, oy = p0.y;
+    points  = [
+      [0, 0],
+      ...rawPts.slice(1, -1).map(p => [+(p.x - ox).toFixed(1), +(p.y - oy).toFixed(1)]),
+      [+(pN.x - ox).toFixed(1), +(pN.y - oy).toFixed(1)],
+    ];
+  } else {
+    // No dagre waypoints — use center-to-center, let bindings handle routing
+    startPt = { x: from.cx, y: from.cy };
+    endPt   = { x: to.cx, y: to.cy };
+    points  = [[0, 0], [+(endPt.x - startPt.x).toFixed(1), +(endPt.y - startPt.y).toFixed(1)]];
+  }
 
   // Per-edge arrowhead → graph default → 'triangle'
   const arrowhead   = e.arrowhead !== undefined ? e.arrowhead : graphArrowhead;
@@ -453,8 +471,13 @@ for (let idx = 0; idx < arrowData.length; idx++) {
 
   // ── Edge label ──────────────────────────────────────────────────────────
   if (e.label) {
-    const mid = { x: (from.cx + to.cx) / 2, y: (from.cy + to.cy) / 2 };
-    const dx = to.cx - from.cx, dy = to.cy - from.cy;
+    const pts = rawPts.length >= 2
+      ? rawPts
+      : [{ x: from.cx, y: from.cy }, { x: to.cx, y: to.cy }];
+    const mid = midpoint(pts);
+    const half = Math.max(0, Math.floor(pts.length / 2) - 1);
+    const a = pts[half], b = pts[Math.min(half + 1, pts.length - 1)];
+    const dx = b.x - a.x, dy = b.y - a.y;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
 
     const LABEL_OFFSET = 20;
@@ -479,6 +502,28 @@ for (let idx = 0; idx < arrowData.length; idx++) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+// Dagre routes to rectangular bounding box corners for diamonds.
+// Snap to the nearest actual visible tip instead.
+function nearestDiamondTip(pt, node) {
+  const tips = [
+    { x: node.x,              y: node.cy },             // left tip
+    { x: node.x + node.width, y: node.cy },             // right tip
+    { x: node.cx,             y: node.y },              // top tip
+    { x: node.cx,             y: node.y + node.height}, // bottom tip
+  ];
+  return tips.reduce((best, t) => {
+    const d = Math.hypot(t.x - pt.x, t.y - pt.y);
+    return d < best.dist ? { tip: t, dist: d } : best;
+  }, { tip: tips[0], dist: Infinity }).tip;
+}
+
+function midpoint(pts) {
+  const half = Math.floor(pts.length / 2);
+  if (pts.length % 2 === 1) return pts[half];
+  const a = pts[half - 1], b = pts[half];
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
 
 function darken(hex) {
   const darkMap = {

@@ -6,6 +6,29 @@
   <style>
     body { margin: 0; padding: 0; background: white; }
     #container { position: absolute; top: 0; left: 0; }
+
+    /* Pre-load Excalidraw fonts from CDN so exportToSvg can embed them */
+    @font-face {
+      font-family: "Virgil";
+      src: url("https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw-assets/Virgil.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Cascadia";
+      src: url("https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw-assets/Cascadia.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Assistant";
+      src: url("https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw-assets/Assistant-Regular.woff2") format("woff2");
+    }
+
+    /* Force fonts to load by rendering hidden text */
+    .font-preload {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      font-size: 1px;
+      visibility: hidden;
+    }
   </style>
   <script>
     // Process polyfill — MUST be set before bundle loads
@@ -14,50 +37,79 @@
   </script>
   <script src="./excalidraw-bundle.js"></script>
   <script>
-    window.renderDiagram = async function(jsonData) {
+    // Wait for fonts to load before declaring ready
+    async function init() {
+      // Trigger font loading
+      await document.fonts.ready;
+
+      // Try to explicitly load the fonts
       try {
-        const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-        const elements = data.elements || [];
-        const appState = data.appState || {};
-        const files = data.files || {};
-
-        const svg = await window.__exportToSvg({
-          elements,
-          appState: {
-            ...appState,
-            exportWithDarkMode: appState.exportWithDarkMode || false,
-            exportBackground: true,
-          },
-          files,
-          exportPadding: 20,
-        });
-
-        // Get SVG dimensions
-        const width = parseInt(svg.getAttribute('width')) || 800;
-        const height = parseInt(svg.getAttribute('height')) || 600;
-
-        // Serialize to string
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svg);
-
-        return {
-          success: true,
-          width,
-          height,
-          svgString,
-        };
-      } catch (err) {
-        return {
-          success: false,
-          error: err.message || String(err),
-        };
+        await Promise.all([
+          new FontFace('Virgil', 'url(https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw-assets/Virgil.woff2)').load().then(f => document.fonts.add(f)),
+          new FontFace('Cascadia', 'url(https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw-assets/Cascadia.woff2)').load().then(f => document.fonts.add(f)),
+          new FontFace('Assistant', 'url(https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw-assets/Assistant-Regular.woff2)').load().then(f => document.fonts.add(f)),
+        ]);
+      } catch (e) {
+        console.warn('Font preload failed, will use fallbacks:', e);
       }
-    };
 
-    window.__moduleReady = true;
+      window.renderDiagram = async function(jsonData) {
+        try {
+          const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+          const elements = data.elements || [];
+          const appState = data.appState || {};
+          const files = data.files || {};
+
+          const svg = await window.__exportToSvg({
+            elements,
+            appState: {
+              ...appState,
+              exportWithDarkMode: appState.exportWithDarkMode || false,
+              exportBackground: true,
+            },
+            files,
+            exportPadding: 20,
+          });
+
+          // Post-process: fix broken font URLs in the SVG
+          const serializer = new XMLSerializer();
+          let svgString = serializer.serializeToString(svg);
+
+          // Replace @undefined with @0.17.6 in font URLs
+          svgString = svgString.replace(
+            /@excalidraw\/excalidraw@undefined/g,
+            '@excalidraw/excalidraw@0.17.6'
+          );
+
+          // Get SVG dimensions
+          const width = parseInt(svg.getAttribute('width')) || 800;
+          const height = parseInt(svg.getAttribute('height')) || 600;
+
+          return {
+            success: true,
+            width,
+            height,
+            svgString,
+          };
+        } catch (err) {
+          return {
+            success: false,
+            error: err.message || String(err),
+          };
+        }
+      };
+
+      window.__moduleReady = true;
+    }
+
+    init();
   </script>
 </head>
 <body>
+  <!-- Hidden elements to force font loading -->
+  <span class="font-preload" style="font-family: Virgil">x</span>
+  <span class="font-preload" style="font-family: Cascadia">x</span>
+  <span class="font-preload" style="font-family: Assistant">x</span>
   <div id="container"></div>
 </body>
 </html>
