@@ -1,13 +1,108 @@
 # Flowchart Recipe
 
-**Tool:** `mermaid-convert.js` (Mermaid syntax)
+**Tool:** `dagre-layout.js` (graph JSON)
+
+Dagre is the primary tool for flowcharts. It provides full control over layout, handles fan-in/fan-out cleanly, supports canvas sessions (merge/position/prefix), and auto-sizes nodes to fit text.
 
 ## When to use
-Step-by-step logic with conditional branching — user journeys, request lifecycles, decision trees, validation pipelines.
+Step-by-step logic with conditional branching — user journeys, request lifecycles, decision trees, validation pipelines, process flows.
 
-## Mermaid template
+## Graph JSON template
 
-**IMPORTANT:** Always include `classDef` color classes. Without them, the flowchart renders as monochrome black and white.
+```json
+{
+  "direction": "TB",
+  "rankSep": 60,
+  "nodeSep": 50,
+  "nodes": [
+    { "id": "start", "label": "Start", "shape": "ellipse", "fill": "#dbeafe", "stroke": "#3b82f6" },
+    { "id": "validate", "label": "Validate Input", "fill": "#86efac", "stroke": "#15803d", "rounded": true },
+    { "id": "valid", "label": "Valid?", "shape": "diamond", "fill": "#fef3c7", "stroke": "#f59e0b" },
+    { "id": "process", "label": "Process Request", "fill": "#a7f3d0", "stroke": "#047857", "rounded": true },
+    { "id": "error", "label": "Return Error", "fill": "#fecaca", "stroke": "#b91c1c", "rounded": true },
+    { "id": "save", "label": "Save to DB", "fill": "#ddd6fe", "stroke": "#6d28d9" },
+    { "id": "end", "label": "End", "shape": "ellipse", "fill": "#dbeafe", "stroke": "#3b82f6" }
+  ],
+  "edges": [
+    { "from": "start", "to": "validate" },
+    { "from": "validate", "to": "valid" },
+    { "from": "valid", "to": "process", "label": "Yes" },
+    { "from": "valid", "to": "error", "label": "No" },
+    { "from": "process", "to": "save" },
+    { "from": "save", "to": "end" },
+    { "from": "error", "to": "end" }
+  ]
+}
+```
+
+## Shape conventions
+
+| Shape | Node property | Use for |
+|-------|--------------|---------|
+| Rounded rectangle | `"rounded": true` | Process steps, actions |
+| Diamond | `"shape": "diamond"` | Decisions, conditionals |
+| Ellipse | `"shape": "ellipse"` | Start/end terminals |
+| Rectangle | (default) | Data operations, storage |
+
+## Standard colors (from color-palette.md)
+
+| Purpose | fill | stroke |
+|---------|------|--------|
+| Start/End terminals | `#dbeafe` | `#3b82f6` |
+| Process steps | `#86efac` | `#15803d` |
+| Decision diamonds | `#fef3c7` | `#f59e0b` |
+| Error/reject paths | `#fecaca` | `#b91c1c` |
+| Success/completion | `#a7f3d0` | `#047857` |
+| Data/storage | `#ddd6fe` | `#6d28d9` |
+| Security/auth | `#fed7aa` | `#c2410c` |
+| Async/queue | `#fef08a` | `#eab308` |
+
+## Edge styling
+
+- Default arrows are solid with triangle arrowheads
+- `"strokeStyle": "dashed"` for retry loops or optional paths
+- `"label": "Yes"` / `"No"` on decision branches
+- Keep edge labels short (≤ 15 chars per line, use `\n` for multiline)
+
+## Zones (optional)
+
+Group related nodes into colored zones for complex flowcharts:
+
+```json
+"zones": [
+  {
+    "id": "input_zone",
+    "label": "INPUT",
+    "fill": "#f0f9ff",
+    "stroke": "#bae6fd",
+    "labelColor": "#0369a1",
+    "nodeIds": ["start", "validate", "valid"]
+  }
+]
+```
+
+## Best practices
+
+1. **Keep labels concise** — 2-3 words per line, max 3 lines. Dagre auto-sizes nodes but large labels make the diagram unwieldy.
+2. **Use zones for >10 nodes** — Group nodes by phase/concern to add visual structure.
+3. **Decision diamonds should have exactly 2-3 outgoing edges** — Yes/No for binary, or named branches for multi-way.
+4. **All paths should terminate** — Every branch should reach an end node or loop back.
+5. **Retry/loop arrows** — Use `"strokeStyle": "dashed"` to distinguish retry paths from the main flow.
+6. **Direction** — Use `TB` (top-to-bottom) for most flowcharts. Use `LR` for wide, shallow flows.
+
+## Common pitfalls
+
+1. **Too many nodes without zones** — >15 nodes without zones looks like a wall of boxes. Add zones.
+2. **Long decision labels** — Diamonds have limited space. Keep to ≤ 15 characters. Move detail to annotations.
+3. **Fan-in with labels** — When 4+ edges converge on one node with labels, the labels cluster. Use shorter labels or omit labels on obvious connections.
+4. **Missing colors** — Every node should have `fill` and `stroke`. Monochrome flowcharts lose the visual argument.
+
+## Mermaid fallback
+
+For simple flowcharts (<10 nodes, no fan-in/fan-out), mermaid syntax is also acceptable. See the mermaid template below. **Do not use mermaid for complex flowcharts** — layout breaks on fan-in/fan-out patterns.
+
+<details>
+<summary>Mermaid template (simple flowcharts only)</summary>
 
 ```mermaid
 flowchart TB
@@ -27,37 +122,4 @@ flowchart TB
     classDef data fill:#ddd6fe,stroke:#6d28d9,color:#6d28d9
 ```
 
-### Standard classDef colors (from color-palette.md)
-
-| Class | Purpose | fill | stroke | color |
-|-------|---------|------|--------|-------|
-| `start` | Start/End terminals | `#dbeafe` | `#1e40af` | `#1e40af` |
-| `process` | Process steps | `#86efac` | `#15803d` | `#15803d` |
-| `decision` | Decision diamonds | `#fef3c7` | `#b45309` | `#b45309` |
-| `error` | Error/reject paths | `#fecaca` | `#b91c1c` | `#b91c1c` |
-| `success` | Success/completion | `#a7f3d0` | `#047857` | `#047857` |
-| `data` | Database/storage | `#ddd6fe` | `#6d28d9` | `#6d28d9` |
-| `security` | Auth/security | `#fed7aa` | `#c2410c` | `#c2410c` |
-| `async` | Async/queue | `#fef08a` | `#92400e` | `#92400e` |
-
-### Shape syntax
-- `[text]` — rectangle
-- `{text}` — diamond (decision)
-- `([text])` — rounded rectangle (start/end)
-- `[(text)]` — cylinder (database)
-- `((text))` — circle
-
-### Edge syntax
-- `-->` — solid arrow
-- `-.->` — dashed arrow
-- `-->|label|` — labeled arrow
-
-### Applying classes
-Append `:::className` to any node: `A([Start]):::start`
-
-## Common pitfalls
-
-1. **No colors without classDef** — Mermaid defaults to monochrome. Always define and apply classDef classes.
-2. **Decision diamond labels too long** — Keep to ≤ 15 characters. Use abbreviations.
-3. **Too many branches from one decision** — Split into cascading decisions.
-4. **Forgetting the end node** — All paths should terminate at a named endpoint.
+</details>

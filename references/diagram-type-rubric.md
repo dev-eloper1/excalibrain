@@ -6,16 +6,25 @@ Use this file to select the correct diagram type before generating. Read the con
 
 ## Decision Table
 
-| Context signals in the request | Diagram type |
-|---|---|
-| "architecture", "system diagram", "infrastructure", "services", "microservices", "components", "how the system is structured", documenting a codebase's top-level structure | **Architecture** |
-| "sequence", "API call", "request/response", "how A calls B", "time-ordered", "auth flow", "message flow", interactions between named participants over time | **Sequence** |
-| "flow", "flowchart", "process", "steps", "decision", "if/else", "how does X work", "what happens when", branching logic or conditional paths | **Flowchart** |
-| "classes", "objects", "inheritance", "interface", "data model", "OOP structure", "schema as classes", relationships between types in code | **Class diagram** |
-| "states", "state machine", "lifecycle", "transitions", "what state can X be in", order status, user account states, workflow states | **State diagram** |
-| "tables", "database schema", "entity relationship", "foreign key", "ER diagram", "data model" (when referring to DB tables not code classes) | **ER diagram** |
-| "timeline", "schedule", "milestones", "gantt", "sprint plan", "project plan", "weeks", "phases", when content is time-bound tasks with durations | **Gantt chart** |
-| "mind map", "concepts", "brainstorming", "topic map", "explore ideas", "key concepts of", radial concept exploration without linear flow | **Mindmap** |
+| Context signals in the request | Diagram type | Tool path |
+|---|---|---|
+| "architecture", "system diagram", "infrastructure", "services", "microservices", "components", "how the system is structured", documenting a codebase's top-level structure | **Architecture** | dagre |
+| "sequence", "API call", "request/response", "how A calls B", "time-ordered", "auth flow", "message flow", interactions between named participants over time | **Sequence** | mermaid |
+| "flow", "flowchart", "process", "steps", "decision", "if/else", "how does X work", "what happens when", branching logic or conditional paths | **Flowchart** | dagre |
+| "classes", "objects", "inheritance", "interface", "data model", "OOP structure", "schema as classes", relationships between types in code | **Class diagram** | mermaid |
+| "states", "state machine", "lifecycle", "transitions", "what state can X be in", order status, user account states, workflow states | **State diagram** | dagre |
+| "tables", "database schema", "entity relationship", "foreign key", "ER diagram", "data model" (when referring to DB tables not code classes) | **ER diagram** | mermaid |
+| "timeline", "schedule", "milestones", "gantt", "sprint plan", "project plan", "weeks", "phases", when content is time-bound tasks with durations | **Gantt chart** | gantt |
+| "mind map", "concepts", "brainstorming", "topic map", "explore ideas", "key concepts of", radial concept exploration without linear flow | **Mindmap** | dagre |
+
+---
+
+## Tool path guidance
+
+- **dagre** (primary): architecture, flowchart, state diagram, mindmap. Full layout control, supports canvas sessions (merge/position/prefix), reliable text sizing.
+- **mermaid**: sequence diagrams (timeline layout dagre can't replicate), class diagrams, ER diagrams. Good for these specialized formats. Not recommended for flowcharts with >10 nodes or fan-in/fan-out patterns.
+- **gantt**: gantt charts and project timelines only.
+- **mermaid fallback**: If the user provides `.mmd` syntax directly, use mermaid regardless of diagram type.
 
 ---
 
