@@ -101,10 +101,61 @@ async function main() {
         'Consider using dagre-layout.js for this diagram type.');
     }
 
-    // The mermaid_template.html uses convertToExcalidrawElements() from the
-    // excalidraw bundle to properly convert label properties into bound text
-    // elements. No custom post-processing needed here.
+    // ── Post-process: fix text sizing for Virgil font ──────────────────────
+    // The mermaid-to-excalidraw library calculates text widths based on generic
+    // font metrics, but Excalidraw's Virgil (hand-drawn) font is wider. We need
+    // to recalculate and resize containers to fit.
     const allElements = result.elements;
+
+    // Virgil font width estimation: ~0.65 * fontSize per character
+    const CHAR_WIDTH_FACTOR = 0.65;
+    const PADDING = 32; // horizontal padding inside containers
+    const LINE_HEIGHT_FACTOR = 1.25;
+    const VERTICAL_PADDING = 20;
+
+    for (const el of allElements) {
+      if (el.type !== 'text') continue;
+
+      // Fix literal \n — replace backslash-n sequences with real newlines
+      if (el.text && el.text.includes('\\n')) {
+        el.text = el.text.replace(/\\n/g, '\n');
+        if (el.originalText) {
+          el.originalText = el.originalText.replace(/\\n/g, '\n');
+        }
+      }
+
+      // Set autoResize so Excalidraw fixes text on load
+      el.autoResize = true;
+
+      // Recalculate text dimensions based on Virgil metrics
+      const lines = el.text.split('\n');
+      const fontSize = el.fontSize || 20;
+      const maxLineLen = Math.max(...lines.map(l => l.length), 1);
+      const estWidth = maxLineLen * fontSize * CHAR_WIDTH_FACTOR;
+      const estHeight = lines.length * fontSize * LINE_HEIGHT_FACTOR;
+
+      el.width = Math.ceil(estWidth);
+      el.height = Math.ceil(estHeight);
+
+      // If this text is inside a container, resize the container to fit
+      if (el.containerId) {
+        const container = allElements.find(c => c.id === el.containerId);
+        if (container) {
+          const neededW = estWidth + PADDING;
+          const neededH = estHeight + VERTICAL_PADDING;
+
+          // For diamonds, need more space (text area is ~50% of shape)
+          const scale = container.type === 'diamond' ? 2.0 : 1.0;
+
+          if (neededW * scale > container.width) {
+            container.width = Math.ceil(neededW * scale / 10) * 10;
+          }
+          if (neededH * scale > container.height) {
+            container.height = Math.ceil(neededH * scale / 10) * 10;
+          }
+        }
+      }
+    }
 
     // ── Apply --prefix ──────────────────────────────────────────────────────
     if (flags.prefix) {
