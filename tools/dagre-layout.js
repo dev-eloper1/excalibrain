@@ -295,14 +295,14 @@ function freeText(id, x, y, w, h, text, color, fontSize = 13, align = 'left') {
 }
 
 // ── 1. Title ─────────────────────────────────────────────────────────────────
-const TITLE_OFFSET = graph.title ? 55 : 10;
+const TITLE_OFFSET = graph.title ? 65 : 10;
 for (const id of Object.keys(nodeMap)) {
   nodeMap[id].y  += TITLE_OFFSET;
   nodeMap[id].cy += TITLE_OFFSET;
 }
 
 if (graph.title) {
-  elements.push(freeText('title', 20, 12, 800, 36, graph.title, STYLE.titleColor, STYLE.titleSize));
+  elements.push(freeText('title', 20, 8, 800, 40, graph.title, '#111827', STYLE.titleSize, 'left'));
 }
 
 // ── 2. Zone backgrounds (drawn first, behind nodes) ──────────────────────────
@@ -383,7 +383,7 @@ for (const n of graph.nodes) {
   const nid = n.id;
   const fill = n.fill ?? STYLE.defaultNodeFill;
   const stroke = n.stroke ?? STYLE.defaultNodeStroke;
-  const textColor = n.textColor ?? darken(stroke);
+  const textColor = n.textColor ?? contrastTextColor(fill, stroke);
   const fontSize = n.fontSize ?? 16;   // FIX 3: was 14
 
   let shapeType = 'rectangle';
@@ -641,6 +641,37 @@ function midpoint(pts) {
   if (pts.length % 2 === 1) return pts[half];
   const a = pts[half - 1], b = pts[half];
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+/**
+ * Calculate relative luminance of a hex color (0 = black, 1 = white).
+ * Used to determine if text should be light or dark on a given background.
+ */
+function luminance(hex) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.length === 3 ? h[0]+h[0] : h.substring(0,2), 16) / 255;
+  const g = parseInt(h.length === 3 ? h[1]+h[1] : h.substring(2,4), 16) / 255;
+  const b = parseInt(h.length === 3 ? h[2]+h[2] : h.substring(4,6), 16) / 255;
+  // sRGB to linear
+  const rl = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+  const gl = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+  const bl = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+  return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
+}
+
+/**
+ * Choose text color that contrasts with the background.
+ * Dark backgrounds get white text, light backgrounds get a darkened stroke color.
+ */
+function contrastTextColor(fill, stroke) {
+  if (!fill || fill === 'transparent' || fill === 'none') {
+    return darken(stroke);
+  }
+  const lum = luminance(fill);
+  if (lum < 0.25) {
+    return '#ffffff';  // dark background → white text
+  }
+  return darken(stroke);
 }
 
 function darken(hex) {

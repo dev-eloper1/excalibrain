@@ -12,6 +12,8 @@ description: >
 
 A canvas session is a **living Excalidraw workspace** that builds incrementally across multiple conversation turns. Each turn adds a section, annotation, or connection — the diagram grows as understanding deepens.
 
+**CRITICAL: Always merge into the active canvas.** When the user asks for alternative views, additional diagrams, or new sections, use `--merge` to add them to the existing canvas file. NEVER create separate files during a canvas session. The whole point is one living canvas. The only exception is if the user explicitly asks for a separate file.
+
 ## Mode Detection
 
 Map user intent to mode:
