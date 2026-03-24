@@ -18,4 +18,7 @@ echo ""
 echo "merge/position/prefix:"
 node tests/test-merge.js
 echo ""
+echo "fast-check.js:"
+node tests/test-fast-check.js
+echo ""
 echo "All tests complete."
