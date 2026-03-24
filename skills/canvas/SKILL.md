@@ -316,72 +316,128 @@ Write the `.excalibrain.json` sidecar with:
 
 ## Storyboard Mode Workflow
 
-For sequential narratives — build plans, migration strategies, user journeys, pitching.
+For visual narratives that show **how a system evolves** — migrations, build plans, phased rollouts, before/after transformations.
 
-### 1. Determine frames
+**Core principle: A storyboard shows state snapshots, not process diagrams.** Each frame is "what the system looks like at this phase" — NOT a flowchart of what you do during that phase. The story emerges from seeing what changed between frames.
 
-From user intent, identify the phases/steps (typically 3-6). Each frame represents a distinct stage in the sequence.
+### 1. Identify the narrative
+
+From user intent, determine:
+- **What is the protagonist?** (the system, the product, the user experience)
+- **What are the phases?** (typically 3-5: current state → transitions → target state)
+- **What changes between phases?** (this is the story — not what stays the same)
 
 ### 2. Announce plan
 
-Tell the user the frames you'll build and wait for confirmation:
+Tell the user the frames and what changes in each:
 
-*"I'll build a 4-frame storyboard: Phase 1 — Current State, Phase 2 — API Migration, Phase 3 — Feature Parity, Phase 4 — Cutover. Sound good?"*
+*"I'll build a 3-panel storyboard showing the migration:*
+- *Panel 1: Current State — monolith with all services coupled*
+- *Panel 2: Phase 1 — auth service extracted, shared DB remains*
+- *Panel 3: Target — full microservices, each with own DB*
+*The story will show what changes in each phase. Sound good?"*
 
-### 3. Build frames left-to-right
+### 3. Define the component inventory
 
-For each frame:
+Before drawing any panel, list ALL components that appear across ALL phases. This is critical — the same components must appear in the same position across panels so the viewer can spot what changed.
 
-- Position: `x = frame_index * (frame_width + gap)`, `y = 0`
-- `frame_width` = 500, `gap` = 100
-- Each frame is a dagre diagram section with `--merge --position --prefix`
-- Prefix derived from frame: `ph1_`, `ph2_`, `ph3_`, etc.
-- Add a title label above each frame (large font, 20px)
+Example inventory:
+```
+Components: API, Auth, DB, Cache, Gateway, Users Service
+Phase 1: API ✓, Auth ✓ (coupled), DB ✓, Cache ✗, Gateway ✗, Users ✗
+Phase 2: API ✓, Auth ✓ (extracted), DB ✓, Cache ✓ (new), Gateway ✗, Users ✗
+Phase 3: API ✓, Auth ✓, DB ✓ (split), Cache ✓, Gateway ✓ (new), Users ✓ (new)
+```
 
+### 4. Build panels with visual diff
+
+For each panel, generate a dagre graph JSON with the SAME nodes but different colors:
+
+**Color coding for change:**
+
+| Status | Fill | Stroke | strokeStyle |
+|--------|------|--------|-------------|
+| Unchanged (exists, no change) | `#f1f5f9` (gray-100) | `#94a3b8` (gray-400) | solid |
+| New in this phase | `#dcfce7` (green-100) | `#16a34a` (green-600) | solid |
+| Modified in this phase | `#fef3c7` (amber-100) | `#d97706` (amber-600) | solid |
+| Being removed | `#fecaca` (red-100) | `#dc2626` (red-600) | dashed |
+| Already removed (gone) | omit from this panel | | |
+
+Place panels left-to-right:
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <frame_input.json> \
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <panel_N.json> \
   --merge <canvas.excalidraw> \
-  --position <x>,0 \
+  --position <x>,80 \
   --prefix ph<N>_ \
   --output <canvas.excalidraw>
 ```
 
-### 4. Add progression arrows
+Position: `x = panel_index * (panel_width + 120)`, `y = 80` (leave room for title bar)
 
-Between frames, add horizontal arrows from the right edge of frame N to the left edge of frame N+1:
+### 5. Add the narrative spine
 
-- Y position: vertical center of the frames
-- Style: dashed
-- Label each arrow with what carries forward ("API ready", "Features stable", etc.)
+A horizontal timeline arrow across the top of all panels:
+- Runs from left edge of panel 1 to right edge of last panel
+- Y position: 30 (above the panels)
+- Style: bold stroke (2px), solid
+- Milestone dots at each panel's center x-position
 
-### 5. Add timeline annotations
+Panel titles above each panel:
+- Font: 20px, color `#111827`, bold
+- Position: centered above panel, y = 50
+- Format: "CURRENT STATE", "PHASE 1: Extract Auth", "TARGET STATE"
 
-Optionally add duration/timing below each frame:
+### 6. Add narrative captions
 
-- Position: centered below frame, 20px below bottom edge
-- Font size: 14px, color `#6b7280`
-- Content: "Week 1-2", "Sprint 3", "Q2 2026", etc.
+Below each panel, add a **narrative layer** — not just a label, but the story:
 
-### 6. Update sidecar
+**What changed** (required):
+- Position: centered below panel, 20px gap
+- Font: 14px, color `#374151`
+- Content: "Extract auth into standalone service. Shared DB remains for now."
 
-Each frame is a section in the sidecar with sequential ordering. Set mode to `"storyboard"`.
+**Why** (required):
+- Position: below "what changed"
+- Font: 13px, color `#6b7280`
+- Content: "Reduces deployment coupling — auth can ship independently."
 
-### 7. Present
+**Risks / Metrics** (optional):
+- Position: below "why"
+- Font: 12px, color `#9ca3af`
+- Content: "Risk: dual-write during migration. Deploy time: 4h → 1h"
 
-- Export to PNG using `export.js`
-- Show the storyboard, summarize the narrative arc
-- Ask for feedback: *"Want to adjust any frame, add detail to a phase, or change the sequence?"*
+### 7. Add progression arrows between panels
+
+Between panels:
+- Large dashed arrow from right edge of panel N to left edge of panel N+1
+- Y position: vertical center of panels
+- Label: what carries forward ("Auth API ready", "Data migrated")
+- Color: `#6366f1` (indigo — distinct from the diagram arrows within panels)
+
+### 8. Update sidecar and present
+
+- Each panel is a sidecar section with `mode: "storyboard"`
+- Export to PNG
+- Summarize the narrative arc: *"The storyboard shows a 3-phase migration. Key changes are highlighted green (new) and yellow (modified). The auth service is extracted first, then the database is split."*
+- Ask: *"Want to add detail to any panel, adjust the phases, or zoom into a specific transition?"*
 
 **Layout specifics:**
 
 | Parameter | Value |
 |-----------|-------|
-| Frame width | 500px |
-| Frame min height | 400px (varies by content) |
-| Gap between frames | 100px |
-| Title font size | 20px, centered above frame, 30px above top edge |
-| Progression arrows | y-center of frames, dashed style, labeled |
-| Timeline annotations | Centered below frame, 20px below bottom edge |
+| Panel width | 500px (or content-dependent) |
+| Panel min height | 400px |
+| Gap between panels | 120px |
+| Timeline y-position | 30px (above panels) |
+| Title y-position | 50px |
+| Panels y-position | 80px |
+| Narrative caption gap | 20px below panel bottom |
+| Progression arrows | y-center of panels, dashed, indigo (#6366f1) |
+
+**What NOT to do:**
+- Do NOT make each panel a flowchart/process diagram — each panel is a state snapshot
+- Do NOT use different layouts across panels — same component positions for visual diff
+- Do NOT omit the narrative captions — without "what changed" and "why", it's just diagrams in a row
 
 ---
 
