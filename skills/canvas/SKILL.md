@@ -589,7 +589,38 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 
 ## Cross-cutting Behaviors
 
-- **Announce before drawing** — always state what you will draw before running any tool
+### Pick the right diagram type PER SECTION
+
+**This is the most important cross-cutting rule.** Do NOT default everything to flowcharts. Before drawing any section, ask: what is the best visual argument for THIS content?
+
+| Content is about... | Use this type | Tool |
+|---------------------|--------------|------|
+| Components and their relationships | **Architecture** (zones, layers, connections) | dagre |
+| A process with decisions/branching | **Flowchart** (diamonds, conditionals) | dagre |
+| How requests flow between services over time | **Sequence diagram** (participants, messages) | mermaid |
+| Lifecycle states and transitions | **State diagram** (states, events, transitions) | dagre |
+| Concept hierarchy or exploration | **Mindmap** (radial, parent-child) | dagre |
+| Data model relationships | **ER diagram** (entities, foreign keys) | mermaid |
+| Time-bound tasks | **Gantt chart** (timeline, bars) | gantt |
+| System evolution over phases | **Storyboard** (state panels with visual diff) | dagre |
+
+**A single canvas should mix diagram types freely.** An architecture document might have a system overview (architecture), a request flow (sequence), a session lifecycle (state diagram), and a build process (flowchart) — all on the same canvas, each chosen because it's the right visual argument for that piece.
+
+Read `references/diagram-type-rubric.md` for the full decision table.
+
+### Connect sections to each other
+
+Sections on the same canvas are NOT islands. After building multiple sections, add **inter-section connection arrows** showing:
+- Data flow between components in different sections
+- "Zoom in" relationships (overview section → detail section)
+- Sequence/dependency ordering
+- Shared resources or dependencies
+
+Use distinct arrow styles for inter-section arrows (dashed, different color like `#6366f1` indigo) to distinguish them from intra-section arrows.
+
+### Other behaviors
+
+- **Announce before drawing** — always state what you will draw and which diagram type before running any tool
 - **User controls the session** — they can continue, redirect, zoom in, redo a section, export, or end at any time
 - **Mode switching** — "zoom into this" shifts to more granular exploration of a specific section; "zoom out" returns to the broader view
 - **Theme consistency** — set theme at session start (`default`, `clean`, `dark`, `blueprint`), use it for all sections throughout the session

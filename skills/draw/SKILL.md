@@ -46,7 +46,11 @@ Available recipes: `flowchart.md`, `sequence.md`, `mindmap.md`, `class-diagram.m
 
 ### 1. Type & theme selection
 
-Present the user with options before generating:
+**Choose the diagram type that best argues the content — NOT the default flowchart.**
+
+Read `references/diagram-type-rubric.md` to pick the right type. Ask yourself: is this about components and relationships (architecture), process with decisions (flowchart), timing between services (sequence), lifecycle states (state diagram), concept hierarchy (mindmap), or data model (ER)? The type shapes the visual argument — a flowchart argues about process, an architecture diagram argues about structure, a sequence diagram argues about timing.
+
+Present the user with your choice:
 
 *"I'll generate a **[type]** diagram for this. Here are the available themes:"*
 
