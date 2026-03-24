@@ -265,21 +265,95 @@ section-builder(
 )
 ```
 
-Multiple section-builders can run **in parallel** — they use `--merge` so concurrent writes to the same canvas are safe. Each agent returns section metadata for the sidecar.
+**CRITICAL: Use the two-phase build to avoid overlapping sections.** Section sizes vary wildly (a simple dagre graph might be 400×300, a mermaid sequence diagram might be 4000×1900). Never guess positions — measure first.
 
-**Layout strategy:**
+**Phase 1 — Measure (parallel):**
+
+Build each section into a **temporary standalone file** to discover its actual size:
+
+```bash
+# All sections build in parallel — no --merge, standalone output
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
+  --prefix <section_prefix> \
+  --output /tmp/<prefix>-sizing.excalidraw
+```
+
+Then inspect each temp file to get its actual bounding box:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/canvas-inspect.js /tmp/<prefix>-sizing.excalidraw --summary
+```
+
+Parse the bounding box `w` and `h` from the inspect output for each section.
+
+**Phase 2 — Compute positions:**
+
+With actual sizes known, compute a non-overlapping grid:
+
+```
+gap = 150  # generous gap between sections
+columns = 2 or 3  # based on section count and total width budget
+
+For each row:
+  row_x = 0
+  row_h = 0
+  For each section assigned to this row:
+    section.position = (row_x, current_y)
+    row_x += section.actual_width + gap
+    row_h = max(row_h, section.actual_height)
+  current_y += row_h + gap
+```
+
+Group sections thematically when possible (e.g., structure views in row 1, behavior views in row 2, resilience views in row 3).
+
+**Phase 3 — Assemble (parallel):**
+
+Rebuild each section into the final canvas with correct positions:
+
+```bash
+# Section 1 creates the canvas (no --merge)
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input_1.json> \
+  --position <computed_x>,<computed_y> \
+  --prefix <prefix> \
+  --output <canvas.excalidraw>
+
+# Sections 2-N merge into the canvas (parallel — safe with --merge)
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input_N.json> \
+  --merge <canvas.excalidraw> \
+  --position <computed_x>,<computed_y> \
+  --prefix <prefix> \
+  --output <canvas.excalidraw>
+```
+
+**Layout parameters:**
 
 | Parameter | Value |
 |-----------|-------|
-| Standard section size | ~600w x 400h |
-| Gap between sections | 100px |
+| Gap between sections | 150px (generous — prevents visual crowding) |
 | Research zone | Above main area, `y < 0` |
-| Grid example (4 sections) | TL: `0,0` / TR: `700,0` / BL: `0,500` / BR: `700,500` |
-| Grid example (6 sections) | 3 columns x 2 rows, x-step 700, y-step 500 |
+| Max columns | 3 (keeps canvas readable without excessive horizontal scrolling) |
+| Row assignment | Thematic grouping preferred; otherwise largest sections get their own row |
 
-### 4. Connect sections
+### 4. Validate — no overlaps
 
-After all section-builders complete:
+After all sections are merged, **check for overlapping bounding boxes** before proceeding:
+
+1. Run `canvas-inspect.js --summary` on the canvas
+2. Extract each prefix group's `bbox` from the output
+3. For every pair of sections, check if their bounding boxes overlap:
+   ```
+   overlap = not (A.x + A.w + 50 < B.x  or  B.x + B.w + 50 < A.x  or
+                  A.y + A.h + 50 < B.y  or  B.y + B.h + 50 < A.y)
+   ```
+   (50px minimum clearance between any two sections)
+4. **If overlaps are found:** report which sections overlap, delete the canvas, recompute positions with larger gaps, and rebuild. Do NOT present an overlapping canvas to the user.
+5. **If no overlaps:** proceed to connecting sections.
+
+This validation is mandatory. Overlapping sections produce unreadable diagrams — it is always better to spend 30 seconds rebuilding than to show the user a mess.
+
+### 5. Connect sections
+
+After all section-builders complete and overlap validation passes:
 
 1. Run `canvas-inspect.js` to see all elements on the canvas
 2. Identify **cross-section relationships**: data flows, API calls, dependencies, event channels
@@ -291,13 +365,13 @@ After all section-builders complete:
    - Solid lines for synchronous calls
    - Label each connection with the relationship ("REST API", "publishes events", "reads from")
 
-### 5. Add research zone and annotations
+### 6. Add research zone and annotations
 
 - **Research zone** at top of canvas (`y < 0`) with key findings from step 1
 - **Local annotations** near each section explaining the "why" — not what is shown, but why it matters
 - **Decision annotations** for key architectural choices (e.g., "Event-driven over polling because writes are bursty")
 
-### 6. Update sidecar
+### 7. Update sidecar
 
 Write the `.excalibrain.json` sidecar with:
 - All section metadata returned by section-builders
@@ -305,7 +379,7 @@ Write the `.excalibrain.json` sidecar with:
 - Research findings array
 - Mode set to `"architect"`
 
-### 7. Present to user
+### 8. Present to user
 
 - Export to PNG using `export.js`
 - Show the full architecture diagram
@@ -579,6 +653,7 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 | Tool | Command |
 |------|---------|
 | Canvas inspect | `canvas-inspect.js <file>` |
+| Canvas edit | `canvas-edit.js <file> strip-prefix <prefix>` (also: update, delete, move) |
 | Dagre layout | `dagre-layout.js <input.json> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
 | Mermaid convert | `mermaid-convert.js <input.mmd> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
 | Gantt layout | `gantt-layout.js <input.json> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
@@ -588,6 +663,91 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 ---
 
 ## Cross-cutting Behaviors
+
+### Visual hierarchy within every section
+
+**Every section must have visual hierarchy.** Without it, all elements compete for attention equally and the diagram becomes a flat, undifferentiated wall of shapes. The reader's eye has no entry point and no path to follow.
+
+**Three levers for hierarchy:**
+
+| Lever | Primary elements | Secondary elements |
+|-------|-----------------|-------------------|
+| **Stroke width** | 2.5–3px for hubs, gateways, critical path | 1–1.5px for async workers, background services |
+| **Node size** | Larger (220×120) for central/important nodes | Smaller (160×70) for peripheral/failure nodes |
+| **Fill style** | `solid` with vivid colors for active components | `dots` or `hachure` for async, storage, or background |
+
+**Arrow weight differentiates flow importance:**
+
+| Flow type | Width | Style |
+|-----------|-------|-------|
+| Critical path / happy path | 2.5px | solid |
+| Standard data flow | 2px | solid |
+| Async / event / background | 1px | dashed |
+| Error / failure path | 1px | dashed, red stroke |
+| Internal / check | 1px | dotted |
+
+**Zone grouping creates visual structure:**
+- Group related elements in zones to create "reading regions"
+- For state machines: separate happy path from failure/recovery states into distinct zones
+- For architectures: zones by trust level, layer, or phase (already common but enforce it)
+
+**Font size hierarchy:**
+
+| Element role | Font size |
+|-------------|-----------|
+| Hub/central node label | 16px |
+| Primary service label | 14px |
+| Secondary/async label | 12–13px |
+| Edge labels | 12–13px (from layout rules) |
+
+**Rule of thumb:** If you squint at the exported PNG and can't immediately tell which 2-3 elements are the most important, the section lacks hierarchy. The gateway, the hub, the start/end states — these should jump out visually.
+
+### Default to TB (top-to-bottom) direction
+
+**Use `"direction": "TB"` for all dagre diagrams unless there is a specific reason not to.** Top-to-bottom is the natural reading direction — the eye scans down, cause leads to effect, general leads to specific.
+
+| Direction | When to use |
+|-----------|------------|
+| **TB** (default) | Architecture, flowcharts, state machines, security layers — almost everything |
+| **LR** | Mind maps (radial tree), timelines, left-to-right process chains where horizontal flow is the point |
+
+**Cyclic graphs (state machines with recovery edges):**
+
+Dagre cannot lay out cyclic graphs well. Back-edges (e.g., `suspended→unverified`) cause rank inversions that scramble node order and produce overlapping orthogonal arrows.
+
+Fix:
+1. **Remove cycle-causing back-edges from the dagre input.** Only include forward edges (the acyclic happy path + failure exits).
+2. **Add back-edge information as annotations** below the failure states using the `annotations` field.
+3. **Use zones** to visually separate the happy path from failure/recovery states.
+
+### Section replacement (update without full rebuild)
+
+When redoing 1-2 sections on an existing canvas, **do NOT rebuild the entire canvas**. Use the strip-and-merge pattern:
+
+```bash
+# 1. Strip the old section by prefix
+node ${CLAUDE_PLUGIN_ROOT}/tools/canvas-edit.js <canvas.excalidraw> strip-prefix <prefix>
+
+# 2. Build new version to temp file, measure actual size
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <new_input.json> \
+  --prefix <prefix> --output /tmp/<prefix>-sizing.excalidraw
+node ${CLAUDE_PLUGIN_ROOT}/tools/canvas-inspect.js /tmp/<prefix>-sizing.excalidraw --summary
+
+# 3. Check if new size fits in the old position
+#    If yes: merge at the same position
+#    If larger: inspect canvas for free space, pick new position
+
+# 4. Merge new section into the stripped canvas
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <new_input.json> \
+  --merge <canvas.excalidraw> \
+  --position <x>,<y> \
+  --prefix <prefix> \
+  --output <canvas.excalidraw>
+```
+
+This preserves all other sections untouched and only rebuilds the changed section.
+
+**Prefix collision warning:** Mermaid generates random element IDs prefixed with the section prefix. If two sections have similar prefixes (e.g., `er` and `err`), `strip-prefix err` may accidentally remove elements from the `er` section. Use distinctive prefixes that don't share a common start (e.g., `erdiag` and `errfl`).
 
 ### Pick the right diagram type PER SECTION
 
@@ -657,20 +817,19 @@ This applies in ALL modes — Explore, Architect, Storyboard. The mode determine
 
 ### Parallel section generation
 
-When a canvas needs multiple sections (3+), **dispatch section-builder agents in parallel** instead of building sequentially. This is faster and each agent gets focused context.
+When a canvas needs multiple sections (3+), use the **two-phase build** pattern to avoid overlapping sections.
+
+**NEVER guess section sizes.** Diagram tools produce wildly different output sizes depending on node count, label length, edge complexity, and diagram type. A simple 4-node dagre graph might be 400×300px. A mermaid sequence diagram with 11 participants and 30 messages might be 4000×1900px. Hardcoded grids (e.g., "x-step 700, y-step 500") will produce overlapping sections.
 
 **Orchestration pattern:**
 
-1. **Plan the canvas** — determine all sections, their diagram types, positions, and prefixes
-2. **Dispatch agents in parallel** — one `section-builder` agent per section, each with:
-   - Section topic and relevant context (code snippets, descriptions)
-   - Diagram type to use (architecture, sequence, state, flowchart, etc.)
-   - Canvas file path
-   - Position (`x,y`) and prefix (computed from the plan)
-   - Theme name
-3. **Wait for all agents** — each writes to the canvas with `--merge`
-4. **Add inter-section connections** — the master process reads the completed canvas, adds arrows between sections showing relationships, data flow, and zoom connections. Use dashed indigo (`#6366f1`) arrows with labels.
-5. **Add overview annotations** — title, legend, narrative context
+1. **Plan the canvas** — determine all sections, their diagram types, and prefixes
+2. **Phase 1 — Measure (parallel):** dispatch section-builder agents to build each section into a **temporary standalone file** (no `--merge`, just `--output /tmp/<prefix>-sizing.excalidraw`). Each agent returns the section's actual bounding box dimensions.
+3. **Compute positions** — with real sizes known, calculate a non-overlapping grid layout. Use 150px gaps. Group sections thematically into rows (structure, behavior, resilience, etc.).
+4. **Phase 2 — Assemble (parallel):** rebuild each section into the final canvas with computed positions (`--merge --position <x>,<y>`). Section 1 creates the file (no `--merge`), sections 2-N merge in parallel.
+5. **Validate** — run `canvas-inspect.js --summary`, check all prefix group bounding boxes for overlaps. If any overlap, recompute positions and rebuild.
+6. **Add inter-section connections** — the master process reads the completed canvas, adds arrows between sections showing relationships, data flow, and zoom connections. Use dashed indigo (`#6366f1`) arrows with labels.
+7. **Add overview annotations** — title, legend, narrative context
 
 **Multi-zoom pattern (overview + detail):**
 
