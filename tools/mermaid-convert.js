@@ -26,6 +26,7 @@ for (let i = 0; i < args.length; i++) {
   else if (args[i] === '--prefix') { flags.prefix = args[++i]; }
   else if (args[i] === '--position') { flags.position = args[++i]; }
   else if (args[i] === '--merge') { flags.merge = args[++i]; }
+  else if (args[i] === '--frame-id') { flags.frameId = args[++i]; }
   else if (!args[i].startsWith('--')) { inputPath = args[i]; }
 }
 
@@ -174,6 +175,11 @@ async function main() {
           el.endBinding = { ...el.endBinding, elementId: p + el.endBinding.elementId };
         }
       }
+    }
+
+    // ── Apply --frame-id ─────────────────────────────────────────────────────
+    if (flags.frameId) {
+      for (const el of allElements) { el.frameId = flags.frameId; }
     }
 
     // ── Apply --position ────────────────────────────────────────────────────

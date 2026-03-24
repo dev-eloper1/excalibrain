@@ -124,6 +124,123 @@ Write or update the `.excalibrain.json` file with the new section info (see Side
 
 Brief chat message about what was drawn and why. Keep it to 2-3 sentences. Reference specific nodes or connections if helpful.
 
+#### 6.5. Composition pass (when 3+ sections exist)
+
+After the third section is placed (and on every subsequent section), add canvas-level composition. Strip any existing `comp_` prefixed elements first, then regenerate.
+
+**Philosophy:** Only add elements that are either truly bound to frames (arrows) or explicitly independent (floating notes). Never add static grouping elements (bands, cards, dividers) that imply dynamic relationships they can't deliver — they break when frames move.
+
+**a) Frames:**
+
+Wrap each section in a named Excalidraw frame element:
+
+```json
+{
+  "type": "frame",
+  "name": "① Section Name",
+  "x": bbox.x - 40,
+  "y": bbox.y - 40,
+  "width": bbox.w + 80,
+  "height": bbox.h + 80
+}
+```
+
+- 40px padding around section content
+- Numbered names (①②③...) matching reading order
+- All section elements get `frameId` pointing to their containing frame
+- Frames enable navigation in Excalidraw's UI
+
+**b) Spine arrows (bound to frames):**
+
+Connect frames in reading order using `library-resolve.js`'s `spineArrow` component:
+
+```bash
+node /Users/bhushan/Documents/excalibrain/tools/library-resolve.js spine-arrow \
+  --fromX <frame_right> --fromY <frame_cy> \
+  --toX <next_frame_left> --toY <next_frame_cy> \
+  --label "transition text" \
+  --fromId <frame_id> --toId <next_frame_id>
+```
+
+Rules:
+- Arrows use `startBinding`/`endBinding` to bind to frames — they move when frames move
+- Arrow + label are grouped via `groupIds` — they move as one unit
+- Only curve when there's a directional change (diagonal paths). Straight for vertical/horizontal.
+- Curves use perpendicular bulge: control points pushed sideways off the straight-line path
+- Transition labels are 20px Virgil in deep indigo (#4f46e5) — they guide the reading flow and should be the most prominent text after section titles
+- Start/end arrows at frame edges, not centers
+
+**c) Margin notes (post-it style):**
+
+Add contextual annotations in the gaps between frames using `library-resolve.js`'s `postit` component:
+
+```bash
+node /Users/bhushan/Documents/excalibrain/tools/library-resolve.js postit \
+  --text "reasoning or insight" --x <gap_x> --y <gap_y>
+```
+
+Rules:
+- Cascadia monospace font (fontFamily 3), 13px — distinct from Virgil diagram content
+- Yellow background (#fef9c3) with amber stroke (#e5be47), roughness 1
+- Background + text grouped via `groupIds` — they move as one
+- Placed OUTSIDE frames (frameId: null) — they're marginalia, not content
+- Check for collisions with arrows and other notes before placing
+- Content: reasoning phrases, key decisions, insights — not descriptions of what's shown
+
+**d) Canvas title:**
+
+Add a title above all frames using `library-resolve.js`'s `canvasTitle` component:
+
+```bash
+node /Users/bhushan/Documents/excalibrain/tools/library-resolve.js canvas-title \
+  --title "CANVAS NAME" --subtitle "description" --x 30 --y -80
+```
+
+- 32px Helvetica title, 15px Virgil subtitle, grouped
+- Placed above and outside all frames
+
+**e) Layout algorithm (flexbox-inspired):**
+
+When positioning sections, use CSS flexbox mental model:
+
+```
+Canvas width = max section width (set by widest section)
+
+For paired rows (2 sections side by side):
+  - justify-content: space-evenly
+  - total_space = canvas_width - section1_width - section2_width
+  - gap = total_space / 3  (equal space left, middle, right)
+  - Vertically center shorter section within row height
+
+For single-section rows (bookends):
+  - Full width or centered
+
+Row gaps: 300px minimum (infinite canvas — let arrows breathe)
+```
+
+**f) What NOT to add:**
+
+- No phase bands / background rectangles (they don't move with frames)
+- No cards / header bars around sections (visual noise)
+- No styled pills for transition labels (over-designed)
+- No static divider lines (imply structure they can't deliver)
+- No badge-banners (plain frame names are sufficient)
+
+**g) Visual hierarchy (font stack):**
+
+| Role | Font | Size | Color |
+|------|------|------|-------|
+| Spine arrow labels | Virgil (1) | 20px | #4f46e5 (deep indigo) |
+| Diagram content | Virgil (1) | 14-16px | varies |
+| Post-it notes | Cascadia (3) | 13px | #1e293b on #fef9c3 |
+| Canvas title | Helvetica (2) | 32px | #0f172a |
+| Canvas subtitle | Virgil (1) | 15px | #94a3b8 |
+
+**When NOT to run this pass:**
+- Fewer than 3 sections on the canvas
+- The user explicitly asks to skip composition
+- The canvas is in architect, storyboard, wireframe, or compare mode (those have their own composition strategies)
+
 #### 7. Check in
 
 Ask the user what to do next:
@@ -658,6 +775,7 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 | Mermaid convert | `mermaid-convert.js <input.mmd> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
 | Gantt layout | `gantt-layout.js <input.json> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
 | Wireframe primitives | `primitives.js <input.json> [--merge file] [--position x,y] [--output file]` |
+| Library resolve | `library-resolve.js <input.json> [--merge file] [--output file]` |
 | Export | `export.js <file.excalidraw> --format png\|svg --output <file>` |
 
 ---

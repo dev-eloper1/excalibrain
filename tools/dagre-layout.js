@@ -70,6 +70,7 @@ for (let i = 0; i < args.length; i++) {
   else if (args[i] === '--prefix')      { flags.prefix     = args[++i]; }
   else if (args[i] === '--position')    { flags.position   = args[++i]; }
   else if (args[i] === '--merge')       { flags.merge      = args[++i]; }
+  else if (args[i] === '--frame-id')    { flags.frameId    = args[++i]; }
   else if (!args[i].startsWith('--'))   { inputPath = args[i]; }
 }
 
@@ -853,6 +854,13 @@ if (flags.prefix) {
     if (el.endBinding && el.endBinding.elementId) {
       el.endBinding = { ...el.endBinding, elementId: p + el.endBinding.elementId };
     }
+  }
+}
+
+// ── Apply --frame-id ─────────────────────────────────────────────────────────
+if (flags.frameId) {
+  for (const el of elements) {
+    el.frameId = flags.frameId;
   }
 }
 

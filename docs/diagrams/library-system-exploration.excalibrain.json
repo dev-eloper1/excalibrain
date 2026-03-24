@@ -1,0 +1,92 @@
+{
+  "canvas": "library-system-exploration.excalidraw",
+  "mode": "explore",
+  "theme": "default",
+  "created": "2026-03-24T00:00:00Z",
+  "lastUpdated": "2026-03-24T00:05:00Z",
+  "diagramLocation": "docs/diagrams",
+  "layout": {
+    "strategy": "z-pattern-flexbox",
+    "canvasWidth": 3045,
+    "rowGap": 300,
+    "sectionDistribution": "space-evenly",
+    "verticalAlignment": "center"
+  },
+  "composition": {
+    "frames": true,
+    "spine": "bezier-curved",
+    "phaseBands": ["understand", "build"],
+    "marginNotes": 10
+  },
+  "sections": [
+    {
+      "id": "idea-space",
+      "label": "① Map the Territory",
+      "frameId": "frame_idea",
+      "mode": "explore",
+      "boundingBox": {"x": 20, "y": 8, "w": 3045, "h": 407},
+      "elementPrefix": "idea_",
+      "row": 1,
+      "role": "establishing"
+    },
+    {
+      "id": "lifecycle",
+      "label": "② Two Paths Converge",
+      "frameId": "frame_life",
+      "mode": "explore",
+      "boundingBox": {"x": 405, "y": 815, "w": 812, "h": 769},
+      "elementPrefix": "life_",
+      "row": 2,
+      "role": "what"
+    },
+    {
+      "id": "paradigm",
+      "label": "③ Why This Matters",
+      "frameId": "frame_para",
+      "mode": "explore",
+      "boundingBox": {"x": 1614, "y": 715, "w": 1041, "h": 969},
+      "elementPrefix": "para_",
+      "row": 2,
+      "role": "why"
+    },
+    {
+      "id": "authoring",
+      "label": "④ How to Create",
+      "frameId": "frame_auth",
+      "mode": "explore",
+      "boundingBox": {"x": 370, "y": 1984, "w": 867, "h": 789},
+      "elementPrefix": "auth_",
+      "row": 3,
+      "role": "how"
+    },
+    {
+      "id": "intelligence",
+      "label": "⑤ How It Gets Smart",
+      "frameId": "frame_intl",
+      "mode": "explore",
+      "boundingBox": {"x": 1411, "y": 2010, "w": 1090, "h": 737},
+      "elementPrefix": "intl_",
+      "row": 3,
+      "role": "how"
+    },
+    {
+      "id": "product-path",
+      "label": "⑥ The Product Path",
+      "frameId": "frame_path",
+      "mode": "explore",
+      "boundingBox": {"x": 348, "y": 3002, "w": 2364, "h": 830},
+      "elementPrefix": "path_",
+      "row": 4,
+      "role": "concluding"
+    }
+  ],
+  "decisions": [
+    "Build Approach 2 (Library-as-Layer) for v1, graduate to Approach 3 (Registry+Hermes) when custom frontend materializes",
+    "Both local-first AND community-first equally (shadcn copy-into-project model)",
+    "All authoring modes: declarative, extractive, interactive",
+    "Intelligence hierarchy: placement hints (v1) → parameterized (v2) → composition templates (v3)",
+    "library-resolve.js is the stable core — v2 and v3 extend, not replace",
+    "Z-pattern flexbox layout with space-evenly distribution and 300px row gaps",
+    "Frames for navigation, bezier spine for reading flow, margin notes for reasoning"
+  ]
+}

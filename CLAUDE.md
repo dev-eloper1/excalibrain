@@ -45,6 +45,7 @@ tools/
   canvas-inspect.js    Read and query existing .excalidraw files
   canvas-edit.js       Programmatic edits to existing canvases
   primitives.js        Wireframe and floor plan primitive generation
+  library-resolve.js   Component library resolver (postit, spine-arrow, frame, title, margin-note)
   excalidraw-bundle.js Built Excalidraw renderer (generated)
   render_template.html HTML template for SVG export
   mermaid_template.html HTML template for Mermaid rendering
@@ -65,6 +66,8 @@ tests/
   test-canvas-edit.js  Canvas edit tests
   test-all.sh          Run all tests
   fixtures/            Test input files
+libraries/
+  excalibrain-core.excalidrawlib  Core component library (postit, spine-arrow, frame, title, margin-note)
 examples/              Example diagrams (architecture, flowchart, ER, etc.)
 scripts/
   build-bundle.js      Builds excalidraw-bundle.js
@@ -83,6 +86,8 @@ docs/
 - `node tools/canvas-edit.js diagram.excalidraw move <id> <dx> <dy>` -- move element
 - `node tools/canvas-edit.js diagram.excalidraw strip-prefix <prefix>` -- remove all elements with prefix (for section replacement)
 - `node tools/primitives.js input.json --output out.excalidraw` -- wireframe/floorplan primitives
+- `node tools/library-resolve.js components.json --output out.excalidraw` -- component library resolver
+- `node tools/library-resolve.js postit --text "Note" --x 100 --y 200` -- inline component
 
 ### Test scripts
 ```bash
