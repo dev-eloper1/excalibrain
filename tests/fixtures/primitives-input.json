@@ -1,0 +1,8 @@
+{
+  "primitives": [
+    { "type": "screen", "x": 0, "y": 0, "size": "mobile", "title": "Login" },
+    { "type": "input", "x": 30, "y": 100, "placeholder": "Email", "label": "Email" },
+    { "type": "input", "x": 30, "y": 180, "placeholder": "Password", "label": "Password" },
+    { "type": "button", "x": 30, "y": 280, "label": "Sign In", "variant": "primary" }
+  ]
+}

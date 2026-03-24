@@ -24,4 +24,7 @@ echo ""
 echo "fast-check.js:"
 node tests/test-fast-check.js
 echo ""
+echo "primitives.js:"
+node tests/test-primitives.js
+echo ""
 echo "All tests complete."

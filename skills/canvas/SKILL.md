@@ -21,7 +21,7 @@ Map user intent to mode:
 | "let's explore...", "explore this visually", "work through...", "start a canvas" | **Explore** |
 | "show me the full architecture...", "architect this" | **Architect** |
 | "storyboard...", "phases...", "timeline of..." | **Storyboard** |
-| "wireframe...", "screen flow...", "mock up..." | Wireframe (coming soon) |
+| "wireframe...", "screen flow...", "mock up..." | **Wireframe** |
 
 If ambiguous, default to **Explore**.
 
@@ -439,9 +439,78 @@ At the bottom, spanning all columns:
 
 ---
 
-## Wireframe
+## Wireframe Mode Workflow
 
-Wireframe mode is coming soon. For now, use **Explore mode** for iterative building, **Architect mode** for comprehensive system diagrams, or **Storyboard mode** for sequential narratives.
+For screen flows — login forms, onboarding, settings pages. Uses `primitives.js` to generate hand-drawn UI components.
+
+### 1. Determine screens
+
+From user intent, identify the screens in the flow (typically 2-5). Each screen represents a distinct view.
+
+### 2. Announce plan
+
+Tell the user the screens you'll build:
+
+*"I'll wireframe a 3-screen flow: Login, Dashboard, Settings. Sound good?"*
+
+### 3. Build screens left-to-right
+
+For each screen:
+
+- Create a primitives JSON with `screen` frame + UI elements (buttons, inputs, cards, etc.)
+- Position screens left-to-right: `x = screen_index * (screen_width + 120)`
+- Run `primitives.js` with merge flags
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/primitives.js <screen_input.json> \
+  --merge <canvas.excalidraw> \
+  --position <x>,0 \
+  --output <canvas.excalidraw>
+```
+
+**Primitives JSON format:**
+```json
+{
+  "primitives": [
+    { "type": "screen", "x": 0, "y": 0, "size": "mobile", "title": "Login" },
+    { "type": "input", "x": 30, "y": 100, "placeholder": "Email", "label": "Email" },
+    { "type": "button", "x": 30, "y": 200, "label": "Sign In", "variant": "primary" }
+  ]
+}
+```
+
+Available primitive types: `screen`, `button`, `input`, `textarea`, `card`, `nav-bar`, `modal`, `divider`, `image-placeholder`, `avatar`, `list-item`.
+
+Read `references/primitives/wireframe.md` for sizing, variants, and styling details.
+
+### 4. Add navigation arrows
+
+Between screens, add horizontal arrows showing the user flow:
+
+- Use dagre-layout with a simple 2-node graph, or add arrow elements directly
+- Y position: vertical center of the screens
+- Style: dashed, labeled with the action ("Tap Sign In", "Swipe", etc.)
+
+### 5. Update sidecar
+
+Each screen is a section in the sidecar. Set mode to `"wireframe"`.
+
+### 6. Present
+
+- Export to PNG using `export.js`
+- Show the wireframe flow
+- Summarize what was built
+- Ask for feedback: *"Want to adjust any screen, add more components, or change the flow?"*
+
+**Layout specifics:**
+
+| Parameter | Value |
+|-----------|-------|
+| Mobile screen | 390×780 |
+| Desktop screen | 1280×800 |
+| Tablet screen | 768×1024 |
+| Gap between screens | 120px |
+| Navigation arrows | y-center, dashed, labeled with user action |
 
 ---
 
@@ -455,6 +524,7 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 | Dagre layout | `dagre-layout.js <input.json> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
 | Mermaid convert | `mermaid-convert.js <input.mmd> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
 | Gantt layout | `gantt-layout.js <input.json> [--merge file] [--position x,y] [--prefix str] [--theme name] [--output file]` |
+| Wireframe primitives | `primitives.js <input.json> [--merge file] [--position x,y] [--output file]` |
 | Export | `export.js <file.excalidraw> --format png\|svg --output <file>` |
 
 ---
