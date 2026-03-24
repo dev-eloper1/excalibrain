@@ -123,6 +123,53 @@ test('annotations: --prefix applies to annotation IDs', () => {
   assert(anno2, 'Prefixed annotation pfx_anno_2 not found');
 });
 
+// ── Test 8: arrows use clean Z-shape routing (max 4 points) ─────────────────
+test('dense-graph: arrows have at most 4 points (clean Z-shape)', () => {
+  const result = run('dense-graph.json');
+  const arrows = result.elements.filter(e => e.type === 'arrow');
+  assert(arrows.length >= 6, `Expected ≥6 arrows, got ${arrows.length}`);
+  for (const arrow of arrows) {
+    assert(arrow.points.length <= 4,
+      `Arrow ${arrow.id} has ${arrow.points.length} points (expected ≤4)`);
+  }
+});
+
+// ── Test 9: arrows have no duplicate consecutive points ─────────────────────
+test('dense-graph: no duplicate consecutive arrow points', () => {
+  const result = run('dense-graph.json');
+  const arrows = result.elements.filter(e => e.type === 'arrow');
+  for (const arrow of arrows) {
+    for (let i = 1; i < arrow.points.length; i++) {
+      const prev = arrow.points[i - 1];
+      const curr = arrow.points[i];
+      const same = Math.abs(curr[0] - prev[0]) < 3 && Math.abs(curr[1] - prev[1]) < 3;
+      assert(!same,
+        `Arrow ${arrow.id} has duplicate points at index ${i-1}/${i}: ${JSON.stringify(prev)} ≈ ${JSON.stringify(curr)}`);
+    }
+  }
+});
+
+// ── Test 10: annotations don't overlap each other ───────────────────────────
+test('dense-graph: annotations do not overlap each other', () => {
+  const result = run('dense-graph.json');
+  const annos = result.elements.filter(e =>
+    e.type === 'text' && (e.id === 'note_a' || e.id === 'note_b' || e.id === 'note_c')
+  );
+  assert(annos.length === 3, `Expected 3 annotations, got ${annos.length}`);
+
+  for (let i = 0; i < annos.length; i++) {
+    for (let j = i + 1; j < annos.length; j++) {
+      const a = annos[i], b = annos[j];
+      const overlap =
+        a.x < b.x + b.width && a.x + a.width > b.x &&
+        a.y < b.y + b.height && a.y + a.height > b.y;
+      assert(!overlap,
+        `Annotations ${a.id} and ${b.id} overlap: ` +
+        `(${a.x},${a.y},${a.width},${a.height}) vs (${b.x},${b.y},${b.width},${b.height})`);
+    }
+  }
+});
+
 // ── Summary ─────────────────────────────────────────────────────────────────
 console.log(`\n  ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

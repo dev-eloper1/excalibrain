@@ -78,7 +78,10 @@ docs/
 - `node tools/gantt-layout.js gantt.json --output gantt.excalidraw` -- Gantt charts
 - `node tools/export.js diagram.excalidraw --format png --output diagram.png` -- PNG/SVG export
 - `node tools/canvas-inspect.js diagram.excalidraw --summary` -- inspect canvas
-- `node tools/canvas-edit.js diagram.excalidraw --ops ops.json --output out.excalidraw` -- edit canvas
+- `node tools/canvas-edit.js diagram.excalidraw update <id> <field> <value>` -- update element property
+- `node tools/canvas-edit.js diagram.excalidraw delete <id>` -- delete element
+- `node tools/canvas-edit.js diagram.excalidraw move <id> <dx> <dy>` -- move element
+- `node tools/canvas-edit.js diagram.excalidraw strip-prefix <prefix>` -- remove all elements with prefix (for section replacement)
 - `node tools/primitives.js input.json --output out.excalidraw` -- wireframe/floorplan primitives
 
 ### Test scripts

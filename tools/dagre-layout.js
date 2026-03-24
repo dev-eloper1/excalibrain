@@ -485,25 +485,25 @@ for (let idx = 0; idx < arrowData.length; idx++) {
     startPt = p0;
     endPt   = pN;
 
-    // Orthogonal routing: convert dagre waypoints to elbow paths
+    // Orthogonal routing: convert dagre waypoints to clean elbow paths
     const elbowPts = toOrthogonalPath(p0, pN, rawPts.slice(1, -1), isLR);
     const ox = p0.x, oy = p0.y;
-    points = [
+    points = dedupePoints([
       [0, 0],
       ...elbowPts.map(p => [+(p.x - ox).toFixed(1), +(p.y - oy).toFixed(1)]),
       [+(pN.x - ox).toFixed(1), +(pN.y - oy).toFixed(1)],
-    ];
+    ]);
   } else {
     // No dagre waypoints — use center-to-center with elbow
     startPt = { x: from.cx, y: from.cy };
     endPt   = { x: to.cx, y: to.cy };
 
     const elbowPts = toOrthogonalPath(startPt, endPt, [], isLR);
-    points = [
+    points = dedupePoints([
       [0, 0],
       ...elbowPts.map(p => [+(p.x - startPt.x).toFixed(1), +(p.y - startPt.y).toFixed(1)]),
       [+(endPt.x - startPt.x).toFixed(1), +(endPt.y - startPt.y).toFixed(1)],
-    ];
+    ]);
   }
 
   // Per-edge arrowhead → graph default → 'triangle'
@@ -584,8 +584,10 @@ function nearestDiamondTip(pt, node) {
 }
 
 /**
- * Convert start/end points + optional dagre waypoints into orthogonal (elbow) path.
- * Returns intermediate points (excluding start and end) that form right-angle turns.
+ * Convert start/end points into a clean orthogonal (elbow) path.
+ * Always produces a simple Z-shape with at most 2 intermediate points.
+ * Dagre midpoints are used only to pick the corridor position when routing
+ * needs to avoid the straight-line midpoint (e.g., same-rank edges).
  */
 function toOrthogonalPath(start, end, midPts, isLR) {
   const dx = end.x - start.x;
@@ -595,45 +597,50 @@ function toOrthogonalPath(start, end, midPts, isLR) {
   if (Math.abs(dx) < 2) return []; // vertical line
   if (Math.abs(dy) < 2) return []; // horizontal line
 
-  // If dagre provided intermediate waypoints, use them to guide elbow placement
-  if (midPts.length > 0) {
-    // Use dagre's midpoints but snap each segment to be axis-aligned
-    const result = [];
-    let prev = start;
-    for (const mp of midPts) {
-      // Create an L-bend from prev to mp
-      if (isLR) {
-        result.push({ x: mp.x, y: prev.y }); // horizontal first, then vertical
-      } else {
-        result.push({ x: prev.x, y: mp.y }); // vertical first, then horizontal
-      }
-      prev = mp;
-    }
-    // Final bend to reach end
-    if (isLR) {
-      result.push({ x: end.x, y: prev.y });
-    } else {
-      result.push({ x: prev.x, y: end.y });
-    }
-    return result;
-  }
-
-  // No dagre midpoints — create a single elbow (L-shape or Z-shape)
   if (isLR) {
-    // LR layout: go horizontal to midpoint x, then vertical
-    const midX = start.x + dx / 2;
+    // LR layout: horizontal corridor at midpoint x (or dagre-guided x)
+    let corridorX = start.x + dx / 2;
+    if (midPts.length > 0) {
+      // Use dagre's median midpoint x to avoid overlapping with nodes
+      const xs = midPts.map(p => p.x).sort((a, b) => a - b);
+      corridorX = xs[Math.floor(xs.length / 2)];
+    }
     return [
-      { x: midX, y: start.y },
-      { x: midX, y: end.y },
+      { x: corridorX, y: start.y },
+      { x: corridorX, y: end.y },
     ];
   } else {
-    // TB layout: go vertical to midpoint y, then horizontal
-    const midY = start.y + dy / 2;
+    // TB layout: vertical corridor at midpoint y (or dagre-guided y)
+    let corridorY = start.y + dy / 2;
+    if (midPts.length > 0) {
+      // Use dagre's median midpoint y to avoid overlapping with nodes
+      const ys = midPts.map(p => p.y).sort((a, b) => a - b);
+      corridorY = ys[Math.floor(ys.length / 2)];
+    }
     return [
-      { x: start.x, y: midY },
-      { x: end.x, y: midY },
+      { x: start.x, y: corridorY },
+      { x: end.x, y: corridorY },
     ];
   }
+}
+
+/**
+ * Remove consecutive near-duplicate points from an arrow path.
+ * Two points are "near" if both dx and dy are < 3px.
+ * Always keeps first and last points.
+ */
+function dedupePoints(pts) {
+  if (pts.length <= 2) return pts;
+  const result = [pts[0]];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const prev = result[result.length - 1];
+    const curr = pts[i];
+    if (Math.abs(curr[0] - prev[0]) >= 3 || Math.abs(curr[1] - prev[1]) >= 3) {
+      result.push(curr);
+    }
+  }
+  result.push(pts[pts.length - 1]);
+  return result;
 }
 
 function midpoint(pts) {
@@ -689,37 +696,7 @@ function darken(hex) {
   return darkMap[hex] ?? '#1e293b';
 }
 
-// ── 5. Annotations ────────────────────────────────────────────────────────────
-if (graph.annotations) {
-  for (const anno of graph.annotations) {
-    let ax = anno.x || 0;
-    let ay = anno.y || 0;
-
-    // If anchored to a node, position relative to that node
-    if (anno.anchorTo) {
-      const anchorNode = elements.find(e => e.id === anno.anchorTo);
-      if (anchorNode) {
-        ax = anchorNode.x + (anno.anchorOffset?.dx || 0);
-        ay = anchorNode.y + anchorNode.height + (anno.anchorOffset?.dy || 10);
-      }
-    }
-
-    const annoFontSize = anno.fontSize || 14;
-    const annoWidth = anno.width || 200;
-    const annoHeight = Math.ceil(annoFontSize * 1.25 * (anno.text.split('\n').length) + 8);
-    elements.push(freeText(
-      anno.id,
-      ax, ay,
-      annoWidth,
-      annoHeight,
-      anno.text,
-      anno.color || '#6b7280',
-      annoFontSize,
-    ));
-  }
-}
-
-// ── 6. Collision detection: labels vs labels ──────────────────────────────────
+// ── Collision helpers (shared by annotations and label collision passes) ──────
 const COLLISION_MARGIN = 4;
 
 function boxesOverlap(a, b) {
@@ -741,6 +718,73 @@ function shiftToResolve(movable, fixed, margin) {
   candidates.sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta));
   return candidates[0];
 }
+
+// ── 5. Annotations (with collision avoidance) ────────────────────────────────
+if (graph.annotations) {
+  // Collect bounding boxes of all existing elements for collision checks
+  const occupiedBoxes = elements
+    .filter(el => el.width && el.height && !el.isDeleted)
+    .map(el => ({ x: el.x, y: el.y, w: el.width, h: el.height }));
+
+  // Track annotation elements so they can also collide with each other
+  const annoElements = [];
+
+  for (const anno of graph.annotations) {
+    let ax = anno.x || 0;
+    let ay = anno.y || 0;
+
+    // If anchored to a node, position relative to that node
+    if (anno.anchorTo) {
+      const anchorNode = elements.find(e => e.id === anno.anchorTo);
+      if (anchorNode) {
+        ax = anchorNode.x + (anno.anchorOffset?.dx || 0);
+        ay = anchorNode.y + anchorNode.height + (anno.anchorOffset?.dy || 10);
+      }
+    }
+
+    const annoFontSize = anno.fontSize || 14;
+    const annoWidth = anno.width || 200;
+    const annoHeight = Math.ceil(annoFontSize * 1.25 * (anno.text.split('\n').length) + 8);
+
+    // Resolve collisions: shift annotation away from all occupied boxes
+    let annoBox = { x: ax, y: ay, w: annoWidth, h: annoHeight };
+    const allBoxes = occupiedBoxes.concat(
+      annoElements.map(el => ({ x: el.x, y: el.y, w: el.width, h: el.height }))
+    );
+    for (let pass = 0; pass < 5; pass++) {
+      let shifted = false;
+      for (const occ of allBoxes) {
+        const padded = {
+          x: occ.x - COLLISION_MARGIN,
+          y: occ.y - COLLISION_MARGIN,
+          w: occ.w + COLLISION_MARGIN * 2,
+          h: occ.h + COLLISION_MARGIN * 2,
+        };
+        if (boxesOverlap(annoBox, padded)) {
+          const best = shiftToResolve(annoBox, padded, COLLISION_MARGIN + 6);
+          annoBox.x += best.axis === 'x' ? best.delta : 0;
+          annoBox.y += best.axis === 'y' ? best.delta : 0;
+          shifted = true;
+        }
+      }
+      if (!shifted) break;
+    }
+
+    const annoEl = freeText(
+      anno.id,
+      annoBox.x, annoBox.y,
+      annoWidth,
+      annoHeight,
+      anno.text,
+      anno.color || '#6b7280',
+      annoFontSize,
+    );
+    elements.push(annoEl);
+    annoElements.push(annoEl);
+  }
+}
+
+// ── 6. Collision detection: labels vs labels ──────────────────────────────────
 
 // 5a. Zone label vs zone label: shift overlapping zone labels apart
 const zoneLabelEls = elements.filter(

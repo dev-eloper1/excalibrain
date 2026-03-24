@@ -565,7 +565,8 @@ function generateRoom(p) {
   const els = [];
 
   els.push(rect(nextId(), x, y, w, h, {
-    stroke: '#1e1e1e',
+    stroke: p.stroke || '#1e1e1e',
+    fill: p.fill || 'transparent',
     strokeWidth: 2,
     groupIds: [groupId],
   }));
@@ -573,7 +574,7 @@ function generateRoom(p) {
   if (label) {
     els.push(text(nextId(), x, y, w, h, label, {
       fontSize: 16,
-      color: '#1e1e1e',
+      color: p.labelColor || '#1e1e1e',
       textAlign: 'center',
       verticalAlign: 'middle',
       groupIds: [groupId],

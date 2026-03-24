@@ -16,6 +16,7 @@ Use this file to select the correct diagram type before generating. Read the con
 | "tables", "database schema", "entity relationship", "foreign key", "ER diagram", "data model" (when referring to DB tables not code classes) | **ER diagram** | mermaid |
 | "timeline", "schedule", "milestones", "gantt", "sprint plan", "project plan", "weeks", "phases", when content is time-bound tasks with durations | **Gantt chart** | gantt |
 | "mind map", "concepts", "brainstorming", "topic map", "explore ideas", "key concepts of", radial concept exploration without linear flow | **Mindmap** | dagre |
+| "floor plan", "apartment", "office layout", "room layout", "building plan", "furniture layout", physical space with walls, doors, and furniture | **Floor plan** | primitives |
 
 ---
 
@@ -24,6 +25,7 @@ Use this file to select the correct diagram type before generating. Read the con
 - **dagre** (primary): architecture, flowchart, state diagram, mindmap. Full layout control, supports canvas sessions (merge/position/prefix), reliable text sizing.
 - **mermaid**: sequence diagrams (timeline layout dagre can't replicate), class diagrams, ER diagrams. Good for these specialized formats. Not recommended for flowcharts with >10 nodes or fan-in/fan-out patterns.
 - **gantt**: gantt charts and project timelines only.
+- **primitives**: floor plans and spatial layouts only. Uses `primitives.js` with room/door/window/furniture elements.
 - **mermaid fallback**: If the user provides `.mmd` syntax directly, use mermaid regardless of diagram type.
 
 ---
