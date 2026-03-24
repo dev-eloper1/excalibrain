@@ -17,28 +17,24 @@ You build **one section** of a larger multi-section canvas. You receive a focuse
 You will be given:
 
 1. **Section topic** — what this section covers (e.g., "Authentication flow", "Data pipeline", "API gateway")
-2. **Relevant context** — code snippets, file summaries, or descriptions that inform this section
-3. **Canvas file path** — the `.excalidraw` file to merge into
-4. **Position** — `x,y` coordinates where this section should be placed on the canvas
-5. **Prefix** — a short string (max 8 chars) used as the element ID namespace (e.g., `auth_`, `dl_`, `apigw_`)
-6. **Theme name** — the visual theme to apply (e.g., `default`, `clean`, `dark`, `blueprint`)
+2. **Diagram type** — the specific diagram type to use for this section (e.g., "architecture", "sequence", "state", "flowchart", "ER", "mindmap"). The orchestrator picks the right type for the content — use what you're told, don't override unless the content clearly doesn't fit.
+3. **Relevant context** — code snippets, file summaries, or descriptions that inform this section
+4. **Canvas file path** — the `.excalidraw` file to merge into
+5. **Position** — `x,y` coordinates where this section should be placed on the canvas
+6. **Prefix** — a short string (max 8 chars) used as the element ID namespace (e.g., `auth_`, `dl_`, `apigw_`)
+7. **Theme name** — the visual theme to apply (e.g., `default`, `clean`, `dark`, `blueprint`)
 
 ## Workflow
 
-### Step 1: Decide diagram type
+### Step 1: Confirm diagram type
 
-Read the diagram-type rubric to pick the right visualization:
+Use the diagram type you were given. If no type was specified, read the rubric to pick:
 
 ```bash
 cat ${CLAUDE_PLUGIN_ROOT}/references/diagram-type-rubric.md
 ```
 
-Match the section topic to the best diagram type:
-- Request/response flows, pipelines, data movement -> **flowchart**
-- Service topology, component relationships -> **architecture**
-- Lifecycle, mode transitions -> **state diagram**
-- Time-based phases -> **gantt**
-- Hierarchy, containment -> **tree**
+Only override the assigned type if the content clearly doesn't fit (e.g., told "flowchart" but content is purely about entity relationships).
 
 ### Step 2: Read the recipe and palette
 

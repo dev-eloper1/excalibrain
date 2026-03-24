@@ -634,6 +634,42 @@ Sections on the same canvas are NOT islands. After building multiple sections, a
 
 Use distinct arrow styles for inter-section arrows (dashed, different color like `#6366f1` indigo) to distinguish them from intra-section arrows.
 
+### Parallel section generation
+
+When a canvas needs multiple sections (3+), **dispatch section-builder agents in parallel** instead of building sequentially. This is faster and each agent gets focused context.
+
+**Orchestration pattern:**
+
+1. **Plan the canvas** — determine all sections, their diagram types, positions, and prefixes
+2. **Dispatch agents in parallel** — one `section-builder` agent per section, each with:
+   - Section topic and relevant context (code snippets, descriptions)
+   - Diagram type to use (architecture, sequence, state, flowchart, etc.)
+   - Canvas file path
+   - Position (`x,y`) and prefix (computed from the plan)
+   - Theme name
+3. **Wait for all agents** — each writes to the canvas with `--merge`
+4. **Add inter-section connections** — the master process reads the completed canvas, adds arrows between sections showing relationships, data flow, and zoom connections. Use dashed indigo (`#6366f1`) arrows with labels.
+5. **Add overview annotations** — title, legend, narrative context
+
+**Multi-zoom pattern (overview + detail):**
+
+For complex systems, build at multiple zoom levels on the same canvas:
+
+1. **Overview section** (top of canvas) — high-level system diagram showing major components as single nodes. Use architecture type.
+2. **Detail sections** (below, side by side) — each major component expanded into its own diagram at the appropriate type:
+   - API Gateway → **sequence diagram** showing request routing
+   - Auth Service → **state diagram** showing session lifecycle
+   - Data Pipeline → **flowchart** showing processing steps
+   - Database → **ER diagram** showing schema
+3. **Zoom arrows** — dashed arrows from overview nodes to their corresponding detail sections, labeled "detail below" or "zoom in"
+
+This creates a visual document you can read at two levels: the overview for the big picture, the details for depth. Each detail section uses the diagram type that best argues its content.
+
+**When to parallelize:**
+- 3+ independent sections → always parallelize with section-builder agents
+- 2 sections → sequential is fine, less overhead
+- Sections that depend on each other (e.g., detail depends on overview layout) → build overview first, then parallelize details
+
 ### Other behaviors
 
 - **Announce before drawing** — always state what you will draw and which diagram type before running any tool
