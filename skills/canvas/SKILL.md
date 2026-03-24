@@ -20,7 +20,7 @@ Map user intent to mode:
 |----------------|------|
 | "let's explore...", "explore this visually", "work through...", "start a canvas" | **Explore** |
 | "show me the full architecture...", "architect this" | **Architect** |
-| "storyboard...", "phases...", "timeline of..." | Storyboard (coming soon) |
+| "storyboard...", "phases...", "timeline of..." | **Storyboard** |
 | "wireframe...", "screen flow...", "mock up..." | Wireframe (coming soon) |
 
 If ambiguous, default to **Explore**.
@@ -312,9 +312,136 @@ Write the `.excalibrain.json` sidecar with:
 
 ---
 
-## Storyboard / Wireframe
+## Storyboard Mode Workflow
 
-These modes are coming soon. For now, use **Explore mode** for iterative building or **Architect mode** for comprehensive system diagrams.
+For sequential narratives — build plans, migration strategies, user journeys, pitching.
+
+### 1. Determine frames
+
+From user intent, identify the phases/steps (typically 3-6). Each frame represents a distinct stage in the sequence.
+
+### 2. Announce plan
+
+Tell the user the frames you'll build and wait for confirmation:
+
+*"I'll build a 4-frame storyboard: Phase 1 — Current State, Phase 2 — API Migration, Phase 3 — Feature Parity, Phase 4 — Cutover. Sound good?"*
+
+### 3. Build frames left-to-right
+
+For each frame:
+
+- Position: `x = frame_index * (frame_width + gap)`, `y = 0`
+- `frame_width` = 500, `gap` = 100
+- Each frame is a dagre diagram section with `--merge --position --prefix`
+- Prefix derived from frame: `ph1_`, `ph2_`, `ph3_`, etc.
+- Add a title label above each frame (large font, 20px)
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <frame_input.json> \
+  --merge <canvas.excalidraw> \
+  --position <x>,0 \
+  --prefix ph<N>_ \
+  --output <canvas.excalidraw>
+```
+
+### 4. Add progression arrows
+
+Between frames, add horizontal arrows from the right edge of frame N to the left edge of frame N+1:
+
+- Y position: vertical center of the frames
+- Style: dashed
+- Label each arrow with what carries forward ("API ready", "Features stable", etc.)
+
+### 5. Add timeline annotations
+
+Optionally add duration/timing below each frame:
+
+- Position: centered below frame, 20px below bottom edge
+- Font size: 14px, color `#6b7280`
+- Content: "Week 1-2", "Sprint 3", "Q2 2026", etc.
+
+### 6. Update sidecar
+
+Each frame is a section in the sidecar with sequential ordering. Set mode to `"storyboard"`.
+
+### 7. Present
+
+- Export to PNG using `export.js`
+- Show the storyboard, summarize the narrative arc
+- Ask for feedback: *"Want to adjust any frame, add detail to a phase, or change the sequence?"*
+
+**Layout specifics:**
+
+| Parameter | Value |
+|-----------|-------|
+| Frame width | 500px |
+| Frame min height | 400px (varies by content) |
+| Gap between frames | 100px |
+| Title font size | 20px, centered above frame, 30px above top edge |
+| Progression arrows | y-center of frames, dashed style, labeled |
+| Timeline annotations | Centered below frame, 20px below bottom edge |
+
+---
+
+## Compare Operation
+
+Compare is a **visual operation**, not a mode. It can be used in any session or as a standalone Quick Draw.
+
+**Triggered by:** "compare X vs Y", "show options side by side", "what are the trade-offs"
+
+### 1. Identify options
+
+Extract 2-4 approaches from conversation context. Each option becomes a column.
+
+### 2. Layout columns
+
+Each option gets a column:
+
+- Column width: 400px, gap: 80px
+- Position: `x = col_index * (400 + 80)`, `y = 0`
+
+### 3. Build each column
+
+Use dagre with `--merge --position --prefix`:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <option_input.json> \
+  --merge <canvas.excalidraw> \
+  --position <x>,0 \
+  --prefix opt<N>_ \
+  --output <canvas.excalidraw>
+```
+
+- Prefix: `opt1_`, `opt2_`, etc.
+- Each column is a small architecture/flowchart diagram
+- Title above each: the option name (18px, bold-colored)
+
+### 4. Add trade-off annotations
+
+Below each column, add pros and cons:
+
+- Pros in green (`#16a34a`), cons in red (`#dc2626`)
+- Short bullet points, free text elements
+- Position: below the column, 20px gap
+
+### 5. Optional summary row
+
+At the bottom, spanning all columns:
+
+- A horizontal zone highlighting the key differentiator
+- Or a recommendation annotation: *"Recommended: Option B because..."*
+- Position: below all columns + annotations, full width
+
+### 6. Works standalone or mid-session
+
+- **Within a canvas session:** merge onto existing canvas at the next available position (use `canvas-inspect.js` to find free space)
+- **Standalone:** create a new `.excalidraw` file and sidecar
+
+---
+
+## Wireframe
+
+Wireframe mode is coming soon. For now, use **Explore mode** for iterative building, **Architect mode** for comprehensive system diagrams, or **Storyboard mode** for sequential narratives.
 
 ---
 
