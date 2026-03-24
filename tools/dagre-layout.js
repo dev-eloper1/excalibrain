@@ -169,8 +169,8 @@ for (const n of graph.nodes) {
   const lines = label.split('\n');
   const maxLineLen = Math.max(...lines.map(l => l.length), 1);
   const fontSize = n.fontSize ?? 16;  // FIX 3: was 14
-  const calcW = Math.max(DEFAULT_W, Math.ceil((maxLineLen * fontSize * 0.65 + 32) / 10) * 10);
-  const calcH = Math.max(DEFAULT_H, Math.ceil((lines.length * fontSize * 1.25 + 20) / 10) * 10);
+  const calcW = Math.max(DEFAULT_W, Math.ceil((maxLineLen * fontSize * 0.70 + 40) / 10) * 10);
+  const calcH = Math.max(DEFAULT_H, Math.ceil((lines.length * fontSize * 1.25 + 24) / 10) * 10);
 
   g.setNode(n.id, {
     width: n.width ?? calcW,
@@ -328,12 +328,12 @@ if (graph.zones) {
 
     const zid = `zone_${zone.id}`;
     elements.push({
-      ...base(zid, 'rectangle', zx, zy, zw, zh, { sw: 1, roughness: 0, props: {
+      ...base(zid, 'rectangle', zx, zy, zw, zh, { sw: 1, style: 'dashed', roughness: 0, props: {
         strokeColor: zone.stroke ?? '#94a3b8',
         backgroundColor: zone.fill ?? '#f8fafc',
         fillStyle: STYLE.zoneFill,
         opacity: zone.opacity ?? STYLE.zoneOpacity,
-        roundness: { type: 3 },   // FIX 3: was null
+        roundness: { type: 3 },
       }}),
       boundElements: null,
     });
@@ -484,17 +484,26 @@ for (let idx = 0; idx < arrowData.length; idx++) {
 
     startPt = p0;
     endPt   = pN;
+
+    // Orthogonal routing: convert dagre waypoints to elbow paths
+    const elbowPts = toOrthogonalPath(p0, pN, rawPts.slice(1, -1), isLR);
     const ox = p0.x, oy = p0.y;
-    points  = [
+    points = [
       [0, 0],
-      ...rawPts.slice(1, -1).map(p => [+(p.x - ox).toFixed(1), +(p.y - oy).toFixed(1)]),
+      ...elbowPts.map(p => [+(p.x - ox).toFixed(1), +(p.y - oy).toFixed(1)]),
       [+(pN.x - ox).toFixed(1), +(pN.y - oy).toFixed(1)],
     ];
   } else {
-    // No dagre waypoints — use center-to-center, let bindings handle routing
+    // No dagre waypoints — use center-to-center with elbow
     startPt = { x: from.cx, y: from.cy };
     endPt   = { x: to.cx, y: to.cy };
-    points  = [[0, 0], [+(endPt.x - startPt.x).toFixed(1), +(endPt.y - startPt.y).toFixed(1)]];
+
+    const elbowPts = toOrthogonalPath(startPt, endPt, [], isLR);
+    points = [
+      [0, 0],
+      ...elbowPts.map(p => [+(p.x - startPt.x).toFixed(1), +(p.y - startPt.y).toFixed(1)]),
+      [+(endPt.x - startPt.x).toFixed(1), +(endPt.y - startPt.y).toFixed(1)],
+    ];
   }
 
   // Per-edge arrowhead → graph default → 'triangle'
@@ -572,6 +581,59 @@ function nearestDiamondTip(pt, node) {
     const d = Math.hypot(t.x - pt.x, t.y - pt.y);
     return d < best.dist ? { tip: t, dist: d } : best;
   }, { tip: tips[0], dist: Infinity }).tip;
+}
+
+/**
+ * Convert start/end points + optional dagre waypoints into orthogonal (elbow) path.
+ * Returns intermediate points (excluding start and end) that form right-angle turns.
+ */
+function toOrthogonalPath(start, end, midPts, isLR) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+
+  // If already axis-aligned (straight horizontal or vertical), no intermediate points needed
+  if (Math.abs(dx) < 2) return []; // vertical line
+  if (Math.abs(dy) < 2) return []; // horizontal line
+
+  // If dagre provided intermediate waypoints, use them to guide elbow placement
+  if (midPts.length > 0) {
+    // Use dagre's midpoints but snap each segment to be axis-aligned
+    const result = [];
+    let prev = start;
+    for (const mp of midPts) {
+      // Create an L-bend from prev to mp
+      if (isLR) {
+        result.push({ x: mp.x, y: prev.y }); // horizontal first, then vertical
+      } else {
+        result.push({ x: prev.x, y: mp.y }); // vertical first, then horizontal
+      }
+      prev = mp;
+    }
+    // Final bend to reach end
+    if (isLR) {
+      result.push({ x: end.x, y: prev.y });
+    } else {
+      result.push({ x: prev.x, y: end.y });
+    }
+    return result;
+  }
+
+  // No dagre midpoints — create a single elbow (L-shape or Z-shape)
+  if (isLR) {
+    // LR layout: go horizontal to midpoint x, then vertical
+    const midX = start.x + dx / 2;
+    return [
+      { x: midX, y: start.y },
+      { x: midX, y: end.y },
+    ];
+  } else {
+    // TB layout: go vertical to midpoint y, then horizontal
+    const midY = start.y + dy / 2;
+    return [
+      { x: start.x, y: midY },
+      { x: end.x, y: midY },
+    ];
+  }
 }
 
 function midpoint(pts) {
