@@ -1,0 +1,48 @@
+{
+  "primitives": [
+    { "type": "room", "x": 0, "y": 0, "w": 900, "h": 650, "label": "" },
+
+    { "type": "room", "x": 0, "y": 0, "w": 400, "h": 380, "label": "Living Room", "fill": "#dbeafe", "stroke": "#93c5fd", "labelColor": "#1e40af" },
+    { "type": "room", "x": 400, "y": 0, "w": 260, "h": 260, "label": "Kitchen", "fill": "#dcfce7", "stroke": "#86efac", "labelColor": "#15803d" },
+    { "type": "room", "x": 660, "y": 0, "w": 240, "h": 260, "label": "Bathroom", "fill": "#ede9fe", "stroke": "#c4b5fd", "labelColor": "#6d28d9" },
+    { "type": "room", "x": 400, "y": 260, "w": 500, "h": 390, "label": "Bedroom", "fill": "#fef9c3", "stroke": "#fbbf24", "labelColor": "#92400e" },
+    { "type": "room", "x": 0, "y": 380, "w": 400, "h": 270, "label": "Hallway / Entry", "fill": "#f1f5f9", "stroke": "#94a3b8", "labelColor": "#475569" },
+
+    { "type": "furniture:couch", "style": "L", "x": 30, "y": 50 },
+    { "type": "furniture:table", "shape": "rect", "x": 270, "y": 150, "w": 100, "h": 60 },
+
+    { "type": "furniture:stove", "x": 420, "y": 30 },
+    { "type": "furniture:sink", "x": 500, "y": 30 },
+    { "type": "furniture:fridge", "x": 580, "y": 30 },
+    { "type": "furniture:table", "shape": "rect", "x": 430, "y": 140, "w": 190, "h": 70 },
+
+    { "type": "furniture:bed", "x": 450, "y": 380, "size": "queen" },
+    { "type": "furniture:desk", "x": 720, "y": 340, "width": 130 },
+
+    { "type": "furniture:shower", "x": 670, "y": 15, "size": 110 },
+    { "type": "furniture:toilet", "x": 820, "y": 20 },
+    { "type": "furniture:sink", "x": 810, "y": 160 },
+
+    { "type": "door", "x": 200, "y": 380, "wall": "s", "swing": "right", "width": 40 },
+    { "type": "door", "x": 400, "y": 220, "wall": "e", "swing": "left", "width": 40 },
+    { "type": "door", "x": 420, "y": 260, "wall": "s", "swing": "right", "width": 40 },
+    { "type": "door", "x": 660, "y": 190, "wall": "e", "swing": "right", "width": 40 },
+    { "type": "door", "x": 150, "y": 650, "wall": "s", "swing": "right", "width": 45 },
+
+    { "type": "window", "x": 0, "y": 150, "wall": "e", "width": 130 },
+    { "type": "window", "x": 550, "y": 650, "wall": "n", "width": 160 },
+    { "type": "window", "x": 740, "y": 0, "wall": "n", "width": 100 },
+
+    { "type": "dimension", "x1": 0, "y1": -25, "x2": 400, "y2": -25, "label": "8.0 m" },
+    { "type": "dimension", "x1": 400, "y1": -25, "x2": 660, "y2": -25, "label": "5.2 m" },
+    { "type": "dimension", "x1": 660, "y1": -25, "x2": 900, "y2": -25, "label": "4.8 m" },
+
+    { "type": "dimension", "x1": 930, "y1": 0, "x2": 930, "y2": 260, "label": "5.2 m" },
+    { "type": "dimension", "x1": 930, "y1": 260, "x2": 930, "y2": 650, "label": "7.8 m" },
+
+    { "type": "dimension", "x1": 0, "y1": 680, "x2": 900, "y2": 680, "label": "18.0 m" },
+    { "type": "dimension", "x1": -30, "y1": 0, "x2": -30, "y2": 650, "label": "13.0 m" },
+
+    { "type": "label", "x": 300, "y": -55, "text": "1-Bedroom Apartment  ·  ~55 m²", "fontSize": 18 }
+  ]
+}

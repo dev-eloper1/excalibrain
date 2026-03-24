@@ -1,0 +1,130 @@
+{
+  "canvas": "onboarding-system.excalidraw",
+  "mode": "architect",
+  "theme": "default",
+  "created": "2026-03-24T00:00:00Z",
+  "lastUpdated": "2026-03-24T00:00:00Z",
+  "diagramLocation": "docs/diagrams",
+  "sections": [
+    {
+      "id": "architecture",
+      "label": "Backend Service Architecture",
+      "mode": "architect",
+      "diagramType": "architecture",
+      "tool": "dagre",
+      "boundingBox": { "x": 8, "y": 53, "w": 1467, "h": 804 },
+      "elementPrefix": "arch_",
+      "elementCount": 65,
+      "annotations": [
+        { "id": "anno_arch_1", "text": "Zone containers encode trust boundaries — client, edge, and internal zones visually separated" },
+        { "id": "anno_arch_2", "text": "Auth service is the convergence point every request must cross" }
+      ],
+      "decisions": [
+        "Zone rectangles encode trust boundaries rather than free-floating nodes",
+        "Data stores in bottom zone reinforces read/write dependency direction"
+      ]
+    },
+    {
+      "id": "sequence",
+      "label": "Registration Sequence",
+      "mode": "architect",
+      "diagramType": "sequence",
+      "tool": "mermaid",
+      "boundingBox": { "x": 700, "y": 0, "w": 4028, "h": 1911 },
+      "elementPrefix": "seq_",
+      "elementCount": 127,
+      "annotations": [
+        { "id": "anno_seq_1", "text": "API Gateway is the single synchronous choke point for all three phases" },
+        { "id": "anno_seq_2", "text": "Redis appears in two roles — session store (signup) and cache layer (dashboard)" }
+      ],
+      "decisions": [
+        "Mermaid sequence used because content is time-ordered actor choreography",
+        "Note annotations preserved as visual phase dividers"
+      ]
+    },
+    {
+      "id": "state-machine",
+      "label": "Onboarding State Machine",
+      "mode": "architect",
+      "diagramType": "state",
+      "tool": "dagre",
+      "boundingBox": { "x": 1440, "y": 101, "w": 2462, "h": 577 },
+      "elementPrefix": "state_",
+      "elementCount": 37,
+      "annotations": [
+        { "id": "anno_state_1", "text": "LR direction shows temporal progression — left is earlier, right is completion" },
+        { "id": "anno_state_2", "text": "Failure exits (Suspended, Abandoned) visually below the happy path" }
+      ],
+      "decisions": [
+        "Red dashed edges for suspension, dotted gray for abandonment",
+        "Purple dashed for admin/out-of-band interventions",
+        "Abandoned uses dashed border to signal recoverable vs terminal"
+      ]
+    },
+    {
+      "id": "data-model",
+      "label": "Data Model (ER)",
+      "mode": "architect",
+      "diagramType": "er",
+      "tool": "mermaid",
+      "boundingBox": { "x": 8, "y": 708, "w": 2132, "h": 1174 },
+      "elementPrefix": "er_",
+      "elementCount": 155,
+      "annotations": [
+        { "id": "anno_er_1", "text": "users is the hub — all 5 satellite tables have FK to users.id" },
+        { "id": "anno_er_2", "text": "avatars is one-to-one; all others are one-to-many" }
+      ],
+      "decisions": [
+        "6 tables covering all onboarding data needs: users, sessions, onboarding_steps, activity_log, email_queue, avatars"
+      ]
+    },
+    {
+      "id": "error-flows",
+      "label": "Error & Recovery Flows",
+      "mode": "architect",
+      "diagramType": "flowchart",
+      "tool": "dagre",
+      "boundingBox": { "x": 708, "y": 753, "w": 2524, "h": 314 },
+      "elementPrefix": "err_",
+      "elementCount": 62,
+      "annotations": [
+        { "id": "anno_err_1", "text": "9 failure modes in 4 colored zones — every error has a recovery path" },
+        { "id": "anno_err_2", "text": "Diamond = failure trigger, Rectangle = recovery strategy" }
+      ],
+      "decisions": [
+        "Zones colored by domain: orange=entry, red=auth, yellow=upload, purple=data",
+        "Circuit breaker and graceful degradation for infrastructure-level recoveries"
+      ]
+    },
+    {
+      "id": "security",
+      "label": "Security Boundaries",
+      "mode": "architect",
+      "diagramType": "architecture",
+      "tool": "dagre",
+      "boundingBox": { "x": 1408, "y": 708, "w": 1644, "h": 1119 },
+      "elementPrefix": "sec_",
+      "elementCount": 138,
+      "annotations": [
+        { "id": "anno_sec_1", "text": "5 trust zones top-to-bottom: threats enter from top, filtered downward" },
+        { "id": "anno_sec_2", "text": "JWT lifecycle isolated in its own boundary — token mgmt is the single access control chokepoint" }
+      ],
+      "decisions": [
+        "TB direction makes zone boundaries read as physical security perimeter stack",
+        "Auth boundary sits between edge and app — no request reaches app without JWT verification",
+        "bcrypt and session manager in auth boundary, not app zone"
+      ]
+    }
+  ],
+  "researchZone": {
+    "boundingBox": { "x": 0, "y": -200, "w": 1200, "h": 180 },
+    "findings": [
+      "6 views cover all system facets: topology, runtime flow, lifecycle, data shape, failure modes, trust boundaries",
+      "JWT is the single chokepoint — every request passes through it",
+      "Redis serves 3 roles: session store, rate counter, dashboard cache",
+      "9 error modes mapped with corresponding recovery strategies",
+      "5 trust zones from untrusted internet to encrypted data layer"
+    ]
+  },
+  "connections": []
+}

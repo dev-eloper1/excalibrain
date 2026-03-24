@@ -1,0 +1,116 @@
+{
+  "direction": "TB",
+  "title": "excalibrain — Plugin Architecture",
+  "rankSep": 100,
+  "nodeSep": 45,
+  "zones": [
+    {
+      "id": "z_ui",
+      "label": "USER INTERFACE",
+      "labelColor": "#1e40af",
+      "fill": "#dbeafe",
+      "stroke": "#93c5fd",
+      "nodeIds": ["cli", "cmd_draw", "cmd_canvas", "cmd_export", "cmd_annotate"]
+    },
+    {
+      "id": "z_skills",
+      "label": "SKILLS — Orchestration",
+      "labelColor": "#15803d",
+      "fill": "#dcfce7",
+      "stroke": "#86efac",
+      "nodeIds": ["sk_draw", "sk_canvas", "sk_add", "sk_export", "refs"]
+    },
+    {
+      "id": "z_quality",
+      "label": "QUALITY GATES",
+      "labelColor": "#c2410c",
+      "fill": "#ffedd5",
+      "stroke": "#fdba74",
+      "nodeIds": ["ag_section", "ag_validator", "hk_fast", "hk_visual"]
+    },
+    {
+      "id": "z_engines",
+      "label": "LAYOUT ENGINES & CANVAS OPS",
+      "labelColor": "#6d28d9",
+      "fill": "#ede9fe",
+      "stroke": "#c4b5fd",
+      "nodeIds": ["dagre", "mermaid", "gantt", "primitives", "inspect", "edit", "themes"]
+    },
+    {
+      "id": "z_render",
+      "label": "RENDERING & OUTPUT",
+      "labelColor": "#9f1239",
+      "fill": "#ffe4e6",
+      "stroke": "#fda4af",
+      "nodeIds": ["exporter", "bundle", "out_excalidraw", "out_png", "out_svg"]
+    }
+  ],
+  "nodes": [
+    {"id": "cli", "label": "Claude Code CLI", "fill": "#1e293b", "stroke": "#e2e8f0", "shape": "ellipse"},
+    {"id": "cmd_draw", "label": "/draw", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true},
+    {"id": "cmd_canvas", "label": "/canvas", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true},
+    {"id": "cmd_export", "label": "/export", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true},
+    {"id": "cmd_annotate", "label": "/annotate", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true},
+
+    {"id": "sk_draw", "label": "draw skill\nselects tool path\nby diagram type", "fill": "#86efac", "stroke": "#14532d"},
+    {"id": "sk_canvas", "label": "canvas skill\nexplore · architect\nstoryboard · wireframe", "fill": "#86efac", "stroke": "#14532d"},
+    {"id": "sk_add", "label": "add skill\nmerge sections\ninto existing canvas", "fill": "#86efac", "stroke": "#14532d"},
+    {"id": "sk_export", "label": "export skill\nformat & region\nselection", "fill": "#86efac", "stroke": "#14532d"},
+    {"id": "refs", "label": "references/\ncolor-palette · recipes\nlayout-rules", "fill": "#f1f5f9", "stroke": "#475569"},
+
+    {"id": "ag_section", "label": "section-builder\nagent\n(parallel sections)", "fill": "#fed7aa", "stroke": "#c2410c"},
+    {"id": "ag_validator", "label": "canvas-validator\nagent\n(visual QA)", "fill": "#fed7aa", "stroke": "#c2410c"},
+    {"id": "hk_fast", "label": "fast-check.js\npre-save\n(structural)", "fill": "#fef08a", "stroke": "#92400e"},
+    {"id": "hk_visual", "label": "visual-check.js\npost-save\n(render QA)", "fill": "#fef08a", "stroke": "#92400e"},
+
+    {"id": "dagre", "label": "dagre-layout.js\nflowchart · arch\nstate · mindmap", "fill": "#ddd6fe", "stroke": "#6d28d9"},
+    {"id": "mermaid", "label": "mermaid-convert.js\nsequence · class · ER", "fill": "#ddd6fe", "stroke": "#6d28d9"},
+    {"id": "gantt", "label": "gantt-layout.js\ntimelines & schedules", "fill": "#ddd6fe", "stroke": "#6d28d9"},
+    {"id": "primitives", "label": "primitives.js\nwireframe & floorplan", "fill": "#ddd6fe", "stroke": "#6d28d9"},
+    {"id": "inspect", "label": "canvas-inspect.js\nread & query", "fill": "#e2e8f0", "stroke": "#334155"},
+    {"id": "edit", "label": "canvas-edit.js\nupdate · delete · move", "fill": "#e2e8f0", "stroke": "#334155"},
+    {"id": "themes", "label": "themes/\ndefault · clean\ndark · blueprint", "fill": "#f1f5f9", "stroke": "#475569"},
+
+    {"id": "exporter", "label": "export.js\nPuppeteer + Sharp", "fill": "#fecdd3", "stroke": "#9f1239"},
+    {"id": "bundle", "label": "excalidraw-bundle.js\nbuilt renderer", "fill": "#fecdd3", "stroke": "#9f1239"},
+    {"id": "out_excalidraw", "label": ".excalidraw", "fill": "#a7f3d0", "stroke": "#047857", "shape": "ellipse"},
+    {"id": "out_png", "label": "PNG", "fill": "#a7f3d0", "stroke": "#047857", "shape": "ellipse"},
+    {"id": "out_svg", "label": "SVG", "fill": "#a7f3d0", "stroke": "#047857", "shape": "ellipse"}
+  ],
+  "edges": [
+    {"from": "cli", "to": "cmd_draw"},
+    {"from": "cli", "to": "cmd_canvas"},
+    {"from": "cli", "to": "cmd_export"},
+    {"from": "cli", "to": "cmd_annotate"},
+
+    {"from": "cmd_draw", "to": "sk_draw"},
+    {"from": "cmd_canvas", "to": "sk_canvas"},
+    {"from": "cmd_export", "to": "sk_export"},
+    {"from": "cmd_annotate", "to": "sk_add"},
+
+    {"from": "sk_draw", "to": "ag_section"},
+    {"from": "sk_draw", "to": "ag_validator"},
+    {"from": "sk_canvas", "to": "ag_section", "label": "architect mode", "stroke": "#c2410c"},
+    {"from": "sk_canvas", "to": "ag_validator", "stroke": "#c2410c"},
+    {"from": "sk_add", "to": "hk_fast"},
+    {"from": "sk_export", "to": "hk_visual"},
+
+    {"from": "ag_section", "to": "dagre", "stroke": "#6d28d9"},
+    {"from": "ag_section", "to": "mermaid", "stroke": "#6d28d9"},
+    {"from": "ag_validator", "to": "inspect", "stroke": "#334155"},
+    {"from": "hk_fast", "to": "inspect", "stroke": "#334155"},
+    {"from": "hk_visual", "to": "edit", "stroke": "#334155"},
+
+    {"from": "dagre", "to": "exporter", "stroke": "#9f1239"},
+    {"from": "mermaid", "to": "exporter", "stroke": "#9f1239"},
+    {"from": "gantt", "to": "exporter", "stroke": "#9f1239"},
+    {"from": "primitives", "to": "exporter", "stroke": "#9f1239"},
+    {"from": "inspect", "to": "exporter", "stroke": "#9f1239"},
+    {"from": "edit", "to": "exporter", "stroke": "#9f1239"},
+
+    {"from": "exporter", "to": "bundle", "stroke": "#9f1239"},
+    {"from": "exporter", "to": "out_excalidraw"},
+    {"from": "exporter", "to": "out_png"},
+    {"from": "exporter", "to": "out_svg"}
+  ]
+}

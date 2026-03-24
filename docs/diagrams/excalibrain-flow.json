@@ -1,0 +1,95 @@
+{
+  "direction": "TB",
+  "title": "How excalibrain Processes a Diagram Request",
+  "rankSep": 55,
+  "nodeSep": 45,
+  "zones": [
+    {
+      "id": "zone_input",
+      "label": "INPUT & PLANNING",
+      "labelColor": "#1e40af",
+      "fill": "#dbeafe",
+      "stroke": "#93c5fd",
+      "nodeIds": ["request", "skill_match", "type_select", "theme"]
+    },
+    {
+      "id": "zone_source",
+      "label": "CONTENT SOURCING",
+      "labelColor": "#15803d",
+      "fill": "#dcfce7",
+      "stroke": "#86efac",
+      "nodeIds": ["codebase_q", "read_code", "conceptual", "read_refs"]
+    },
+    {
+      "id": "zone_gen",
+      "label": "GENERATION",
+      "labelColor": "#6d28d9",
+      "fill": "#ede9fe",
+      "stroke": "#c4b5fd",
+      "nodeIds": ["tool_select", "dagre", "mermaid", "gantt", "write_input", "run_tool", "excalidraw_out"]
+    },
+    {
+      "id": "zone_validate",
+      "label": "VALIDATION & OUTPUT",
+      "labelColor": "#9f1239",
+      "fill": "#ffe4e6",
+      "stroke": "#fda4af",
+      "nodeIds": ["fast_check", "export_png", "visual_check", "pass_q", "fix", "deliver"]
+    }
+  ],
+  "nodes": [
+    { "id": "request", "label": "User Request\n(draw, diagram,\nvisualize...)", "shape": "ellipse", "fill": "#dbeafe", "stroke": "#1e40af" },
+    { "id": "skill_match", "label": "Skill Trigger\nMatch draw skill", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true },
+    { "id": "type_select", "label": "Diagram Type?", "shape": "diamond", "fill": "#fef3c7", "stroke": "#b45309" },
+    { "id": "theme", "label": "Select Theme\ndefault / clean /\ndark / blueprint", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true },
+
+    { "id": "codebase_q", "label": "Codebase or\nConceptual?", "shape": "diamond", "fill": "#fef3c7", "stroke": "#b45309" },
+    { "id": "read_code", "label": "Read Source Files\n(parallel reads)", "fill": "#86efac", "stroke": "#15803d", "rounded": true },
+    { "id": "conceptual", "label": "Derive Structure\nfrom Description", "fill": "#86efac", "stroke": "#15803d", "rounded": true },
+    { "id": "read_refs", "label": "Read Recipe +\nColor Palette", "fill": "#bbf7d0", "stroke": "#14532d", "rounded": true },
+
+    { "id": "tool_select", "label": "Which Tool?", "shape": "diamond", "fill": "#fef3c7", "stroke": "#b45309" },
+    { "id": "dagre", "label": "dagre-layout.js\nflowchart, arch,\nstate, mindmap", "fill": "#ddd6fe", "stroke": "#6d28d9", "rounded": true },
+    { "id": "mermaid", "label": "mermaid-convert.js\nsequence, class, ER", "fill": "#ddd6fe", "stroke": "#6d28d9", "rounded": true },
+    { "id": "gantt", "label": "gantt-layout.js\ntimelines, sprints", "fill": "#ddd6fe", "stroke": "#6d28d9", "rounded": true },
+    { "id": "write_input", "label": "Write Input File\n(.json or .mmd)", "fill": "#e2e8f0", "stroke": "#334155", "rounded": true },
+    { "id": "run_tool", "label": "Run Layout Tool\n(node tools/*.js)", "fill": "#86efac", "stroke": "#15803d", "rounded": true },
+    { "id": "excalidraw_out", "label": ".excalidraw File\n(positioned elements)", "fill": "#ddd6fe", "stroke": "#6d28d9" },
+
+    { "id": "fast_check", "label": "fast-check.js\n(structural hook)", "fill": "#fecdd3", "stroke": "#9f1239", "rounded": true },
+    { "id": "export_png", "label": "export.js → PNG\n(puppeteer + sharp)", "fill": "#fecdd3", "stroke": "#9f1239", "rounded": true },
+    { "id": "visual_check", "label": "visual-check.js\n(quality hook)", "fill": "#fecdd3", "stroke": "#9f1239", "rounded": true },
+    { "id": "pass_q", "label": "Passes\nChecks?", "shape": "diamond", "fill": "#fef3c7", "stroke": "#b45309" },
+    { "id": "fix", "label": "Fix & Regenerate\n(max 3 iterations)", "fill": "#fecaca", "stroke": "#b91c1c", "rounded": true },
+    { "id": "deliver", "label": "Deliver Diagram\n(.excalidraw + PNG/SVG)", "shape": "ellipse", "fill": "#a7f3d0", "stroke": "#047857" }
+  ],
+  "edges": [
+    { "from": "request", "to": "skill_match" },
+    { "from": "skill_match", "to": "type_select" },
+    { "from": "type_select", "to": "theme" },
+    { "from": "theme", "to": "codebase_q" },
+
+    { "from": "codebase_q", "to": "read_code", "label": "Codebase" },
+    { "from": "codebase_q", "to": "conceptual", "label": "Conceptual" },
+    { "from": "read_code", "to": "read_refs" },
+    { "from": "conceptual", "to": "read_refs" },
+
+    { "from": "read_refs", "to": "tool_select" },
+    { "from": "tool_select", "to": "dagre", "label": "flowchart /\narch / state" },
+    { "from": "tool_select", "to": "mermaid", "label": "sequence /\nclass / ER" },
+    { "from": "tool_select", "to": "gantt", "label": "gantt" },
+    { "from": "dagre", "to": "write_input" },
+    { "from": "mermaid", "to": "write_input" },
+    { "from": "gantt", "to": "write_input" },
+    { "from": "write_input", "to": "run_tool" },
+    { "from": "run_tool", "to": "excalidraw_out" },
+
+    { "from": "excalidraw_out", "to": "fast_check" },
+    { "from": "fast_check", "to": "export_png" },
+    { "from": "export_png", "to": "visual_check" },
+    { "from": "visual_check", "to": "pass_q" },
+    { "from": "pass_q", "to": "deliver", "label": "Yes" },
+    { "from": "pass_q", "to": "fix", "label": "No", "stroke": "#dc2626" },
+    { "from": "fix", "to": "write_input", "style": "dashed", "stroke": "#dc2626", "label": "retry" }
+  ]
+}

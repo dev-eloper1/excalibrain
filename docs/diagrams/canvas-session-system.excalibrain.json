@@ -1,0 +1,100 @@
+{
+  "canvas": "canvas-session-system.excalidraw",
+  "mode": "explore",
+  "theme": "default",
+  "created": "2026-03-23T00:00:00Z",
+  "lastUpdated": "2026-03-23T00:00:00Z",
+  "diagramLocation": "docs/diagrams",
+  "sections": [
+    {
+      "id": "lifecycle",
+      "label": "Canvas Session Lifecycle",
+      "mode": "explore",
+      "boundingBox": { "x": 0, "y": 0, "w": 1035, "h": 1732 },
+      "elementPrefix": "",
+      "elementCount": 66,
+      "annotations": [],
+      "decisions": [
+        "Used flowchart to show the iterative session loop — the loop-back arrows from user choices to 'Announce' are the core insight"
+      ]
+    },
+    {
+      "id": "merge-arch",
+      "label": "Merge Architecture: How Sections Compose",
+      "mode": "explore",
+      "boundingBox": { "x": 1200, "y": 0, "w": 900, "h": 1500 },
+      "elementPrefix": "mrg_",
+      "elementCount": 48,
+      "annotations": [
+        { "id": "anno_prefix", "text": "Prefix isolates sections: auth_node1, dl_node1 — enables per-section tracking & deletion" },
+        { "id": "anno_concat", "text": "Simple concat means parallel section-builders are merge-safe: no conflicts possible" }
+      ],
+      "decisions": [
+        "Showed transform pipeline (prefix → position → merge) as sequential stages to make the order of operations clear",
+        "Used annotations to explain WHY concat is safe for parallel builders"
+      ]
+    },
+    {
+      "id": "session-resume",
+      "label": "Session Resume: Reconciling State",
+      "mode": "explore",
+      "boundingBox": { "x": 0, "y": 1850, "w": 2200, "h": 500 },
+      "elementPrefix": "rsm_",
+      "elementCount": 42,
+      "annotations": [
+        { "id": "anno_no_sidecar", "text": "If no sidecar exists: reconstruct from inspect output, ask user to confirm" },
+        { "id": "anno_parallel_read", "text": "Parallel reads: .excalidraw + sidecar at the same time" }
+      ],
+      "decisions": [
+        "Used LR direction to contrast with the TB lifecycle above — emphasizes that resume is a linear pipeline, not a loop",
+        "Showed both discrepancy types (new unprefixed, missing prefixed) as separate branches to make the detection logic explicit"
+      ]
+    },
+    {
+      "id": "mode-compare",
+      "label": "4-Mode Comparison: Explore vs Architect vs Storyboard vs Wireframe",
+      "mode": "explore",
+      "boundingBox": { "x": 0, "y": 2500, "w": 2000, "h": 700 },
+      "elementPrefix": "exp_,arc_,stb_,wfm_",
+      "elementCount": 80,
+      "annotations": [],
+      "decisions": [
+        "Side-by-side columns make mode differences immediately scannable",
+        "Each column uses the same visual structure (steps → trait summary) so differences in content stand out",
+        "Color-coded per mode: green=explore, blue=architect, purple=storyboard, orange=wireframe"
+      ]
+    },
+    {
+      "id": "storyboard-zoom",
+      "label": "Storyboard Mode — Deep Dive",
+      "mode": "explore",
+      "boundingBox": { "x": 0, "y": 3400, "w": 1400, "h": 1600 },
+      "elementPrefix": "szm_",
+      "elementCount": 55,
+      "annotations": [
+        { "id": "anno_layout", "text": "Layout formula: frame_width = 500px, gap = 100px, x = i × 600" },
+        { "id": "anno_prefix", "text": "Prefix pattern: ph1_, ph2_, ph3_ — enables per-frame redo or deletion" },
+        { "id": "anno_arrows", "text": "Arrows carry the narrative forward: 'what happened' → 'what's next'" }
+      ],
+      "decisions": [
+        "Zoomed into storyboard specifically because it has the most unique spatial layout strategy (LR frames with progression arrows)",
+        "Showed the frame iteration loop explicitly — the 'More frames?' diamond makes the sequential build pattern clear",
+        "Included the layout formula as an annotation so the positioning math is visible alongside the flow"
+      ]
+    }
+  ],
+  "researchZone": {
+    "boundingBox": { "x": 0, "y": -200, "w": 1200, "h": 180 },
+    "findings": [
+      "Canvas sessions use --merge/--position/--prefix flags to compose independent sections",
+      "canvas-inspect.js uses 200px grid scan to find free space",
+      "Sidecar .excalibrain.json tracks sections independently of .excalidraw format",
+      "Section-builder agents can run in parallel for architect mode",
+      "Resume reconciliation compares inspect output prefix groups against sidecar elementCount per section",
+      "No sidecar fallback: reconstruct from canvas-inspect and ask user to confirm",
+      "Explore = iterative/conversational, Architect = one-pass/parallel, Storyboard = sequential/narrative, Wireframe = screen-focused/UI",
+      "Storyboard layout: x = frame_index × (500 + 100), each frame gets ph<N>_ prefix, progression arrows at y-center between frames"
+    ]
+  },
+  "connections": []
+}

@@ -1,0 +1,78 @@
+{
+  "direction": "TB",
+  "title": "Onboarding Backend Architecture",
+  "rankSep": 80,
+  "nodeSep": 60,
+  "zones": [
+    {
+      "id": "z_client", "label": "CLIENT", "labelColor": "#1e40af",
+      "fill": "#dbeafe", "stroke": "#93c5fd",
+      "nodeIds": ["app"]
+    },
+    {
+      "id": "z_edge", "label": "EDGE / ROUTING", "labelColor": "#c2410c",
+      "fill": "#ffedd5", "stroke": "#fdba74",
+      "nodeIds": ["gw", "rate_limit"]
+    },
+    {
+      "id": "z_signup", "label": "① SIGN UP", "labelColor": "#15803d",
+      "fill": "#dcfce7", "stroke": "#86efac",
+      "nodeIds": ["auth_svc", "email_svc"]
+    },
+    {
+      "id": "z_profile", "label": "② PROFILE SETUP", "labelColor": "#15803d",
+      "fill": "#dcfce7", "stroke": "#86efac",
+      "nodeIds": ["profile_svc", "image_worker"]
+    },
+    {
+      "id": "z_dashboard", "label": "③ DASHBOARD", "labelColor": "#15803d",
+      "fill": "#dcfce7", "stroke": "#86efac",
+      "nodeIds": ["dashboard_svc"]
+    },
+    {
+      "id": "z_data", "label": "PERSISTENCE", "labelColor": "#6d28d9",
+      "fill": "#ede9fe", "stroke": "#c4b5fd",
+      "nodeIds": ["postgres", "s3", "redis"]
+    }
+  ],
+  "nodes": [
+    {"id": "app", "label": "Mobile App", "fill": "#bfdbfe", "stroke": "#1e40af", "shape": "ellipse"},
+
+    {"id": "gw", "label": "API Gateway\n/api/*", "fill": "#bbf7d0", "stroke": "#14532d", "shape": "diamond", "width": 180, "height": 100},
+    {"id": "rate_limit", "label": "Rate Limiter\n100 req/min", "fill": "#fed7aa", "stroke": "#c2410c", "shape": "rectangle", "strokeStyle": "dashed"},
+
+    {"id": "auth_svc", "label": "Auth Service\nPOST /auth/register\nPOST /auth/login\nbcrypt + JWT (15min)", "fill": "#fed7aa", "stroke": "#c2410c", "fontSize": 13},
+    {"id": "email_svc", "label": "Email Queue\nVerification\nWelcome email", "fill": "#fef08a", "stroke": "#92400e", "fontSize": 13, "strokeStyle": "dashed"},
+
+    {"id": "profile_svc", "label": "Profile Service\nPUT /users/:id/profile\nPOST /uploads/avatar", "fill": "#86efac", "stroke": "#14532d", "fontSize": 13},
+    {"id": "image_worker", "label": "Image Worker\nResize → 128px, 256px\nWebP conversion", "fill": "#fef08a", "stroke": "#92400e", "fontSize": 13, "strokeStyle": "dashed"},
+
+    {"id": "dashboard_svc", "label": "Dashboard Service\nGET /onboarding-progress\nGET /stats · GET /activity", "fill": "#86efac", "stroke": "#14532d", "fontSize": 13},
+
+    {"id": "postgres", "label": "PostgreSQL\nusers · activity_log\nonboarding_steps", "fill": "#ddd6fe", "stroke": "#6d28d9", "fontSize": 13, "rounded": true},
+    {"id": "s3", "label": "Object Storage (S3)\nAvatar originals\n+ thumbnails", "fill": "#ddd6fe", "stroke": "#6d28d9", "fontSize": 13, "rounded": true},
+    {"id": "redis", "label": "Redis\nSession tokens\nCached stats (TTL 5m)", "fill": "#fef08a", "stroke": "#92400e", "fontSize": 13, "rounded": true}
+  ],
+  "edges": [
+    {"from": "app", "to": "gw", "label": "HTTPS"},
+    {"from": "gw", "to": "rate_limit", "stroke": "#c2410c", "style": "dotted", "label": "check"},
+
+    {"from": "gw", "to": "auth_svc", "label": "① register/login", "stroke": "#c2410c"},
+    {"from": "gw", "to": "profile_svc", "label": "② update profile"},
+    {"from": "gw", "to": "dashboard_svc", "label": "③ read dashboard"},
+
+    {"from": "auth_svc", "to": "postgres", "label": "INSERT user", "stroke": "#6d28d9"},
+    {"from": "auth_svc", "to": "redis", "label": "store session", "stroke": "#a16207", "style": "dashed"},
+    {"from": "auth_svc", "to": "email_svc", "label": "enqueue", "stroke": "#a16207", "style": "dashed"},
+
+    {"from": "profile_svc", "to": "postgres", "label": "UPDATE user", "stroke": "#6d28d9"},
+    {"from": "profile_svc", "to": "s3", "label": "PUT avatar", "stroke": "#6d28d9"},
+    {"from": "profile_svc", "to": "image_worker", "label": "enqueue resize", "stroke": "#a16207", "style": "dashed"},
+    {"from": "image_worker", "to": "s3", "label": "PUT thumbnails", "stroke": "#6d28d9"},
+
+    {"from": "dashboard_svc", "to": "postgres", "label": "SELECT stats\n+ activity", "stroke": "#6d28d9"},
+    {"from": "dashboard_svc", "to": "redis", "label": "cache hit?", "stroke": "#a16207", "style": "dashed"},
+
+    {"from": "rate_limit", "to": "redis", "label": "counter", "stroke": "#a16207", "style": "dotted"}
+  ]
+}

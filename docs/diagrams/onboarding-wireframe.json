@@ -1,0 +1,42 @@
+{
+  "primitives": [
+    { "type": "label", "x": 0, "y": -40, "text": "Onboarding Flow", "fontSize": 24 },
+
+    { "type": "screen", "x": 0, "y": 0, "size": "mobile", "title": "Sign Up" },
+    { "type": "label", "x": 105, "y": 100, "text": "Create Account", "fontSize": 20 },
+    { "type": "label", "x": 75, "y": 140, "text": "Join us to get started", "fontSize": 14 },
+    { "type": "input", "x": 55, "y": 200, "placeholder": "Full Name", "label": "Name", "width": 280 },
+    { "type": "input", "x": 55, "y": 280, "placeholder": "you@email.com", "label": "Email", "width": 280 },
+    { "type": "input", "x": 55, "y": 360, "placeholder": "••••••••", "label": "Password", "width": 280 },
+    { "type": "input", "x": 55, "y": 440, "placeholder": "••••••••", "label": "Confirm Password", "width": 280 },
+    { "type": "button", "x": 55, "y": 530, "label": "Create Account", "variant": "primary", "width": 280, "height": 44 },
+    { "type": "divider", "x": 55, "y": 600, "width": 280 },
+    { "type": "label", "x": 105, "y": 620, "text": "Already have an account?", "fontSize": 12 },
+    { "type": "button", "x": 105, "y": 650, "label": "Log In", "variant": "outline", "width": 180, "height": 36 },
+
+    { "type": "screen", "x": 490, "y": 0, "size": "mobile", "title": "Profile Setup" },
+    { "type": "label", "x": 595, "y": 100, "text": "Set Up Profile", "fontSize": 20 },
+    { "type": "label", "x": 570, "y": 140, "text": "Tell us about yourself", "fontSize": 14 },
+    { "type": "avatar", "x": 655, "y": 190, "size": 80, "initials": "+" },
+    { "type": "label", "x": 640, "y": 280, "text": "Upload Photo", "fontSize": 12 },
+    { "type": "input", "x": 545, "y": 320, "placeholder": "johndoe", "label": "Username", "width": 280 },
+    { "type": "input", "x": 545, "y": 400, "placeholder": "Designer, Developer...", "label": "Role", "width": 280 },
+    { "type": "textarea", "x": 545, "y": 480, "placeholder": "Write a short bio...", "label": "Bio", "width": 280, "height": 100 },
+    { "type": "button", "x": 545, "y": 620, "label": "Continue", "variant": "primary", "width": 280, "height": 44 },
+    { "type": "button", "x": 595, "y": 680, "label": "Skip for now", "variant": "outline", "width": 180, "height": 36 },
+
+    { "type": "screen", "x": 980, "y": 0, "size": "mobile", "title": "Dashboard" },
+    { "type": "label", "x": 1035, "y": 85, "text": "Welcome back, John!", "fontSize": 18 },
+    { "type": "card", "x": 1035, "y": 120, "title": "Getting Started", "body": "Complete 3 of 5 steps\nto unlock all features", "width": 280, "height": 90 },
+    { "type": "divider", "x": 1035, "y": 225, "width": 280 },
+    { "type": "label", "x": 1035, "y": 240, "text": "Quick Stats", "fontSize": 14 },
+    { "type": "card", "x": 1035, "y": 265, "title": "Projects", "body": "0 active", "width": 130, "height": 80 },
+    { "type": "card", "x": 1185, "y": 265, "title": "Tasks", "body": "0 pending", "width": 130, "height": 80 },
+    { "type": "divider", "x": 1035, "y": 365, "width": 280 },
+    { "type": "label", "x": 1035, "y": 380, "text": "Recent Activity", "fontSize": 14 },
+    { "type": "list-item", "x": 1035, "y": 405, "title": "Account created", "subtitle": "Just now", "width": 280, "height": 56 },
+    { "type": "list-item", "x": 1035, "y": 461, "title": "Profile completed", "subtitle": "Just now", "width": 280, "height": 56 },
+    { "type": "list-item", "x": 1035, "y": 517, "title": "Welcome tutorial", "subtitle": "Start now →", "width": 280, "height": 56 },
+    { "type": "nav-bar", "x": 980, "y": 724, "width": 390, "height": 56, "items": ["Home", "Projects", "Inbox", "Profile"] }
+  ]
+}
