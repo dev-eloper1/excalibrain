@@ -19,7 +19,7 @@ Map user intent to mode:
 | Trigger phrases | Mode |
 |----------------|------|
 | "let's explore...", "explore this visually", "work through...", "start a canvas" | **Explore** |
-| "show me the full architecture...", "architect this" | Architect (coming soon) |
+| "show me the full architecture...", "architect this" | **Architect** |
 | "storyboard...", "phases...", "timeline of..." | Storyboard (coming soon) |
 | "wireframe...", "screen flow...", "mock up..." | Wireframe (coming soon) |
 
@@ -226,9 +226,95 @@ A dedicated area on the canvas for high-level findings:
 
 ---
 
-## Architect / Storyboard / Wireframe
+## Architect Mode Workflow
 
-These modes are coming soon. For now, use **Explore mode** — it handles iterative canvas building for any topic.
+Architect mode builds a **comprehensive multi-section canvas** in one pass. Use it when the user wants a full system overview rather than iterative exploration.
+
+### 1. Research phase
+
+Read the codebase or context to understand the system:
+
+- Parallelize file reads to gather information quickly
+- Write short findings to the research zone on the canvas (whiteboard-style phrases, not paragraphs)
+- Identify **3-6 major subsystems or sections** to visualize
+- Note key data flows, dependencies, and boundaries between subsystems
+
+### 2. Plan sections
+
+Announce the plan to the user before building:
+
+- List each section with a one-line description
+- Show the planned layout grid, e.g.:
+  *"4 zones: Client (top-left), API Gateway (top-right), ML Pipeline (bottom-left), Infrastructure (bottom, spanning full width)"*
+- Wait for user confirmation or adjustments before proceeding
+
+### 3. Build sections
+
+For each planned section, dispatch the **section-builder** agent:
+
+```
+section-builder(
+  topic: "<section topic>",
+  context: "<relevant code snippets, file summaries>",
+  canvas: "<canvas.excalidraw path>",
+  position: "<x>,<y>",
+  prefix: "<section_prefix>",
+  theme: "<session theme>"
+)
+```
+
+Multiple section-builders can run **in parallel** — they use `--merge` so concurrent writes to the same canvas are safe. Each agent returns section metadata for the sidecar.
+
+**Layout strategy:**
+
+| Parameter | Value |
+|-----------|-------|
+| Standard section size | ~600w x 400h |
+| Gap between sections | 100px |
+| Research zone | Above main area, `y < 0` |
+| Grid example (4 sections) | TL: `0,0` / TR: `700,0` / BL: `0,500` / BR: `700,500` |
+| Grid example (6 sections) | 3 columns x 2 rows, x-step 700, y-step 500 |
+
+### 4. Connect sections
+
+After all section-builders complete:
+
+1. Run `canvas-inspect.js` to see all elements on the canvas
+2. Identify **cross-section relationships**: data flows, API calls, dependencies, event channels
+3. Add connection arrows between sections using one of:
+   - A separate dagre pass with a connections-only graph (nodes reference existing element IDs via prefix)
+   - Direct `.excalidraw` JSON edits to add arrow elements between known node positions
+4. Style connections:
+   - Dashed lines for async/event flows
+   - Solid lines for synchronous calls
+   - Label each connection with the relationship ("REST API", "publishes events", "reads from")
+
+### 5. Add research zone and annotations
+
+- **Research zone** at top of canvas (`y < 0`) with key findings from step 1
+- **Local annotations** near each section explaining the "why" — not what is shown, but why it matters
+- **Decision annotations** for key architectural choices (e.g., "Event-driven over polling because writes are bursty")
+
+### 6. Update sidecar
+
+Write the `.excalibrain.json` sidecar with:
+- All section metadata returned by section-builders
+- Connection list with source/target section IDs and labels
+- Research findings array
+- Mode set to `"architect"`
+
+### 7. Present to user
+
+- Export to PNG using `export.js`
+- Show the full architecture diagram
+- Summarize what was built: number of sections, key connections, main insight
+- Ask for feedback: *"Want me to zoom into any section, add more connections, or adjust the layout?"*
+
+---
+
+## Storyboard / Wireframe
+
+These modes are coming soon. For now, use **Explore mode** for iterative building or **Architect mode** for comprehensive system diagrams.
 
 ---
 
