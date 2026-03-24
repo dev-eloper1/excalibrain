@@ -126,9 +126,6 @@ function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, curve, id }) 
   const prefix = id ?? `spine_${nextSeed()}`;
   const gid = groupId();
 
-  // Use provided coordinates as-is — the caller is responsible for
-  // placing start/end at frame edges. The binding metadata tells
-  // Excalidraw to maintain the connection when frames move.
   const dx = toX - fromX;
   const dy = toY - fromY;
 
@@ -138,7 +135,7 @@ function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, curve, id }) 
     // Straight for vertical/horizontal
     points = [[0, 0], [dx, dy]];
   } else {
-    // Curved: perpendicular bulge
+    // Curved: perpendicular bulge — control points pushed sideways off the line
     const dist = Math.sqrt(dx * dx + dy * dy);
     const bulge = (curve ?? 0.15) * dist;
     const perpX = -dy / dist;
@@ -159,7 +156,12 @@ function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, curve, id }) 
     }
   }
 
-  const arrowEl = baseElement(prefix, 'arrow', fromX, fromY, 0, 0, {
+  // BINDING FIX: Excalidraw recalculates bound endpoints using a ray from
+  // the adjacent point through the focus point (element center when focus=0).
+  // We must set width/height correctly so hit testing and bounding box work.
+  // The binding system will snap endpoints to frame borders when the editor loads.
+  const arrowEl = baseElement(prefix, 'arrow', fromX, fromY,
+    Math.abs(dx), Math.abs(dy), {
     strokeWidth: 3,
     strokeColor: '#6366f1',
     groupIds: [gid],
@@ -167,8 +169,8 @@ function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, curve, id }) 
       points,
       startArrowhead: null,
       endArrowhead: 'triangle',
-      startBinding: fromId ? { elementId: fromId, focus: 0, gap: 5 } : null,
-      endBinding: toId ? { elementId: toId, focus: 0, gap: 5 } : null,
+      startBinding: fromId ? { elementId: fromId, focus: 0, gap: 4 } : null,
+      endBinding: toId ? { elementId: toId, focus: 0, gap: 4 } : null,
     },
   });
 
@@ -316,6 +318,75 @@ function flexboxLayout({ sections, canvasWidth, rowGap = 300, rowAssignments }) 
   return { positions, totalHeight: currentY - rowGap };
 }
 
+// ── Component: Sub-Frame (Virtual Nested Frame) ─────────────────────────────
+// Excalidraw doesn't support nested frames (frameId on a frame is always null).
+// A "sub-frame" simulates nested frame behavior using:
+//   1. A rounded rectangle as the visual container
+//   2. A label text in the top-left corner (like a frame name)
+//   3. A shared groupId so all child elements move together
+//   4. The container rect gets the parent's frameId, placing it inside the parent frame
+//
+// Returns a `childGroupIds` array — any elements placed inside this sub-frame
+// should set their groupIds to [...childGroupIds] so they join the sub-frame group.
+// For nested sub-frames, inner elements get [innerGroupId, outerGroupId] which
+// gives Excalidraw's click-to-narrow group selection behavior.
+
+function subFrame({ name, x, y, width, height, frameId, parentGroupIds, id,
+                    borderColor, backgroundColor, labelColor, labelFontSize }) {
+  const prefix = id ?? `subframe_${nextSeed()}`;
+  const gid = groupId();
+
+  // Build the groupIds chain: this sub-frame's own group + any parent groups
+  const inheritedGroups = parentGroupIds ?? [];
+  const selfGroupIds = [gid, ...inheritedGroups];
+
+  const PAD_TOP = 28; // Space for the label at top
+
+  // Rounded rectangle container — looks like a frame border
+  const containerEl = baseElement(`${prefix}_border`, 'rectangle',
+    x, y, width, height, {
+      strokeWidth: 1.5,
+      strokeColor: borderColor ?? '#d1d5db',
+      backgroundColor: backgroundColor ?? '#f9fafb',
+      fillStyle: 'solid',
+      roughness: 0,
+      opacity: 60,
+      groupIds: selfGroupIds,
+      frameId: frameId ?? null,
+      extra: { roundness: { type: 3, value: 12 } },
+    });
+
+  const elements = [containerEl];
+
+  // Label in the top-left corner (like native frame labels)
+  if (name) {
+    const labelEl = textElement(`${prefix}_label`, x + 8, y + 4, name, {
+      fontSize: labelFontSize ?? 11,
+      fontFamily: 2, // Helvetica — clean, like frame labels
+      color: labelColor ?? '#9ca3af',
+      groupIds: selfGroupIds,
+      frameId: frameId ?? null,
+    });
+    elements.push(labelEl);
+  }
+
+  return {
+    elements,
+    groupId: gid,
+    // childGroupIds: elements placed INSIDE this sub-frame should use these groupIds
+    // so they participate in the sub-frame's group (and any ancestor groups)
+    childGroupIds: selfGroupIds,
+    // Content area: the usable space inside the sub-frame (below the label)
+    contentArea: {
+      x: x + 10,
+      y: y + PAD_TOP,
+      width: width - 20,
+      height: height - PAD_TOP - 10,
+    },
+    bbox: { x, y, w: width, h: height },
+  };
+}
+
 // ── Resolver ────────────────────────────────────────────────────────────────
 
 const COMPONENTS = {
@@ -324,6 +395,7 @@ const COMPONENTS = {
   'section-frame': sectionFrame,
   'canvas-title': canvasTitle,
   'margin-note': marginNote,
+  'sub-frame': subFrame,
 };
 
 function resolve(type, params) {
@@ -504,4 +576,4 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
 
 // ── Exports ─────────────────────────────────────────────────────────────────
 
-module.exports = { resolve, resolveMany, COMPONENTS, postit, spineArrow, sectionFrame, canvasTitle, marginNote, flexboxLayout };
+module.exports = { resolve, resolveMany, COMPONENTS, postit, spineArrow, sectionFrame, canvasTitle, marginNote, subFrame, flexboxLayout };
