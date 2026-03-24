@@ -634,6 +634,27 @@ Sections on the same canvas are NOT islands. After building multiple sections, a
 
 Use distinct arrow styles for inter-section arrows (dashed, different color like `#6366f1` indigo) to distinguish them from intra-section arrows.
 
+### When to use multiple diagram types (proactive, not user-triggered)
+
+**You decide this — the user shouldn't have to ask.** When planning what to draw, assess whether the subject has multiple facets that need different visual arguments:
+
+| Subject facet | Best diagram type |
+|---|---|
+| What components exist and how they connect | Architecture |
+| How a request flows between components over time | Sequence |
+| What states something can be in and how it transitions | State diagram |
+| What data is stored and how entities relate | ER diagram |
+| What steps a process follows with decisions | Flowchart |
+| What the concept hierarchy looks like | Mindmap |
+
+**If the subject has 2+ facets → plan multiple sections with different types.** Announce this:
+
+*"This system has three aspects worth visualizing: the service architecture (how components connect), the auth flow (how a request moves through them over time), and the session lifecycle (what states a session can be in). I'll build all three on one canvas with zoom arrows connecting them."*
+
+**If the subject has only one facet → single diagram is fine.** Don't force multi-type when one diagram tells the whole story.
+
+This applies in ALL modes — Explore, Architect, Storyboard. The mode determines the interaction pattern (iterative vs. comprehensive vs. sequential), but multi-type selection happens within any mode.
+
 ### Parallel section generation
 
 When a canvas needs multiple sections (3+), **dispatch section-builder agents in parallel** instead of building sequentially. This is faster and each agent gets focused context.
