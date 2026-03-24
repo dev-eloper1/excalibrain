@@ -129,17 +129,10 @@ function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, id }) {
   const dx = toX - fromX;
   const dy = toY - fromY;
 
-  // Straight or right-angle routing only.
-  // No bezier curves — they pin to canvas coordinates and don't move with frames.
-  let points;
-  if (dx === 0 || dy === 0) {
-    // Pure vertical or horizontal — straight line
-    points = [[0, 0], [dx, dy]];
-  } else {
-    // Diagonal — use right-angle (L-shaped) routing
-    // Go vertical first, then horizontal (cleaner for TB reading flow)
-    points = [[0, 0], [0, dy], [dx, dy]];
-  }
+  // Always straight 2-point lines. No curves, no L-shapes.
+  // Multi-point arrows (curves, right-angles) pin to canvas coordinates
+  // and don't move with frames — only 2-point straight lines work dynamically.
+  const points = [[0, 0], [dx, dy]];
 
   // BINDING FIX: Excalidraw recalculates bound endpoints using a ray from
   // the adjacent point through the focus point (element center when focus=0).
@@ -316,18 +309,15 @@ function flexboxLayout({ sections, canvasWidth, rowGap = 300, rowAssignments }) 
 // For nested sub-frames, inner elements get [innerGroupId, outerGroupId] which
 // gives Excalidraw's click-to-narrow group selection behavior.
 
-function subFrame({ name, x, y, width, height, frameId, parentGroupIds, id,
+function subFrame({ name, x, y, width, height, frameId, id,
                     borderColor, backgroundColor, labelColor, labelFontSize }) {
   const prefix = id ?? `subframe_${nextSeed()}`;
-  const gid = groupId();
 
-  // Build the groupIds chain: this sub-frame's own group + any parent groups
-  const inheritedGroups = parentGroupIds ?? [];
-  const selfGroupIds = [gid, ...inheritedGroups];
+  // Sub-frames are purely visual — a rounded rectangle + label text.
+  // They share the parent's frameId so they move with the parent frame.
+  // No groupId tricks — elements inside frames already move with the frame.
+  // The sub-frame border is just a visual boundary, not a structural container.
 
-  const PAD_TOP = 28; // Space for the label at top
-
-  // Rounded rectangle container — looks like a frame border
   const containerEl = baseElement(`${prefix}_border`, 'rectangle',
     x, y, width, height, {
       strokeWidth: 1.5,
@@ -335,21 +325,18 @@ function subFrame({ name, x, y, width, height, frameId, parentGroupIds, id,
       backgroundColor: backgroundColor ?? '#f9fafb',
       fillStyle: 'solid',
       roughness: 0,
-      opacity: 60,
-      groupIds: selfGroupIds,
+      opacity: 40,
       frameId: frameId ?? null,
       extra: { roundness: { type: 3, value: 12 } },
     });
 
   const elements = [containerEl];
 
-  // Label in the top-left corner (like native frame labels)
   if (name) {
     const labelEl = textElement(`${prefix}_label`, x + 8, y + 4, name, {
-      fontSize: labelFontSize ?? 11,
-      fontFamily: 2, // Helvetica — clean, like frame labels
+      fontSize: labelFontSize ?? 12,
+      fontFamily: 2,
       color: labelColor ?? '#9ca3af',
-      groupIds: selfGroupIds,
       frameId: frameId ?? null,
     });
     elements.push(labelEl);
@@ -357,16 +344,11 @@ function subFrame({ name, x, y, width, height, frameId, parentGroupIds, id,
 
   return {
     elements,
-    groupId: gid,
-    // childGroupIds: elements placed INSIDE this sub-frame should use these groupIds
-    // so they participate in the sub-frame's group (and any ancestor groups)
-    childGroupIds: selfGroupIds,
-    // Content area: the usable space inside the sub-frame (below the label)
     contentArea: {
       x: x + 10,
-      y: y + PAD_TOP,
+      y: y + 28,
       width: width - 20,
-      height: height - PAD_TOP - 10,
+      height: height - 38,
     },
     bbox: { x, y, w: width, h: height },
   };
@@ -523,40 +505,19 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
       }
     }
 
-    // Post-merge: sub-frame groupId assignment
-    // Find sub-frame containers (rectangles with _border suffix and groupIds)
-    // and assign their groupId to all elements within their bounds
+    // Post-merge: z-order fix — sub-frame borders must render BEHIND content
+    // Move sub-frame elements (border + label) before their contained content
     const subFrameBorders = canvas.elements.filter(e =>
       e.id && e.id.endsWith('_border') && e.id.includes('subframe') &&
-      e.type === 'rectangle' && e.groupIds && e.groupIds.length > 0);
+      e.type === 'rectangle');
 
-    for (const sf of subFrameBorders) {
-      const sfGroupId = sf.groupIds[0]; // innermost group
-      for (const el of canvas.elements) {
-        if (el === sf) continue;
-        if (el.id && el.id.endsWith('_label') && el.id.startsWith(sf.id.replace('_border', ''))) continue; // skip own label
-        if (el.groupIds && el.groupIds.includes(sfGroupId)) continue; // already in group
-
-        // Check if element center is inside sub-frame bounds
-        const cx = el.x + (el.width || 0) / 2;
-        const cy = el.y + (el.height || 0) / 2;
-        if (cx >= sf.x && cx <= sf.x + sf.width &&
-            cy >= sf.y && cy <= sf.y + sf.height) {
-          if (!el.groupIds) el.groupIds = [];
-          el.groupIds.push(sfGroupId);
-        }
-      }
-    }
-
-    // Post-merge: z-order fix — sub-frame borders must be BEFORE their content
-    // Move sub-frame elements (border + label) earlier in the array
     for (const sf of subFrameBorders) {
       const sfPrefix = sf.id.replace('_border', '');
       const sfLabel = canvas.elements.find(e => e.id === `${sfPrefix}_label`);
       const sfElements = [sf];
       if (sfLabel) sfElements.push(sfLabel);
 
-      // Find earliest element inside this sub-frame
+      // Find earliest content element inside this sub-frame's bounds
       let earliestIdx = canvas.elements.length;
       for (let i = 0; i < canvas.elements.length; i++) {
         const el = canvas.elements[i];
@@ -570,7 +531,7 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
         }
       }
 
-      // Remove sub-frame elements from current position and insert before content
+      // Move sub-frame elements before content
       canvas.elements = canvas.elements.filter(e => !sfElements.includes(e));
       canvas.elements.splice(Math.min(earliestIdx, canvas.elements.length), 0, ...sfElements);
     }
