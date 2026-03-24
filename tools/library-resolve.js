@@ -122,38 +122,23 @@ function postit({ text, x, y, width, id }) {
 
 // ── Component: Spine Arrow ──────────────────────────────────────────────────
 
-function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, curve, id }) {
+function spineArrow({ fromX, fromY, toX, toY, label, fromId, toId, id }) {
   const prefix = id ?? `spine_${nextSeed()}`;
   const gid = groupId();
 
   const dx = toX - fromX;
   const dy = toY - fromY;
 
-  // Determine points: straight or curved
+  // Straight or right-angle routing only.
+  // No bezier curves — they pin to canvas coordinates and don't move with frames.
   let points;
-  if (curve === false || (curve === undefined && (dx === 0 || dy === 0))) {
-    // Straight for vertical/horizontal
+  if (dx === 0 || dy === 0) {
+    // Pure vertical or horizontal — straight line
     points = [[0, 0], [dx, dy]];
   } else {
-    // Curved: perpendicular bulge — control points pushed sideways off the line
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const bulge = (curve ?? 0.15) * dist;
-    const perpX = -dy / dist;
-    const perpY = dx / dist;
-    const cp1x = dx * 0.33 + perpX * bulge;
-    const cp1y = dy * 0.33 + perpY * bulge;
-    const cp2x = dx * 0.66 - perpX * bulge * 0.5;
-    const cp2y = dy * 0.66 - perpY * bulge * 0.5;
-
-    const steps = 18;
-    points = [];
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const omt = 1 - t;
-      const px = 3*omt*omt*t*cp1x + 3*omt*t*t*cp2x + t*t*t*dx;
-      const py = 3*omt*omt*t*cp1y + 3*omt*t*t*cp2y + t*t*t*dy;
-      points.push([Math.round(px * 10) / 10, Math.round(py * 10) / 10]);
-    }
+    // Diagonal — use right-angle (L-shaped) routing
+    // Go vertical first, then horizontal (cleaner for TB reading flow)
+    points = [[0, 0], [0, dy], [dx, dy]];
   }
 
   // BINDING FIX: Excalidraw recalculates bound endpoints using a ray from
@@ -536,6 +521,58 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
           el.frameId = frame.id;
         }
       }
+    }
+
+    // Post-merge: sub-frame groupId assignment
+    // Find sub-frame containers (rectangles with _border suffix and groupIds)
+    // and assign their groupId to all elements within their bounds
+    const subFrameBorders = canvas.elements.filter(e =>
+      e.id && e.id.endsWith('_border') && e.id.includes('subframe') &&
+      e.type === 'rectangle' && e.groupIds && e.groupIds.length > 0);
+
+    for (const sf of subFrameBorders) {
+      const sfGroupId = sf.groupIds[0]; // innermost group
+      for (const el of canvas.elements) {
+        if (el === sf) continue;
+        if (el.id && el.id.endsWith('_label') && el.id.startsWith(sf.id.replace('_border', ''))) continue; // skip own label
+        if (el.groupIds && el.groupIds.includes(sfGroupId)) continue; // already in group
+
+        // Check if element center is inside sub-frame bounds
+        const cx = el.x + (el.width || 0) / 2;
+        const cy = el.y + (el.height || 0) / 2;
+        if (cx >= sf.x && cx <= sf.x + sf.width &&
+            cy >= sf.y && cy <= sf.y + sf.height) {
+          if (!el.groupIds) el.groupIds = [];
+          el.groupIds.push(sfGroupId);
+        }
+      }
+    }
+
+    // Post-merge: z-order fix — sub-frame borders must be BEFORE their content
+    // Move sub-frame elements (border + label) earlier in the array
+    for (const sf of subFrameBorders) {
+      const sfPrefix = sf.id.replace('_border', '');
+      const sfLabel = canvas.elements.find(e => e.id === `${sfPrefix}_label`);
+      const sfElements = [sf];
+      if (sfLabel) sfElements.push(sfLabel);
+
+      // Find earliest element inside this sub-frame
+      let earliestIdx = canvas.elements.length;
+      for (let i = 0; i < canvas.elements.length; i++) {
+        const el = canvas.elements[i];
+        if (sfElements.includes(el)) continue;
+        const cx = el.x + (el.width || 0) / 2;
+        const cy = el.y + (el.height || 0) / 2;
+        if (cx >= sf.x && cx <= sf.x + sf.width &&
+            cy >= sf.y && cy <= sf.y + sf.height) {
+          earliestIdx = Math.min(earliestIdx, i);
+          break;
+        }
+      }
+
+      // Remove sub-frame elements from current position and insert before content
+      canvas.elements = canvas.elements.filter(e => !sfElements.includes(e));
+      canvas.elements.splice(Math.min(earliestIdx, canvas.elements.length), 0, ...sfElements);
     }
 
     // Post-merge: register boundElements on targets for all arrows
