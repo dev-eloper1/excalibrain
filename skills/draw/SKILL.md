@@ -1,5 +1,5 @@
 ---
-name: excalibrain
+name: excalibrain:draw
 description: Create Excalidraw diagrams that argue visually — turn ideas and code
   into visual arguments. Trigger on draw, diagram, visualize, chart, map out,
   flowchart, architecture, sequence diagram, mind map, ER diagram, class diagram,
