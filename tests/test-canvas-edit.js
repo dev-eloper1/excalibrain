@@ -165,6 +165,59 @@ test('error on non-existent element', () => {
   }
 });
 
+// ── Test 5: strip-prefix removes all matching elements ───────────────────────
+test('strip-prefix: removes all elements with matching prefix', () => {
+  const data = {
+    type: 'excalidraw',
+    version: 2,
+    elements: [
+      { id: 'auth_svc', type: 'rectangle', x: 0, y: 0, width: 100, height: 50, boundElements: [{ id: 'auth_arrow_0', type: 'arrow' }] },
+      { id: 'auth_svc_text', type: 'text', x: 10, y: 10, width: 80, height: 20 },
+      { id: 'auth_arrow_0', type: 'arrow', x: 100, y: 25, width: 200, height: 0, startBinding: { elementId: 'auth_svc', focus: 0, gap: 5 }, endBinding: { elementId: 'other_box', focus: 0, gap: 5 } },
+      { id: 'other_box', type: 'rectangle', x: 300, y: 0, width: 100, height: 50, boundElements: [{ id: 'auth_arrow_0', type: 'arrow' }] },
+      { id: 'other_text', type: 'text', x: 310, y: 10, width: 80, height: 20 },
+    ],
+    appState: {}
+  };
+  const tmpPath = makeTempFile('edit-strip', data);
+  try {
+    const stdout = execFileSync('node', [TOOL, tmpPath, 'strip-prefix', 'auth_'], { encoding: 'utf8' });
+    const result = JSON.parse(stdout);
+    assert(result.stripped === 3, `Expected 3 stripped, got ${result.stripped}`);
+    assert(result.remaining === 2, `Expected 2 remaining, got ${result.remaining}`);
+    const file = JSON.parse(fs.readFileSync(tmpPath, 'utf8'));
+    assert(file.elements.length === 2, `Expected 2 elements in file, got ${file.elements.length}`);
+    // other_box should have its boundElements cleaned
+    const box = file.elements.find(e => e.id === 'other_box');
+    assert(box.boundElements.length === 0, `Expected 0 bound elements, got ${box.boundElements.length}`);
+  } finally {
+    try { fs.unlinkSync(tmpPath); } catch {}
+  }
+});
+
+// ── Test 6: strip-prefix errors on no matches ────────────────────────────────
+test('strip-prefix: errors when no elements match', () => {
+  const data = {
+    type: 'excalidraw',
+    version: 2,
+    elements: [{ id: 'foo_1', type: 'rectangle', x: 0, y: 0, width: 10, height: 10 }],
+    appState: {}
+  };
+  const tmpPath = makeTempFile('edit-strip-err', data);
+  try {
+    let threw = false;
+    try {
+      execFileSync('node', [TOOL, tmpPath, 'strip-prefix', 'bar_'], { encoding: 'utf8', stdio: 'pipe' });
+    } catch (err) {
+      threw = true;
+      assert(err.status === 1, `Expected exit code 1, got ${err.status}`);
+    }
+    assert(threw, 'Should have thrown for no matching prefix');
+  } finally {
+    try { fs.unlinkSync(tmpPath); } catch {}
+  }
+});
+
 // ── Summary ──────────────────────────────────────────────────────────────────
 console.log(`\n  ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

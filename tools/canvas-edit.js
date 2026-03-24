@@ -11,6 +11,8 @@
  *   update <elementId> <field> <value>  — update a property on an element
  *   delete <elementId>                  — remove an element and clean up bindings
  *   move <elementId> <dx> <dy>          — shift element coordinates by dx, dy
+ *   strip-prefix <prefix>               — remove all elements whose ID starts with prefix
+ *   strip-prefix <prefix> --output <f>  — same, writing to a different file
  */
 
 const fs = require('fs');
@@ -104,7 +106,47 @@ switch (operation) {
     break;
   }
 
+  case 'strip-prefix': {
+    const prefix = args[2];
+    if (!prefix) {
+      console.error('Usage: canvas-edit.js <file> strip-prefix <prefix> [--output <file>]');
+      process.exit(1);
+    }
+    // Find output path (optional --output flag)
+    const outIdx = args.indexOf('--output');
+    const outputPath = outIdx !== -1 ? args[outIdx + 1] : filePath;
+
+    // Collect IDs to remove
+    const removeIds = new Set();
+    for (const el of data.elements) {
+      if (el.id && el.id.startsWith(prefix)) {
+        removeIds.add(el.id);
+      }
+    }
+    if (removeIds.size === 0) {
+      console.error(`No elements found with prefix '${prefix}'`);
+      process.exit(1);
+    }
+    // Remove elements
+    data.elements = data.elements.filter(e => !removeIds.has(e.id));
+    // Clean up references in remaining elements
+    for (const el of data.elements) {
+      if (Array.isArray(el.boundElements)) {
+        el.boundElements = el.boundElements.filter(b => !removeIds.has(b.id));
+      }
+      if (el.startBinding && removeIds.has(el.startBinding.elementId)) {
+        el.startBinding = null;
+      }
+      if (el.endBinding && removeIds.has(el.endBinding.elementId)) {
+        el.endBinding = null;
+      }
+    }
+    fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
+    console.log(JSON.stringify({ stripped: removeIds.size, remaining: data.elements.length, output: outputPath }));
+    break;
+  }
+
   default:
-    console.error(`Unknown operation: '${operation}'. Use update, delete, or move.`);
+    console.error(`Unknown operation: '${operation}'. Use update, delete, move, or strip-prefix.`);
     process.exit(1);
 }
