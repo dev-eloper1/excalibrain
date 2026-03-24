@@ -15,4 +15,7 @@ echo ""
 echo "canvas-inspect.js:"
 node tests/test-canvas-inspect.js
 echo ""
+echo "merge/position/prefix:"
+node tests/test-merge.js
+echo ""
 echo "All tests complete."

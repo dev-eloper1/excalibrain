@@ -67,6 +67,9 @@ for (let i = 0; i < args.length; i++) {
   else if (args[i] === '--arrow-width') { flags.arrowWidth = Number(args[++i]); }
   else if (args[i] === '--node-width')  { flags.nodeWidth  = Number(args[++i]); }
   else if (args[i] === '--output')      { flags.output     = args[++i]; }
+  else if (args[i] === '--prefix')      { flags.prefix     = args[++i]; }
+  else if (args[i] === '--position')    { flags.position   = args[++i]; }
+  else if (args[i] === '--merge')       { flags.merge      = args[++i]; }
   else if (!args[i].startsWith('--'))   { inputPath = args[i]; }
 }
 
@@ -620,16 +623,22 @@ function shiftToResolve(movable, fixed, margin) {
 const zoneLabelEls = elements.filter(
   el => el.type === 'text' && el.id.startsWith('zone_') && el.id.endsWith('_label')
 );
-for (let i = 0; i < zoneLabelEls.length; i++) {
-  for (let j = i + 1; j < zoneLabelEls.length; j++) {
-    const a = zoneLabelEls[i], b = zoneLabelEls[j];
-    const aBox = { x: a.x, y: a.y, w: a.width, h: a.height };
-    const bBox = { x: b.x, y: b.y, w: b.width, h: b.height };
-    if (boxesOverlap(aBox, bBox)) {
-      // Shift the second zone label to the right of the first
-      b.x = a.x + a.width + 12;
+// Run up to 3 passes (shifting one label can cause overlap with another)
+for (let pass = 0; pass < 3; pass++) {
+  let anyShifted = false;
+  for (let i = 0; i < zoneLabelEls.length; i++) {
+    for (let j = i + 1; j < zoneLabelEls.length; j++) {
+      const a = zoneLabelEls[i], b = zoneLabelEls[j];
+      const aBox = { x: a.x, y: a.y, w: a.width, h: a.height };
+      const bBox = { x: b.x, y: b.y, w: b.width, h: b.height };
+      if (boxesOverlap(aBox, bBox)) {
+        anyShifted = true;
+        const best = shiftToResolve(bBox, aBox, COLLISION_MARGIN + 4);
+        b[best.axis] += best.delta;
+      }
     }
   }
+  if (!anyShifted) break;
 }
 
 // 5b. Edge label vs zone label: shift edge labels away from zone labels
@@ -661,17 +670,56 @@ for (let pass = 0; pass < 3; pass++) {
   if (!anyShifted) break;
 }
 
+// ── Apply --prefix ────────────────────────────────────────────────────────────
+if (flags.prefix) {
+  const p = flags.prefix;
+  for (const el of elements) {
+    el.id = p + el.id;
+    if (el.containerId) el.containerId = p + el.containerId;
+    if (el.frameId) el.frameId = p + el.frameId;
+    if (el.boundElements) {
+      el.boundElements = el.boundElements.map(ref => ({ ...ref, id: p + ref.id }));
+    }
+    if (el.startBinding && el.startBinding.elementId) {
+      el.startBinding = { ...el.startBinding, elementId: p + el.startBinding.elementId };
+    }
+    if (el.endBinding && el.endBinding.elementId) {
+      el.endBinding = { ...el.endBinding, elementId: p + el.endBinding.elementId };
+    }
+  }
+}
+
+// ── Apply --position ──────────────────────────────────────────────────────────
+if (flags.position) {
+  const [ox, oy] = flags.position.split(',').map(Number);
+  for (const el of elements) {
+    el.x += ox;
+    el.y += oy;
+  }
+}
+
 // ── Output Excalidraw JSON ────────────────────────────────────────────────────
+let finalElements = elements;
+let appState = {
+  viewBackgroundColor: canvasBackground,
+  gridSize: 20,
+};
+let files = {};
+
+if (flags.merge) {
+  const existing = JSON.parse(fs.readFileSync(flags.merge, 'utf8'));
+  finalElements = existing.elements.concat(elements);
+  appState = existing.appState || appState;
+  files = existing.files || files;
+}
+
 const output = {
   type: 'excalidraw',
   version: 2,
   source: 'https://excalidraw.com',
-  elements,
-  appState: {
-    viewBackgroundColor: canvasBackground,
-    gridSize: 20,
-  },
-  files: {},
+  elements: finalElements,
+  appState,
+  files,
 };
 
 const outJson = JSON.stringify(output, null, 2);
