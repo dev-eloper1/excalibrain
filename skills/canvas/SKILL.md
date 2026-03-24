@@ -606,6 +606,8 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 
 **A single canvas should mix diagram types freely.** An architecture document might have a system overview (architecture), a request flow (sequence), a session lifecycle (state diagram), and a build process (flowchart) — all on the same canvas, each chosen because it's the right visual argument for that piece.
 
+**The table above covers common cases, not all cases.** If the content doesn't fit any predefined type, use freeform — write `.excalidraw` JSON directly with positioned rectangles, text, arrows, and shapes. The Excalidraw format supports any 2D visual: comparison tables, annotated screenshots, Venn diagrams, custom layouts, whatever best argues the point. The predefined types handle 80% of cases with good layout; freeform handles the rest.
+
 Read `references/diagram-type-rubric.md` for the full decision table.
 
 ### Connect sections to each other
