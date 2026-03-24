@@ -207,6 +207,74 @@ test('divider generates a line element', (tmpFiles) => {
   assert(lines.length >= 1, `Expected at least 1 line, got ${lines.length}`);
 });
 
+// ── Floor Plan Tests ─────────────────────────────────────────────────────────
+
+// ── Test 11: room generates rect + label ─────────────────────────────────────
+test('room generates rect + label', (tmpFiles) => {
+  const result = runWithInput({
+    primitives: [{ type: 'room', x: 0, y: 0, w: 300, h: 200, label: 'Kitchen' }]
+  }, [], tmpFiles);
+
+  const rects = result.elements.filter(e => e.type === 'rectangle');
+  const texts = result.elements.filter(e => e.type === 'text');
+  assert(rects.length >= 1, `Expected at least 1 rectangle, got ${rects.length}`);
+  assert(rects[0].strokeWidth === 2, `Expected strokeWidth 2, got ${rects[0].strokeWidth}`);
+  assert(rects[0].width === 300, `Expected width 300, got ${rects[0].width}`);
+  assert(rects[0].height === 200, `Expected height 200, got ${rects[0].height}`);
+  assert(texts.some(t => t.text === 'Kitchen'), 'Should have label text "Kitchen"');
+});
+
+// ── Test 12: furniture:bed generates correct size ────────────────────────────
+test('furniture:bed queen generates correct size', (tmpFiles) => {
+  const result = runWithInput({
+    primitives: [{ type: 'furniture:bed', x: 0, y: 0, size: 'queen' }]
+  }, [], tmpFiles);
+
+  const rects = result.elements.filter(e => e.type === 'rectangle');
+  assert(rects.length >= 1, `Expected at least 1 rectangle, got ${rects.length}`);
+  const outer = rects[0];
+  assert(outer.width === 160, `Expected queen bed width 160, got ${outer.width}`);
+  assert(outer.height === 200, `Expected queen bed height 200, got ${outer.height}`);
+});
+
+// ── Test 13: dimension generates line + text ─────────────────────────────────
+test('dimension generates line + text', (tmpFiles) => {
+  const result = runWithInput({
+    primitives: [{ type: 'dimension', x1: 0, y1: 0, x2: 300, y2: 0, label: '3m' }]
+  }, [], tmpFiles);
+
+  const lines = result.elements.filter(e => e.type === 'line');
+  const texts = result.elements.filter(e => e.type === 'text');
+  assert(lines.length >= 1, `Expected at least 1 line, got ${lines.length}`);
+  assert(texts.some(t => t.text === '3m'), 'Should have label text "3m"');
+});
+
+// ── Test 14: door generates elements ─────────────────────────────────────────
+test('door generates at least 2 elements', (tmpFiles) => {
+  const result = runWithInput({
+    primitives: [{ type: 'door', x: 200, y: 0, wall: 'n', swing: 'right' }]
+  }, [], tmpFiles);
+
+  assert(result.elements.length >= 2, `Expected at least 2 elements, got ${result.elements.length}`);
+});
+
+// ── Test 15: floor plan fixture ──────────────────────────────────────────────
+test('floorplan fixture produces valid excalidraw output', (tmpFiles) => {
+  const input = path.join(FIXTURES, 'floorplan-input.json');
+  const out = execFileSync('node', [TOOL, input], { encoding: 'utf8' });
+  const result = JSON.parse(out);
+  assert(result.type === 'excalidraw', 'Output should be excalidraw type');
+  assert(result.version === 2, 'Version should be 2');
+  assert(result.elements.length > 0, 'Should have elements');
+  // Should have room rect, bed rects, desk rect, dimension line, etc.
+  const rects = result.elements.filter(e => e.type === 'rectangle');
+  const texts = result.elements.filter(e => e.type === 'text');
+  const lines = result.elements.filter(e => e.type === 'line');
+  assert(rects.length >= 3, `Expected >= 3 rectangles (room + bed + desk), got ${rects.length}`);
+  assert(texts.length >= 2, `Expected >= 2 texts (room label + dimension), got ${texts.length}`);
+  assert(lines.length >= 1, `Expected >= 1 line (dimension), got ${lines.length}`);
+});
+
 // ── Summary ──────────────────────────────────────────────────────────────────
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

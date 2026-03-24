@@ -1,0 +1,9 @@
+{
+  "primitives": [
+    { "type": "room", "x": 0, "y": 0, "w": 400, "h": 300, "label": "Bedroom" },
+    { "type": "door", "x": 200, "y": 0, "wall": "n", "swing": "right" },
+    { "type": "furniture:bed", "x": 50, "y": 50, "size": "queen" },
+    { "type": "furniture:desk", "x": 250, "y": 50, "width": 120 },
+    { "type": "dimension", "x1": 0, "y1": 320, "x2": 400, "y2": 320, "label": "4m" }
+  ]
+}

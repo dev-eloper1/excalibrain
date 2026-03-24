@@ -555,6 +555,439 @@ function generateListItem(p) {
   return els;
 }
 
+// ── Floor plan primitive generators ──────────────────────────────────────────
+
+function generateRoom(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const w = p.w || 300, h = p.h || 200;
+  const label = p.label || '';
+  const groupId = nextId();
+  const els = [];
+
+  els.push(rect(nextId(), x, y, w, h, {
+    stroke: '#1e1e1e',
+    strokeWidth: 2,
+    groupIds: [groupId],
+  }));
+
+  if (label) {
+    els.push(text(nextId(), x, y, w, h, label, {
+      fontSize: 16,
+      color: '#1e1e1e',
+      textAlign: 'center',
+      verticalAlign: 'middle',
+      groupIds: [groupId],
+    }));
+  }
+
+  return els;
+}
+
+function generateDoor(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const wall = p.wall || 'n';
+  const swing = p.swing || 'right';
+  const w = p.width || 80;
+  const groupId = nextId();
+  const els = [];
+
+  // Generate arc points (quarter circle, 6 points)
+  const arcPoints = [];
+  const steps = 6;
+  for (let i = 0; i <= steps; i++) {
+    const angle = (Math.PI / 2) * (i / steps);
+    arcPoints.push([Math.cos(angle) * w, -Math.sin(angle) * w]);
+  }
+
+  if (wall === 'n' || wall === 's') {
+    const flipY = wall === 's' ? -1 : 1;
+    const flipX = swing === 'left' ? -1 : 1;
+
+    // Gap cover line (white line to "erase" wall)
+    els.push(line(nextId(), x, y, [[0, 0], [w * flipX, 0]], {
+      stroke: '#ffffff',
+      strokeWidth: 4,
+      groupIds: [groupId],
+    }));
+
+    // Swing arc
+    const swingPoints = arcPoints.map(([px, py]) => [px * flipX, py * flipY]);
+    els.push(line(nextId(), x, y, swingPoints, {
+      stroke: '#1e1e1e',
+      strokeWidth: 1,
+      groupIds: [groupId],
+    }));
+  } else {
+    // e/w walls
+    const flipX = wall === 'w' ? 1 : -1;
+    const flipY = swing === 'left' ? -1 : 1;
+
+    // Gap cover line
+    els.push(line(nextId(), x, y, [[0, 0], [0, w * flipY]], {
+      stroke: '#ffffff',
+      strokeWidth: 4,
+      groupIds: [groupId],
+    }));
+
+    // Swing arc (rotated 90 degrees)
+    const swingPoints = arcPoints.map(([px, py]) => [-py * flipX, px * flipY]);
+    els.push(line(nextId(), x, y, swingPoints, {
+      stroke: '#1e1e1e',
+      strokeWidth: 1,
+      groupIds: [groupId],
+    }));
+  }
+
+  return els;
+}
+
+function generateWindow(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const wall = p.wall || 'n';
+  const w = p.width || 100;
+
+  const pts = (wall === 'n' || wall === 's')
+    ? [[0, 0], [w, 0]]
+    : [[0, 0], [0, w]];
+
+  const el = line(nextId(), x, y, pts, {
+    stroke: '#1e1e1e',
+    strokeWidth: 2,
+  });
+  el.strokeStyle = 'dashed';
+  return [el];
+}
+
+function generateWall(p) {
+  const x1 = p.x1 || 0, y1 = p.y1 || 0;
+  const x2 = p.x2 || 0, y2 = p.y2 || 0;
+  const thickness = p.thickness || 2;
+
+  return [
+    line(nextId(), x1, y1, [[0, 0], [x2 - x1, y2 - y1]], {
+      stroke: '#1e1e1e',
+      strokeWidth: thickness,
+    }),
+  ];
+}
+
+const BED_SIZES = {
+  single: { w: 90, h: 190 },
+  double: { w: 140, h: 190 },
+  queen:  { w: 160, h: 200 },
+  king:   { w: 180, h: 200 },
+};
+
+function generateBed(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const sz = BED_SIZES[p.size || 'double'] || BED_SIZES.double;
+  const groupId = nextId();
+  const els = [];
+
+  // Outer bed frame
+  els.push(rect(nextId(), x, y, sz.w, sz.h, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Pillow (20% of length at head)
+  const pillowH = Math.round(sz.h * 0.2);
+  els.push(rect(nextId(), x + 5, y + 5, sz.w - 10, pillowH, {
+    stroke: '#1e1e1e',
+    fill: '#f3f4f6',
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateDesk(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const w = p.width || 120, h = 60;
+  const groupId = nextId();
+  const els = [];
+
+  // Desk surface
+  els.push(rect(nextId(), x, y, w, h, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Chair (ellipse centered below desk)
+  els.push(ellipse(nextId(), x + w / 2 - 15, y + h + 10, 30, 30, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateTable(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const shape = p.shape || 'rect';
+  const groupId = nextId();
+
+  if (shape === 'round') {
+    const d = p.size || 100;
+    return [ellipse(nextId(), x, y, d, d, {
+      stroke: '#1e1e1e',
+      groupIds: [groupId],
+    })];
+  }
+
+  const w = p.w || 120, h = p.h || 80;
+  return [rect(nextId(), x, y, w, h, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  })];
+}
+
+const COUCH_SIZES = {
+  '2-seat': { w: 160, h: 80 },
+  '3-seat': { w: 220, h: 80 },
+  'L':      { w: 220, h: 220 },
+};
+
+function generateCouch(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const style = p.style || '2-seat';
+  const sz = COUCH_SIZES[style] || COUCH_SIZES['2-seat'];
+  const groupId = nextId();
+  const els = [];
+
+  if (style === 'L') {
+    // Horizontal seat
+    els.push(rect(nextId(), x, y, sz.w, 80, {
+      stroke: '#1e1e1e',
+      groupIds: [groupId],
+    }));
+    // Back rest (horizontal)
+    els.push(rect(nextId(), x, y, sz.w, 20, {
+      stroke: '#1e1e1e',
+      fill: '#e5e7eb',
+      groupIds: [groupId],
+    }));
+    // Vertical seat (L piece)
+    els.push(rect(nextId(), x, y + 80, 80, sz.h - 80, {
+      stroke: '#1e1e1e',
+      groupIds: [groupId],
+    }));
+  } else {
+    // Seat
+    els.push(rect(nextId(), x, y, sz.w, sz.h, {
+      stroke: '#1e1e1e',
+      groupIds: [groupId],
+    }));
+    // Back rest (top strip)
+    els.push(rect(nextId(), x, y, sz.w, 20, {
+      stroke: '#1e1e1e',
+      fill: '#e5e7eb',
+      groupIds: [groupId],
+    }));
+  }
+
+  return els;
+}
+
+function generateChair(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const groupId = nextId();
+  const els = [];
+
+  els.push(rect(nextId(), x, y, 40, 40, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Backrest line at top
+  els.push(line(nextId(), x, y, [[0, 0], [40, 0]], {
+    stroke: '#1e1e1e',
+    strokeWidth: 3,
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateToilet(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const groupId = nextId();
+  const els = [];
+
+  // Tank (rectangular)
+  els.push(rect(nextId(), x, y, 40, 15, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Bowl (oval)
+  els.push(ellipse(nextId(), x, y + 15, 40, 50, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateSink(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const groupId = nextId();
+  const els = [];
+
+  // Counter
+  els.push(rect(nextId(), x, y, 50, 40, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Basin
+  els.push(ellipse(nextId(), x + 10, y + 5, 30, 30, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateShower(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const sz = p.size || 90;
+  const groupId = nextId();
+  const els = [];
+
+  els.push(rect(nextId(), x, y, sz, sz, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Diagonal lines
+  els.push(line(nextId(), x, y, [[0, 0], [sz, sz]], {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+  els.push(line(nextId(), x + sz, y, [[0, 0], [-sz, sz]], {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateStove(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const groupId = nextId();
+  const els = [];
+
+  els.push(rect(nextId(), x, y, 60, 60, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // 4 burners in 2x2 grid
+  const positions = [[12, 12], [36, 12], [12, 36], [36, 36]];
+  for (const [bx, by] of positions) {
+    els.push(ellipse(nextId(), x + bx - 6, y + by - 6, 12, 12, {
+      stroke: '#1e1e1e',
+      groupIds: [groupId],
+    }));
+  }
+
+  return els;
+}
+
+function generateFridge(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const groupId = nextId();
+  const els = [];
+
+  els.push(rect(nextId(), x, y, 70, 70, {
+    stroke: '#1e1e1e',
+    groupIds: [groupId],
+  }));
+
+  // Handle line
+  els.push(line(nextId(), x + 55, y + 15, [[0, 0], [0, 40]], {
+    stroke: '#1e1e1e',
+    strokeWidth: 2,
+    groupIds: [groupId],
+  }));
+
+  return els;
+}
+
+function generateDimension(p) {
+  const x1 = p.x1 || 0, y1 = p.y1 || 0;
+  const x2 = p.x2 || 0, y2 = p.y2 || 0;
+  const label = p.label || '';
+  const groupId = nextId();
+  const els = [];
+  const endMarkLen = 6;
+
+  // Main line
+  els.push(line(nextId(), x1, y1, [[0, 0], [x2 - x1, y2 - y1]], {
+    stroke: '#1e1e1e',
+    strokeWidth: 1,
+    groupIds: [groupId],
+  }));
+
+  // Determine if horizontal or vertical
+  const isHorizontal = Math.abs(x2 - x1) >= Math.abs(y2 - y1);
+
+  if (isHorizontal) {
+    // End marks (short vertical lines)
+    els.push(line(nextId(), x1, y1 - endMarkLen, [[0, 0], [0, endMarkLen * 2]], {
+      stroke: '#1e1e1e',
+      strokeWidth: 1,
+      groupIds: [groupId],
+    }));
+    els.push(line(nextId(), x2, y2 - endMarkLen, [[0, 0], [0, endMarkLen * 2]], {
+      stroke: '#1e1e1e',
+      strokeWidth: 1,
+      groupIds: [groupId],
+    }));
+  } else {
+    // End marks (short horizontal lines)
+    els.push(line(nextId(), x1 - endMarkLen, y1, [[0, 0], [endMarkLen * 2, 0]], {
+      stroke: '#1e1e1e',
+      strokeWidth: 1,
+      groupIds: [groupId],
+    }));
+    els.push(line(nextId(), x2 - endMarkLen, y2, [[0, 0], [endMarkLen * 2, 0]], {
+      stroke: '#1e1e1e',
+      strokeWidth: 1,
+      groupIds: [groupId],
+    }));
+  }
+
+  // Centered label
+  if (label) {
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+    els.push(text(nextId(), midX - 30, midY - 16, 60, 14, label, {
+      fontSize: 12,
+      color: '#1e1e1e',
+      textAlign: 'center',
+      verticalAlign: 'middle',
+      groupIds: [groupId],
+    }));
+  }
+
+  return els;
+}
+
+function generateLabel(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const content = p.text || '';
+  const fontSize = p.fontSize || 14;
+
+  return [text(nextId(), x, y, content.length * fontSize * 0.6, fontSize * 1.25, content, {
+    fontSize,
+    color: '#1e1e1e',
+    textAlign: 'left',
+    verticalAlign: 'top',
+  })];
+}
+
 // ── Primitive registry ───────────────────────────────────────────────────────
 const PRIMITIVES = {
   screen: generateScreen,
@@ -568,6 +1001,23 @@ const PRIMITIVES = {
   'image-placeholder': generateImagePlaceholder,
   avatar: generateAvatar,
   'list-item': generateListItem,
+  // Floor plan primitives
+  room: generateRoom,
+  door: generateDoor,
+  window: generateWindow,
+  wall: generateWall,
+  'furniture:bed': generateBed,
+  'furniture:desk': generateDesk,
+  'furniture:table': generateTable,
+  'furniture:couch': generateCouch,
+  'furniture:chair': generateChair,
+  'furniture:toilet': generateToilet,
+  'furniture:sink': generateSink,
+  'furniture:shower': generateShower,
+  'furniture:stove': generateStove,
+  'furniture:fridge': generateFridge,
+  dimension: generateDimension,
+  label: generateLabel,
 };
 
 // ── Generate all elements ────────────────────────────────────────────────────
