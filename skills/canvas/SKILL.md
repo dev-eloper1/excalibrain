@@ -606,7 +606,21 @@ All tools live at `${CLAUDE_PLUGIN_ROOT}/tools/`. CLI signatures:
 
 **A single canvas should mix diagram types freely.** An architecture document might have a system overview (architecture), a request flow (sequence), a session lifecycle (state diagram), and a build process (flowchart) — all on the same canvas, each chosen because it's the right visual argument for that piece.
 
-**The table above covers common cases, not all cases.** If the content doesn't fit any predefined type, use freeform — write `.excalidraw` JSON directly with positioned rectangles, text, arrows, and shapes. The Excalidraw format supports any 2D visual: comparison tables, annotated screenshots, Venn diagrams, custom layouts, whatever best argues the point. The predefined types handle 80% of cases with good layout; freeform handles the rest.
+**The table above covers common cases, not all cases.** The predefined types handle 80% of situations with proven layout strategies. For the other 20%, don't default to manual coordinate placement — **compose a layout strategy from the tools you have:**
+
+**Think in building blocks, not coordinates:**
+- **Topology/relationships?** → Model it as a graph, let dagre auto-layout. Works for trip routes, network diagrams, org charts, dependency trees — anything with nodes and connections.
+- **Spatial/grid layout?** → Use primitives.js with calculated grid positions (`x = col * width + gap`, `y = row * height + gap`). Works for floor plans, seating charts, comparison tables, kanban boards.
+- **Timeline/sequence?** → Use gantt-layout.js for time-based content, or mermaid for participant-based sequences.
+- **Hybrid?** → Combine tools. A campus map could use dagre for building relationships + primitives for building interiors. A project plan could use gantt for the timeline + dagre for the dependency graph.
+
+**When no recipe exists:** Don't try to manually calculate 50 x,y coordinates. Instead:
+1. Identify the spatial structure (graph? grid? timeline? radial?)
+2. Pick the tool that handles that structure (dagre? primitives? gantt?)
+3. If none fits, break the problem into pieces that DO fit and merge them onto one canvas
+4. Only fall back to raw `.excalidraw` JSON for truly custom layouts where no tool helps
+
+The visual intelligence is in choosing the right strategy, not in having a pre-built recipe for every possible diagram.
 
 Read `references/diagram-type-rubric.md` for the full decision table.
 

@@ -3,7 +3,8 @@ name: excalibrain:draw
 description: Create Excalidraw diagrams that argue visually — turn ideas and code
   into visual arguments. Trigger on draw, diagram, visualize, chart, map out,
   flowchart, architecture, sequence diagram, mind map, ER diagram, class diagram,
-  state diagram, gantt, sketch, or any request to visually represent information.
+  state diagram, gantt, floor plan, apartment, office layout, sketch, or any
+  request to visually represent information.
 ---
 
 # excalibrain
@@ -38,11 +39,38 @@ Read these as needed — they are the ground truth for specifics:
 | `references/graph-json-format.md` | Dagre graph JSON input format (architecture, state, mindmap) |
 | `references/diagram-recipes/<type>.md` | **Before generating** — complete examples per type |
 
-Available recipes: `flowchart.md`, `sequence.md`, `mindmap.md`, `class-diagram.md`, `state-diagram.md`, `er-diagram.md`, `gantt.md`, `architecture.md`
+Available recipes: `flowchart.md`, `sequence.md`, `mindmap.md`, `class-diagram.md`, `state-diagram.md`, `er-diagram.md`, `gantt.md`, `architecture.md`, `floor-plan.md`
 
 ---
 
 ## Workflow
+
+### 0. Canvas continuity check (do this FIRST)
+
+Before creating anything, ask: **did I already generate a diagram in this conversation?**
+
+**Check for an active canvas:**
+1. Was a `.excalidraw` file created or modified earlier in this conversation?
+2. Is the new request **topically related** to that file? (Same system, same feature, different perspective — e.g., wireframe then sequence diagram, architecture then ER diagram, floor plan then furniture detail)
+3. Does the user reference the prior diagram? ("this", "that", "the same", "for this screen", "behind this", etc.)
+
+**If YES to any two of the above → merge, don't create a new file.**
+
+- Run `canvas-inspect.js` on the existing file to find bounds and free space
+- Use `--merge <existing.excalidraw> --position <x>,<y>` when generating the new section
+- Place the new section below or to the right of existing content (leave ≥80px gap)
+- Add a section title label above the new content to separate it visually
+
+**If NO → proceed normally** (new standalone file).
+
+**Signals that break continuity** (create a new file):
+- User explicitly asks for a "new diagram" or "separate file"
+- Topic is completely unrelated to the prior diagram
+- User names a different output file
+
+This rule applies even when the diagram **type changes** (wireframe → sequence, architecture → ER). Different types on the same topic belong on the same canvas — they argue different facets of the same system.
+
+---
 
 ### 1. Type & theme selection
 
@@ -88,6 +116,8 @@ If the user doesn't specify or says to proceed, use `default`. If the user speci
 
 Choose the path based on diagram type. **Check `references/diagram-type-rubric.md` for the tool path column** — it tells you which tool to use for each type.
 
+**If continuing a canvas (Step 0 said merge):** append `--merge <canvas.excalidraw> --position <x>,<y>` to any tool command below. The `--position` coordinates come from `canvas-inspect.js` free-space output. Always write output back to the same canvas file.
+
 **Dagre path** (flowchart, architecture, state, mindmap) — PRIMARY:
 1. Write graph JSON to a `.json` file (see `references/graph-json-format.md` for full format)
 2. Read the type-specific recipe from `references/diagram-recipes/<type>.md` — it has the JSON template, color conventions, and best practices
@@ -114,9 +144,27 @@ Choose the path based on diagram type. **Check `references/diagram-type-rubric.m
 3. Run: `node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js graph.json [--theme <name>] --output diagram.excalidraw`
 4. Output is a fully-positioned `.excalidraw` file with bound arrows and auto-sized nodes
 
-**Direct path** (freehand, creative, mixed):
+**Primitives path** (floor plans, spatial layouts):
+1. Read `references/diagram-recipes/floor-plan.md` — it has the full type registry, scale table, and door sizing rules
+2. Write primitives JSON to a `.json` file. **All furniture types require the `furniture:` prefix** (e.g., `furniture:bed`, not `bed`)
+3. Use door `width` ≤ 50 px (40 px standard). Check swing arc clearance against nearby furniture
+4. Pass `fill`, `stroke`, and `labelColor` to rooms for color coding
+5. Add `dimension` lines outside the floor plan perimeter and a `label` title
+6. Run: `node ${CLAUDE_PLUGIN_ROOT}/tools/primitives.js input.json --output floor-plan.excalidraw`
+
+**Compose path** (no recipe fits — weekend trips, seating charts, comparison tables, custom layouts):
+Don't try to manually place 50 elements with x,y coordinates. Instead, decompose the problem:
+1. **Identify the spatial structure** — is it a graph (nodes + connections)? A grid? A timeline? A radial layout?
+2. **Use the right tool for that structure:**
+   - Graph/topology → dagre (model locations as nodes, routes as edges)
+   - Grid/spatial → primitives.js (calculate grid positions: `x = col * width + gap`)
+   - Timeline → gantt-layout.js
+   - Hybrid → combine tools, merge onto same canvas
+3. **Only fall back to raw .excalidraw JSON** when no tool handles the structure at all
+
+**Direct path** (truly freeform — rare):
 1. Write `.excalidraw` JSON directly following Excalidraw's element format
-2. Use sparingly — prefer dagre or mermaid for anything with structure
+2. Last resort only — the compose path above handles most "unconventional" diagrams better
 
 ### 5. Validate (mandatory)
 ```bash
