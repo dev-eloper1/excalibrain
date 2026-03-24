@@ -1,0 +1,14 @@
+{
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start" },
+    { "id": "end", "label": "End" }
+  ],
+  "edges": [
+    { "from": "start", "to": "end" }
+  ],
+  "annotations": [
+    { "id": "anno_1", "text": "This is a test annotation", "x": 300, "y": 100 },
+    { "id": "anno_2", "text": "Anchored note", "anchorTo": "start", "anchorOffset": { "dx": 0, "dy": 20 } }
+  ]
+}

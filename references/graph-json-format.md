@@ -15,6 +15,7 @@ Complete input format for `dagre-layout.js`. Used for architecture, state, mindm
 | `zones` | array | — | Background zone rectangles |
 | `nodes` | array | **required** | Node definitions |
 | `edges` | array | **required** | Edge definitions |
+| `annotations` | array | — | Sticky-note style text annotations |
 
 ## style object
 
@@ -77,6 +78,30 @@ Node dimensions are calculated from label text when `width`/`height` are not spe
 | `stroke` | string | `"#94a3b8"` | Zone border color |
 | `opacity` | number | `30` | Zone opacity |
 | `nodeIds` | string[] | **required** | Node ids belonging to this zone |
+
+## Annotations (optional)
+
+Sticky-note style text elements for adding reasoning and context near diagram elements.
+
+```json
+"annotations": [
+  {
+    "id": "anno_1",           // unique ID
+    "text": "Note text",      // the annotation content
+    "x": 400,                 // absolute x position (if no anchorTo)
+    "y": 300,                 // absolute y position (if no anchorTo)
+    "anchorTo": "node_id",    // optional: position relative to this node
+    "anchorOffset": { "dx": 0, "dy": 60 },  // offset from anchor node
+    "fontSize": 14,           // optional, default 14
+    "color": "#6b7280",       // optional, default gray
+    "width": 200              // optional, default 200
+  }
+]
+```
+
+- If `anchorTo` is set, the annotation is positioned relative to the named node (below it by default)
+- If no `anchorTo`, uses absolute `x`, `y` coordinates
+- Annotations get prefixed by `--prefix` like all other elements
 
 ## CLI flags
 

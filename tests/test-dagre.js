@@ -89,6 +89,40 @@ test('valid-excalidraw-format: version=2, appState exists, all elements have req
   }
 });
 
+// ── Test 5: annotations — absolute and anchored ─────────────────────────────
+test('annotations: absolute annotation has correct position', () => {
+  const result = run('annotated-flow.json');
+  const anno1 = result.elements.find(e => e.id === 'anno_1');
+  assert(anno1, 'Annotation anno_1 not found');
+  assert(anno1.type === 'text', `Expected type "text", got ${anno1.type}`);
+  assert(anno1.x === 300, `Expected x=300, got ${anno1.x}`);
+  assert(anno1.y === 100, `Expected y=100, got ${anno1.y}`);
+  assert(anno1.text === 'This is a test annotation', `Wrong text: ${anno1.text}`);
+});
+
+test('annotations: anchored annotation is positioned near start node', () => {
+  const result = run('annotated-flow.json');
+  const startNode = result.elements.find(e => e.id === 'start');
+  const anno2 = result.elements.find(e => e.id === 'anno_2');
+  assert(startNode, 'Node "start" not found');
+  assert(anno2, 'Annotation anno_2 not found');
+  assert(anno2.type === 'text', `Expected type "text", got ${anno2.type}`);
+  // Anchored annotation should be below the start node (y = startNode.y + startNode.height + dy)
+  const expectedY = startNode.y + startNode.height + 20;
+  assert(anno2.y === expectedY,
+    `Expected anno_2 y=${expectedY}, got ${anno2.y}`);
+});
+
+test('annotations: --prefix applies to annotation IDs', () => {
+  const input = path.join(FIXTURES, 'annotated-flow.json');
+  const out = execFileSync('node', [TOOL, input, '--prefix', 'pfx_'], { encoding: 'utf8' });
+  const result = JSON.parse(out);
+  const anno1 = result.elements.find(e => e.id === 'pfx_anno_1');
+  const anno2 = result.elements.find(e => e.id === 'pfx_anno_2');
+  assert(anno1, 'Prefixed annotation pfx_anno_1 not found');
+  assert(anno2, 'Prefixed annotation pfx_anno_2 not found');
+});
+
 // ── Summary ─────────────────────────────────────────────────────────────────
 console.log(`\n  ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

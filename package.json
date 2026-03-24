@@ -1,6 +1,6 @@
 {
   "name": "excalibrain",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Claude Code skill that turns ideas and code into visual arguments using Excalidraw",
   "private": true,
   "scripts": {
@@ -8,7 +8,12 @@
     "test": "bash tests/test-all.sh",
     "test:dagre": "node tests/test-dagre.js",
     "test:mermaid": "node tests/test-mermaid.js",
-    "test:export": "node tests/test-export.js"
+    "test:export": "node tests/test-export.js",
+    "test:inspect": "node tests/test-canvas-inspect.js",
+    "test:merge": "node tests/test-merge.js",
+    "test:fast-check": "node tests/test-fast-check.js",
+    "test:primitives": "node tests/test-primitives.js",
+    "test:canvas-edit": "node tests/test-canvas-edit.js"
   },
   "dependencies": {
     "@dagrejs/dagre": "^2.0.4",

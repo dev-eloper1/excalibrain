@@ -596,7 +596,37 @@ function darken(hex) {
   return darkMap[hex] ?? '#1e293b';
 }
 
-// ── 5. Collision detection: labels vs labels ──────────────────────────────────
+// ── 5. Annotations ────────────────────────────────────────────────────────────
+if (graph.annotations) {
+  for (const anno of graph.annotations) {
+    let ax = anno.x || 0;
+    let ay = anno.y || 0;
+
+    // If anchored to a node, position relative to that node
+    if (anno.anchorTo) {
+      const anchorNode = elements.find(e => e.id === anno.anchorTo);
+      if (anchorNode) {
+        ax = anchorNode.x + (anno.anchorOffset?.dx || 0);
+        ay = anchorNode.y + anchorNode.height + (anno.anchorOffset?.dy || 10);
+      }
+    }
+
+    const annoFontSize = anno.fontSize || 14;
+    const annoWidth = anno.width || 200;
+    const annoHeight = Math.ceil(annoFontSize * 1.25 * (anno.text.split('\n').length) + 8);
+    elements.push(freeText(
+      anno.id,
+      ax, ay,
+      annoWidth,
+      annoHeight,
+      anno.text,
+      anno.color || '#6b7280',
+      annoFontSize,
+    ));
+  }
+}
+
+// ── 6. Collision detection: labels vs labels ──────────────────────────────────
 const COLLISION_MARGIN = 4;
 
 function boxesOverlap(a, b) {
