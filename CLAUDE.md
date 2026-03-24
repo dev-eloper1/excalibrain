@@ -1,12 +1,12 @@
 # excalibrain
 
-A Claude Code skill that turns ideas and code into visual arguments using Excalidraw.
+A Claude Code plugin that turns ideas and code into visual arguments using Excalidraw.
 
 ## What is this?
 
-This is NOT an MCP server or a CLI tool. It is a **Claude Code skill** — a set of instructions + tools that teach Claude how to create high-quality Excalidraw diagrams.
+This is a **Claude Code plugin** — a set of skills + tools that teach Claude how to create high-quality Excalidraw diagrams.
 
-The intelligence layer (what to draw, how to argue visually) lives in `skill/SKILL.md`. The tools that handle layout and rendering live in `tools/`.
+The plugin manifest lives in `.claude-plugin/plugin.json`. The intelligence layer (what to draw, how to argue visually) lives in `skills/draw/SKILL.md`. The tools that handle layout and rendering live in `tools/`.
 
 ## Development
 
@@ -20,11 +20,13 @@ npm test               # runs all tests
 ```
 
 ### Project layout
-- `tools/` — Three Node.js scripts: dagre-layout.js, mermaid-convert.js, export.js
-- `skill/` — SKILL.md + reference files (symlinked to ~/.claude/skills/excalibrain)
+- `.claude-plugin/` — Plugin manifest (plugin.json)
+- `skills/draw/` — Draw skill (SKILL.md + symlink to references)
+- `references/` — Canonical location for color palette, recipes, layout rules, etc.
+- `tools/` — Node.js scripts: dagre-layout.js, mermaid-convert.js, export.js
 - `tests/` — Test files + fixtures
 - `scripts/` — Build scripts (bundle builder)
-- `docs/` — This plan and architecture docs
+- `docs/` — Plan and architecture docs
 
 ### Tools
 - `node tools/dagre-layout.js graph.json --output diagram.excalidraw` — graph layout

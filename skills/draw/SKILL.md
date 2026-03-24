@@ -10,6 +10,21 @@ description: Create Excalidraw diagrams that argue visually — turn ideas and c
 
 Generate diagrams that **argue visually**, not just display information. A diagram is a visual argument that shows relationships, causality, and flow that words alone cannot express. **The shape should BE the meaning.**
 
+## Capabilities
+
+excalibrain capabilities:
+- quick-draw: one-shot diagram from description
+- session/explore: iterative canvas, conversational chunks
+- session/architect: comprehensive multi-section meta-map
+- session/storyboard: sequential narrative frames
+- session/wireframe: screen layouts with flow
+- add-to-canvas: add a diagram/section to existing canvas
+- annotate: add reasoning/notes to a section
+- compare: show N options side by side with trade-offs
+- export: PNG/SVG of full canvas or specific region
+- inspect: report what's on a canvas, where things are
+- resume: continue an existing session
+
 ## Reference files
 
 Read these as needed — they are the ground truth for specifics:
@@ -73,19 +88,19 @@ Choose the path based on diagram type:
 1. Write the Mermaid syntax to a `.mmd` file
 2. **Flowcharts**: Always include `classDef` color classes from the recipe — without them the output is monochrome
 3. **ER diagrams**: Use `style ENTITY fill:#hex,stroke:#hex` for colored entities
-4. Run: `node ~/Documents/excalibrain/tools/mermaid-convert.js input.mmd [--theme <name>] --output diagram.excalidraw`
+4. Run: `node ${CLAUDE_PLUGIN_ROOT}/tools/mermaid-convert.js input.mmd [--theme <name>] --output diagram.excalidraw`
 5. Output is a native `.excalidraw` file with vector elements
 
 **Gantt path** (gantt charts, project timelines, sprint schedules):
 1. Write Gantt JSON to a `.json` file (see `references/diagram-recipes/gantt.md` for full format)
 2. The JSON uses a Gantt-specific format with `tasks` (id, label, start, duration, fill, stroke) and optional `dependencies`
-3. Run: `node ~/Documents/excalibrain/tools/gantt-layout.js gantt.json [--theme <name>] --output diagram.excalidraw`
+3. Run: `node ${CLAUDE_PLUGIN_ROOT}/tools/gantt-layout.js gantt.json [--theme <name>] --output diagram.excalidraw`
 4. Output is a proper Gantt chart with horizontal time axis, parallel task bars, grid lines, and dependency arrows
 
 **Dagre path** (architecture, state, mindmap):
 1. Write graph JSON to a `.json` file (see `references/graph-json-format.md` for full format)
 2. **Do NOT override `style.roughness` or `style.fontFamily`** in graph JSON unless the user explicitly asks for a clean/technical look — let the theme control these
-3. Run: `node ~/Documents/excalibrain/tools/dagre-layout.js graph.json [--theme <name>] --output diagram.excalidraw`
+3. Run: `node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js graph.json [--theme <name>] --output diagram.excalidraw`
 4. Output is a fully-positioned `.excalidraw` file with bound arrows and auto-sized nodes
 
 **Direct path** (freehand, creative, mixed):
@@ -94,7 +109,7 @@ Choose the path based on diagram type:
 
 ### 5. Validate (mandatory)
 ```bash
-node ~/Documents/excalibrain/tools/export.js diagram.excalidraw --format png --output diagram.png
+node ${CLAUDE_PLUGIN_ROOT}/tools/export.js diagram.excalidraw --format png --output diagram.png
 ```
 Read the PNG with the Read tool. Check:
 - [ ] All nodes labeled and readable

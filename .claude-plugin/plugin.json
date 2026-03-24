@@ -1,0 +1,8 @@
+{
+  "name": "excalibrain",
+  "description": "Visual intelligence layer for Claude Code — turns ideas into visual arguments using Excalidraw",
+  "author": { "name": "bhushan" },
+  "version": "2.0.0",
+  "keywords": ["excalidraw", "diagram", "visualization", "canvas", "wireframe"],
+  "skills": "./skills/"
+}
