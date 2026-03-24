@@ -18,6 +18,9 @@ echo ""
 echo "merge/position/prefix:"
 node tests/test-merge.js
 echo ""
+echo "canvas-edit.js:"
+node tests/test-canvas-edit.js
+echo ""
 echo "fast-check.js:"
 node tests/test-fast-check.js
 echo ""

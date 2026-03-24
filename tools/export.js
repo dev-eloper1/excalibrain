@@ -14,6 +14,7 @@
  *   --scale <n>        PNG scale factor (default: 2)
  *   --dark             Use dark mode
  *   --padding <n>      Export padding in px (default: 20)
+ *   --region <value>   Export a specific region: x,y,w,h or a frame name
  */
 
 const fs = require('fs');
@@ -22,7 +23,7 @@ const puppeteer = require('puppeteer');
 
 // ── CLI arg parsing ───────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
-const flags = { format: 'png', scale: 2, padding: 20, dark: false };
+const flags = { format: 'png', scale: 2, padding: 20, dark: false, region: null };
 let inputPath = null;
 
 for (let i = 0; i < args.length; i++) {
@@ -31,6 +32,7 @@ for (let i = 0; i < args.length; i++) {
   else if (args[i] === '--scale')   { flags.scale   = Number(args[++i]); }
   else if (args[i] === '--dark')    { flags.dark    = true; }
   else if (args[i] === '--padding') { flags.padding = Number(args[++i]); }
+  else if (args[i] === '--region')  { flags.region  = args[++i]; }
   else if (!args[i].startsWith('--')) { inputPath = args[i]; }
 }
 
@@ -51,6 +53,43 @@ async function main() {
   // Read input
   const inputJson = fs.readFileSync(inputPath, 'utf8');
   const data = JSON.parse(inputJson);
+
+  // Apply --region filter if specified
+  if (flags.region) {
+    let rx, ry, rw, rh;
+    if (flags.region.includes(',')) {
+      // Parse as x,y,w,h
+      const parts = flags.region.split(',').map(Number);
+      [rx, ry, rw, rh] = parts;
+    } else {
+      // Treat as frame name
+      const frame = data.elements.find(e => e.type === 'frame' && e.name === flags.region);
+      if (!frame) {
+        console.error(`Frame '${flags.region}' not found`);
+        process.exit(1);
+      }
+      rx = frame.x;
+      ry = frame.y;
+      rw = frame.width;
+      rh = frame.height;
+    }
+
+    // Filter elements to those whose bounding box intersects the region
+    data.elements = data.elements.filter(el => {
+      const ex = el.x || 0;
+      const ey = el.y || 0;
+      const ew = el.width || 0;
+      const eh = el.height || 0;
+      // AABB intersection test
+      return ex + ew > rx && ex < rx + rw && ey + eh > ry && ey < ry + rh;
+    });
+
+    // Shift remaining elements so region top-left becomes (0, 0)
+    for (const el of data.elements) {
+      el.x = (el.x || 0) - rx;
+      el.y = (el.y || 0) - ry;
+    }
+  }
 
   // Apply dark mode if requested
   if (flags.dark) {
