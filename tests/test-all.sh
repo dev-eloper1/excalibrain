@@ -12,4 +12,7 @@ echo ""
 echo "mermaid-convert.js:"
 node tests/test-mermaid.js
 echo ""
+echo "canvas-inspect.js:"
+node tests/test-canvas-inspect.js
+echo ""
 echo "All tests complete."
