@@ -35,6 +35,9 @@ let inputPath = null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--theme')  { flags.theme  = args[++i]; }
   else if (args[i] === '--output') { flags.output = args[++i]; }
+  else if (args[i] === '--prefix') { flags.prefix = args[++i]; }
+  else if (args[i] === '--position') { flags.position = args[++i]; }
+  else if (args[i] === '--merge') { flags.merge = args[++i]; }
   else if (!args[i].startsWith('--')) { inputPath = args[i]; }
 }
 
@@ -354,7 +357,8 @@ for (let i = 0; i < tasks.length; i++) {
   };
 }
 
-// ── 7. Dependency arrows ──────────────────────────────────────────────────────
+// ── 7. Dependency arrows (orthogonal routing) ────────────────────────────────
+const ARROW_GAP = 16; // horizontal gap before turning down/up
 for (let i = 0; i < dependencies.length; i++) {
   const dep = dependencies[i];
   const from = taskPositions[dep.from];
@@ -367,10 +371,41 @@ for (let i = 0; i < dependencies.length; i++) {
   const endX = to.left;
   const endY = to.cy;
 
-  const dx = endX - startX;
-  const dy = endY - startY;
-
   const arrowColor = dep.stroke ?? STYLE.defaultArrowColor;
+
+  // Build orthogonal path — all points relative to (startX, startY)
+  let points;
+  const dy = endY - startY;
+  const dx = endX - startX;
+
+  if (Math.abs(dy) < 2) {
+    // Same row — straight horizontal
+    points = [[0, 0], [+(dx).toFixed(1), 0]];
+  } else if (dx > ARROW_GAP * 2) {
+    // Target starts well after source ends — route: right → down → right
+    const midX = dx / 2;
+    points = [
+      [0, 0],
+      [+(midX).toFixed(1), 0],
+      [+(midX).toFixed(1), +(dy).toFixed(1)],
+      [+(dx).toFixed(1), +(dy).toFixed(1)],
+    ];
+  } else {
+    // Target overlaps or is close — route from bottom/top of source bar
+    // Go down from source bottom, then horizontal to target left edge
+    const vertDir = dy > 0 ? 1 : -1;
+    const sourceEdgeY = vertDir > 0 ? (from.y + from.h - startY) : (from.y - startY);
+    const targetEdgeY = vertDir > 0 ? (to.y - startY) : (to.y + to.h - startY);
+    const startOffsetX = -(from.w / 2); // move start to center-bottom of source
+    const endOffsetX = endX - startX;
+    const midY = (sourceEdgeY + targetEdgeY) / 2;
+    points = [
+      [+(startOffsetX).toFixed(1), 0],
+      [+(startOffsetX).toFixed(1), +(midY).toFixed(1)],
+      [+(endOffsetX).toFixed(1), +(midY).toFixed(1)],
+      [+(endOffsetX).toFixed(1), +(dy).toFixed(1)],
+    ];
+  }
 
   const arrowEl = {
     ...base(arrowId, 'arrow', startX, startY, 0, 0, {
@@ -385,7 +420,7 @@ for (let i = 0; i < dependencies.length; i++) {
     }),
     width: Math.abs(dx),
     height: Math.abs(dy),
-    points: [[0, 0], [+dx.toFixed(1), +dy.toFixed(1)]],
+    points,
     startBinding: null,
     endBinding: null,
     startArrowhead: null,
@@ -395,17 +430,56 @@ for (let i = 0; i < dependencies.length; i++) {
   elements.push(arrowEl);
 }
 
+// ── Apply --prefix ────────────────────────────────────────────────────────────
+if (flags.prefix) {
+  const p = flags.prefix;
+  for (const el of elements) {
+    el.id = p + el.id;
+    if (el.containerId) el.containerId = p + el.containerId;
+    if (el.frameId) el.frameId = p + el.frameId;
+    if (el.boundElements) {
+      el.boundElements = el.boundElements.map(ref => ({ ...ref, id: p + ref.id }));
+    }
+    if (el.startBinding && el.startBinding.elementId) {
+      el.startBinding = { ...el.startBinding, elementId: p + el.startBinding.elementId };
+    }
+    if (el.endBinding && el.endBinding.elementId) {
+      el.endBinding = { ...el.endBinding, elementId: p + el.endBinding.elementId };
+    }
+  }
+}
+
+// ── Apply --position ──────────────────────────────────────────────────────────
+if (flags.position) {
+  const [ox, oy] = flags.position.split(',').map(Number);
+  for (const el of elements) {
+    el.x += ox;
+    el.y += oy;
+  }
+}
+
 // ── Output Excalidraw JSON ────────────────────────────────────────────────────
+let finalElements = elements;
+let appState = {
+  viewBackgroundColor: canvasBackground,
+  gridSize: 20,
+};
+let files = {};
+
+if (flags.merge) {
+  const existing = JSON.parse(fs.readFileSync(flags.merge, 'utf8'));
+  finalElements = existing.elements.concat(elements);
+  appState = existing.appState || appState;
+  files = existing.files || files;
+}
+
 const output = {
   type: 'excalidraw',
   version: 2,
   source: 'https://excalidraw.com',
-  elements,
-  appState: {
-    viewBackgroundColor: canvasBackground,
-    gridSize: 20,
-  },
-  files: {},
+  elements: finalElements,
+  appState,
+  files,
 };
 
 const outJson = JSON.stringify(output, null, 2);

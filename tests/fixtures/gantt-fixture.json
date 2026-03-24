@@ -1,0 +1,9 @@
+{
+  "title": "Test Sprint",
+  "columns": 3,
+  "timeUnit": "Week",
+  "tasks": [
+    { "id": "t1", "label": "Design", "start": 1, "duration": 1, "fill": "#dbeafe", "stroke": "#3b82f6" },
+    { "id": "t2", "label": "Build", "start": 1, "duration": 2, "fill": "#dcfce7", "stroke": "#22c55e" }
+  ]
+}

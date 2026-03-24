@@ -23,6 +23,9 @@ let inputPath = null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--output') { flags.output = args[++i]; }
   else if (args[i] === '--theme') { flags.theme = args[++i]; }
+  else if (args[i] === '--prefix') { flags.prefix = args[++i]; }
+  else if (args[i] === '--position') { flags.position = args[++i]; }
+  else if (args[i] === '--merge') { flags.merge = args[++i]; }
   else if (!args[i].startsWith('--')) { inputPath = args[i]; }
 }
 
@@ -103,17 +106,56 @@ async function main() {
     // elements. No custom post-processing needed here.
     const allElements = result.elements;
 
-    // Wrap in .excalidraw format
+    // ── Apply --prefix ──────────────────────────────────────────────────────
+    if (flags.prefix) {
+      const p = flags.prefix;
+      for (const el of allElements) {
+        el.id = p + el.id;
+        if (el.containerId) el.containerId = p + el.containerId;
+        if (el.frameId) el.frameId = p + el.frameId;
+        if (el.boundElements) {
+          el.boundElements = el.boundElements.map(ref => ({ ...ref, id: p + ref.id }));
+        }
+        if (el.startBinding && el.startBinding.elementId) {
+          el.startBinding = { ...el.startBinding, elementId: p + el.startBinding.elementId };
+        }
+        if (el.endBinding && el.endBinding.elementId) {
+          el.endBinding = { ...el.endBinding, elementId: p + el.endBinding.elementId };
+        }
+      }
+    }
+
+    // ── Apply --position ────────────────────────────────────────────────────
+    if (flags.position) {
+      const [ox, oy] = flags.position.split(',').map(Number);
+      for (const el of allElements) {
+        el.x += ox;
+        el.y += oy;
+      }
+    }
+
+    // ── Merge or wrap in .excalidraw format ─────────────────────────────────
+    let finalElements = allElements;
+    let appState = {
+      viewBackgroundColor: canvasBackground,
+      gridSize: 20,
+    };
+    let files = result.files || {};
+
+    if (flags.merge) {
+      const existing = JSON.parse(fs.readFileSync(flags.merge, 'utf8'));
+      finalElements = existing.elements.concat(allElements);
+      appState = existing.appState || appState;
+      files = { ...(existing.files || {}), ...files };
+    }
+
     const output = {
       type: 'excalidraw',
       version: 2,
       source: 'https://excalidraw.com',
-      elements: allElements,
-      appState: {
-        viewBackgroundColor: canvasBackground,
-        gridSize: 20,
-      },
-      files: result.files || {},
+      elements: finalElements,
+      appState,
+      files,
     };
 
     fs.writeFileSync(flags.output, JSON.stringify(output, null, 2));
