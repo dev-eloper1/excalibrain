@@ -989,6 +989,155 @@ function generateLabel(p) {
   })];
 }
 
+// ── Generic shape primitives (for freeform layouts) ─────────────────────────
+
+function generateRectangle(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const w = p.width || 180, h = p.height || 70;
+  const elements = [];
+  const boxId = nextId();
+
+  elements.push(rect(boxId, x, y, w, h, {
+    fill: p.fill || 'transparent',
+    stroke: p.stroke || '#1e1e1e',
+    strokeWidth: p.strokeWidth || 2,
+    roughness: p.roughness !== undefined ? p.roughness : 1,
+    rounded: p.rounded || false,
+  }));
+
+  if (p.label) {
+    const fontSize = p.fontSize || 16;
+    const lines = p.label.split('\n');
+    const textH = lines.length * fontSize * 1.25;
+    elements.push(text(nextId(), x, y + (h - textH) / 2, w, textH, p.label, {
+      fontSize,
+      color: p.textColor || p.stroke || '#1e1e1e',
+      textAlign: 'center',
+      verticalAlign: 'middle',
+      containerId: boxId,
+    }));
+    elements[0].boundElements = [{ id: elements[1].id, type: 'text' }];
+  }
+
+  return elements;
+}
+
+function generateEllipse(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const w = p.width || 160, h = p.height || 70;
+  const elements = [];
+  const eid = nextId();
+
+  elements.push(ellipse(eid, x, y, w, h, {
+    fill: p.fill || 'transparent',
+    stroke: p.stroke || '#1e1e1e',
+    strokeWidth: p.strokeWidth || 2,
+    roughness: p.roughness !== undefined ? p.roughness : 1,
+  }));
+
+  if (p.label) {
+    const fontSize = p.fontSize || 16;
+    const lines = p.label.split('\n');
+    const textH = lines.length * fontSize * 1.25;
+    elements.push(text(nextId(), x, y + (h - textH) / 2, w, textH, p.label, {
+      fontSize,
+      color: p.textColor || p.stroke || '#1e1e1e',
+      textAlign: 'center',
+      verticalAlign: 'middle',
+      containerId: eid,
+    }));
+    elements[0].boundElements = [{ id: elements[1].id, type: 'text' }];
+  }
+
+  return elements;
+}
+
+function generateTextBlock(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const content = p.text || '';
+  const fontSize = p.fontSize || 16;
+  const fontFamily = p.fontFamily || 1;
+  const lines = content.split('\n');
+  const maxLen = Math.max(...lines.map(l => l.length));
+  const w = p.width || Math.max(100, maxLen * fontSize * 0.6 + 20);
+  const h = lines.length * fontSize * 1.25;
+
+  return [text(nextId(), x, y, w, h, content, {
+    fontSize,
+    fontFamily,
+    color: p.color || '#1e1e1e',
+    textAlign: p.textAlign || 'left',
+    verticalAlign: 'top',
+  })];
+}
+
+function generateArrow(p) {
+  const fromX = p.fromX || 0, fromY = p.fromY || 0;
+  const toX = p.toX || 100, toY = p.toY || 0;
+  const dx = toX - fromX, dy = toY - fromY;
+
+  const arrowId = nextId();
+  const elements = [];
+
+  const arrowEl = {
+    id: arrowId,
+    type: 'arrow',
+    x: fromX, y: fromY,
+    width: Math.abs(dx),
+    height: Math.abs(dy),
+    points: [[0, 0], [dx, dy]],
+    strokeColor: p.stroke || '#1e1e1e',
+    backgroundColor: 'transparent',
+    fillStyle: 'solid',
+    strokeWidth: p.strokeWidth || 2,
+    strokeStyle: p.style || 'solid',
+    roughness: p.roughness !== undefined ? p.roughness : 1,
+    opacity: 100,
+    roundness: null,
+    seed: Math.floor(Math.random() * 100000),
+    version: 1,
+    versionNonce: Math.floor(Math.random() * 1000000000),
+    isDeleted: false,
+    boundElements: null,
+    groupIds: [],
+    frameId: null,
+    link: null,
+    locked: false,
+    startBinding: null,
+    endBinding: null,
+    startArrowhead: null,
+    endArrowhead: p.arrowhead !== undefined ? p.arrowhead : 'triangle',
+    elbowed: false,
+  };
+  elements.push(arrowEl);
+
+  if (p.label) {
+    const fontSize = p.fontSize || 14;
+    const midX = fromX + dx / 2;
+    const midY = fromY + dy / 2;
+    const labelW = p.label.length * fontSize * 0.6 + 10;
+    elements.push(text(nextId(), midX - labelW / 2, midY - fontSize, labelW, fontSize * 1.25, p.label, {
+      fontSize,
+      color: p.stroke || '#1e1e1e',
+      textAlign: 'center',
+      verticalAlign: 'middle',
+    }));
+  }
+
+  return elements;
+}
+
+function generateLine(p) {
+  const x = p.x || 0, y = p.y || 0;
+  const pts = p.points || [[0, 0], [100, 0]];
+
+  return [line(nextId(), x, y, pts, {
+    stroke: p.stroke || '#e5e7eb',
+    strokeWidth: p.strokeWidth || 1,
+    roughness: p.roughness !== undefined ? p.roughness : 1,
+  })];
+}
+
 // ── Primitive registry ───────────────────────────────────────────────────────
 const PRIMITIVES = {
   screen: generateScreen,
@@ -1019,6 +1168,12 @@ const PRIMITIVES = {
   'furniture:fridge': generateFridge,
   dimension: generateDimension,
   label: generateLabel,
+  // Generic shape primitives (for freeform layouts)
+  rectangle: generateRectangle,
+  ellipse: generateEllipse,
+  'text-block': generateTextBlock,
+  arrow: generateArrow,
+  'line': generateLine,
 };
 
 // ── Generate all elements ────────────────────────────────────────────────────

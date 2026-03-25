@@ -87,6 +87,29 @@ Tell the user what you will draw and which diagram type, before touching any too
 
 Read `references/diagram-type-rubric.md` if uncertain.
 
+**When multiple rows match — resolve the tie before building.**
+
+Content often has multiple facets (e.g., auth has both participants exchanging messages AND branching logic). Different diagram types emphasize different aspects:
+
+- **Sequence** emphasizes: who talks to whom, in what order, what the timing looks like
+- **Flowchart** emphasizes: what decisions are made, what paths exist, how failures branch
+- **Architecture** emphasizes: what components exist, how they connect statically
+
+How to resolve ties depends on the mode:
+
+**Explore mode (interactive):** Ask the user. Present the trade-off in one sentence and let them choose:
+
+*"The auth flow has both multiple participants (Gateway, Auth Service, Redis) and branching logic (valid? expired? revoked?). A sequence diagram would show who talks to whom and when. A flowchart would show all the failure paths. Which matters more to you?"*
+
+This takes 5 seconds and avoids building the wrong diagram type.
+
+**Architect / Storyboard mode (parallel):** Resolve ties during the planning phase (step 2), NOT during sub-agent execution. The master agent lists each section with its chosen diagram type and justification in the plan. The user confirms the plan before any sub-agents are dispatched. Sub-agents receive an already-decided type — they never hit a tie.
+
+Example plan entry:
+*"Section 3: JWT Auth — sequence diagram (4 participants exchanging messages; branching shown via alt blocks)"*
+
+If the user disagrees with a type choice in the plan, they redirect before parallel build begins.
+
 **When to use freeform** (the last row):
 - Comparison tables / side-by-side columns with aligned rows
 - Geographic or spatial layouts where position IS the argument (region maps, deployment zones)

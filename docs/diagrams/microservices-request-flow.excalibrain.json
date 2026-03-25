@@ -1,0 +1,134 @@
+{
+  "canvas": "microservices-request-flow.excalidraw",
+  "mode": "explore",
+  "theme": "default",
+  "created": "2026-03-24T00:00:00Z",
+  "lastUpdated": "2026-03-24T00:15:00Z",
+  "diagramLocation": "docs/diagrams",
+  "sections": [
+    {
+      "id": "client-gateway",
+      "label": "\u2460 Client \u2192 Gateway",
+      "mode": "explore",
+      "boundingBox": { "x": -32, "y": -42, "w": 804, "h": 774 },
+      "elementPrefix": "client_",
+      "elementCount": 6,
+      "annotations": [],
+      "decisions": [
+        "Three client types: browser, mobile, 3rd-party API consumer",
+        "Edge layer (CDN + LB) sits between clients and gateway",
+        "API Gateway is the single entry point \u2014 handles routing, auth, rate limiting"
+      ]
+    },
+    {
+      "id": "service-mesh",
+      "label": "\u2461 Service Mesh",
+      "mode": "explore",
+      "boundingBox": { "x": -32, "y": 920, "w": 940, "h": 965 },
+      "elementPrefix": "svcmesh_",
+      "elementCount": 8,
+      "annotations": ["Synchronous calls use gRPC for speed, REST for payments (3rd-party SDK constraint)"],
+      "decisions": [
+        "Order Service is the hub \u2014 orchestrates user, product, and payment lookups",
+        "Async layer (message queue) decouples payment confirmations and notifications",
+        "Service mesh sidecars handle discovery and circuit breaking transparently"
+      ]
+    },
+    {
+      "id": "data-layer",
+      "label": "\u2462 Data Layer",
+      "mode": "explore",
+      "boundingBox": { "x": -32, "y": 2145, "w": 2008, "h": 383 },
+      "elementPrefix": "data_",
+      "elementCount": 11,
+      "annotations": ["Payments DB is PCI-isolated: separate network, encrypted at rest, audit logging"],
+      "decisions": [
+        "Database-per-service: each service owns its schema exclusively",
+        "PostgreSQL for relational data (users, orders, payments), MongoDB for flexible product catalog",
+        "Redis shared for sessions, rate limiting, and caching \u2014 acceptable shared dependency",
+        "Elasticsearch synced from Product Service for full-text search"
+      ]
+    },
+    {
+      "id": "observability",
+      "label": "\u2463 Observability",
+      "mode": "explore",
+      "boundingBox": { "x": -32, "y": 2788, "w": 874, "h": 818 },
+      "elementPrefix": "obs_",
+      "elementCount": 9,
+      "annotations": ["Correlation ID assigned at gateway propagates through all services, tying signals together"],
+      "decisions": [
+        "Three pillars: traces (OpenTelemetry), structured logs (JSON), metrics (counters/histograms)",
+        "OpenTelemetry Collector as the unified pipeline for traces and metrics",
+        "Fluentd/Vector for log aggregation \u2014 separate pipeline because logs are high-volume",
+        "Grafana alerts \u2192 PagerDuty for on-call escalation"
+      ]
+    },
+    {
+      "id": "order-zoom",
+      "label": "\u2464 Zoom: Order Service Internals",
+      "mode": "explore",
+      "boundingBox": { "x": -32, "y": 3866, "w": 1036, "h": 1701 },
+      "elementPrefix": "ordrzm_",
+      "elementCount": 12,
+      "annotations": [
+        "Saga pattern: each step has a compensating action, failures run compensation in reverse order",
+        "5-min TTL on inventory hold prevents phantom stock"
+      ],
+      "decisions": [
+        "Saga orchestration over choreography \u2014 Order Service controls the sequence explicitly",
+        "Optimistic locking with TTL for inventory reservation (not pessimistic DB locks)",
+        "Compensation runs in reverse: refund first, then release inventory",
+        "Events emitted only after DB confirm \u2014 no premature notifications"
+      ]
+    },
+    {
+      "id": "full-round-trip",
+      "label": "\u2465 Full Round Trip (Sequence)",
+      "mode": "explore",
+      "boundingBox": { "x": -40, "y": 5827, "w": 2426, "h": 1542 },
+      "elementPrefix": "resp_",
+      "elementCount": 102,
+      "annotations": [
+        "Sequence ties together sections \u2460\u2461\u2464 into one timeline",
+        "Solid arrows = requests, dashed arrows = responses",
+        "Async events fire after response returns to client"
+      ],
+      "decisions": [
+        "Sequence diagram chosen over flowchart \u2014 shows participants and time, not just transformations",
+        "10 participants cover the full stack from client to notification",
+        "Async events shown with -) arrow \u2014 fire-and-forget after main response"
+      ]
+    },
+    {
+      "id": "jwt-auth",
+      "label": "\u2466 JWT Authentication",
+      "mode": "explore",
+      "boundingBox": { "x": -40, "y": 7629, "w": 1211, "h": 2884 },
+      "elementPrefix": "authsq_,authfl_",
+      "elementCount": 113,
+      "annotations": [
+        "Two sub-sections: sequence diagram (who calls whom) + flowchart (decision logic)",
+        "Redis blacklist adds revocation to stateless JWT auth",
+        "Four error exits: missing token, bad signature, expired, revoked"
+      ],
+      "decisions": [
+        "Sequence diagram for message flow \u2014 shows 4 participants over time with alt blocks for error paths",
+        "Flowchart for validation logic \u2014 branching decisions are best argued as a decision tree",
+        "Redis blacklist check makes JWT revocation possible without making auth stateful",
+        "Separate 401 (auth failure) vs 403 (authorization/revocation) HTTP status codes"
+      ]
+    }
+  ],
+  "researchZone": {
+    "boundingBox": { "x": 0, "y": -200, "w": 1200, "h": 180 },
+    "findings": []
+  },
+  "connections": [
+    {
+      "from": "full-round-trip",
+      "to": "jwt-auth",
+      "label": "auth deep-dive"
+    }
+  ]
+}
