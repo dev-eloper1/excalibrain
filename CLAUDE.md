@@ -2,6 +2,12 @@
 
 A Claude Code plugin that turns ideas and code into visual arguments using Excalidraw.
 
+## Philosophy
+
+**"The agent should think BY drawing, not stop thinking TO draw."**
+
+Visual creation must be native to reasoning, not an external tool call. Components exist to make the agent forget about elements and think about ideas. Speed > polish for explore mode. See `docs/PHILOSOPHY.md` for the full philosophy, progressive levels (component abstraction → inline visual thinking → visual dialogue → visual fluency), and implementation paths.
+
 ## What is this?
 
 This is a **Claude Code plugin** -- a set of skills, commands, agents, and hooks that teach Claude how to create high-quality Excalidraw diagrams.
@@ -72,6 +78,7 @@ examples/              Example diagrams (architecture, flowchart, ER, etc.)
 scripts/
   build-bundle.js      Builds excalidraw-bundle.js
 docs/
+  PHILOSOPHY.md        Visual thinking philosophy and implementation paths
   PLAN.md              Development plan
 ```
 
