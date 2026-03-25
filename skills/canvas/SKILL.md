@@ -91,11 +91,22 @@ console.log(JSON.stringify(bbox));
 
 Record `w` and `h` — you need these for layout and frame sizing.
 
-#### 3. Compute position
+#### 3. Compute layout and rebuild canvas
 
-**First section:** Place at `(0, 0)`.
+**Every time a section is added, recompute the ENTIRE canvas layout.** Do not just stack below — the canvas should always have the best possible layout for however many sections exist.
 
-**Subsequent sections:** Use `flexboxLayout()` to compute positions for ALL sections (existing + new) based on their measured sizes:
+**Process:**
+
+1. **Collect all section sizes** — the new section (just measured in step 2) plus all existing sections from the sidecar. If existing section sizes aren't in the sidecar, re-measure them with `canvas-inspect.js --summary` (get bbox per prefix group, use `measureVisibleBbox` for mermaid sections).
+
+2. **Determine row assignments** — group sections thematically:
+   - 1 section: single row, centered
+   - 2 sections: two rows, each centered (or side-by-side if both are narrow)
+   - 3 sections: row 1 (establishing), row 2 (pair or single), row 3
+   - 4+ sections: row 1 (establishing wide), row 2+ (paired by theme), last row (concluding wide)
+   - Related sections share a row (e.g., overview + detail, structure + behavior)
+
+3. **Compute positions with `flexboxLayout()`:**
 
 ```javascript
 const { flexboxLayout } = require('${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js');
@@ -103,24 +114,37 @@ const layout = flexboxLayout({
   sections: [/* {w, h} for each section in reading order */],
   canvasWidth: /* widest section's width */,
   rowGap: 300,
-  rowAssignments: [/* group sections into rows thematically */]
+  rowAssignments: [/* e.g., [[0], [1,2], [3]] */]
 });
+// layout.positions = [{x, y}, ...] for each section
 ```
 
-**Row assignment rules:**
-- First section alone in row 1 (establishing shot)
-- Related pairs share a row (e.g., architecture + sequence for same subsystem)
-- Concluding/summary section alone in last row
-- When only 2-3 sections, stack vertically (each in its own row)
-
-**If repositioning existing sections is too complex** (e.g., 2nd section being added), use a simpler approach: place 300px below the previous section's bottom edge, horizontally offset if the new section is narrower.
-
-#### 4. Assemble into canvas with --frame-id
-
-Build the section into the canvas with `--frame-id` so frame containment is baked in:
+4. **Rebuild the entire canvas** from source JSON files at the computed positions:
 
 ```bash
-# First section — creates the canvas
+# Strip composition elements from previous layout
+node ${CLAUDE_PLUGIN_ROOT}/tools/canvas-edit.js <canvas> strip-prefix comp_
+
+# Section 1 — creates canvas (no --merge)
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <section1.json> \
+  --prefix <prefix1> --position <x1>,<y1> --frame-id frame_<prefix1> \
+  --output <canvas>
+
+# Sections 2-N — merge
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <sectionN.json> \
+  --merge <canvas> --prefix <prefixN> --position <xN>,<yN> --frame-id frame_<prefixN> \
+  --output <canvas>
+```
+
+**This means keeping all section input JSON files** (graph JSON, .mmd files) in `/tmp/` for the duration of the session so sections can be rebuilt at new positions. Track input file paths in the sidecar.
+
+**Why rebuild instead of moving?** Moving individual elements is error-prone (arrows, zones, annotations have complex coordinate relationships). Rebuilding from source JSON at new positions is atomic and correct — dagre/mermaid handles all internal layout.
+
+#### 4. *(merged into step 3 above)*
+
+The assembly step is now part of step 3's rebuild process. Every section is built with:
+
+```bash
 node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
   --prefix <section_prefix> \
   --position <x>,<y> \
