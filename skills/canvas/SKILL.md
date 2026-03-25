@@ -58,190 +58,153 @@ Read these as needed — they are the ground truth:
 
 ## Explore Mode Workflow
 
+**Philosophy:** The agent thinks BY drawing, not stops TO draw. Each turn adds one section — the canvas grows as the conversation deepens. Use `library-resolve.js` components for all composition elements. Use `--frame-id` on every section build. Use 300px gaps. The infinite canvas is your friend — spread out.
+
 ### Session Loop
 
 Repeat for each turn:
 
 #### 1. State what's next
 
-Tell the user what you will draw and why before touching any tool.
+Tell the user what you will draw and which diagram type, before touching any tool.
 
-*"Next I'll add the authentication flow — it's the entry point users hit first, so it anchors the diagram."*
+*"Next I'll add the authentication flow as a flowchart — it has branching logic (valid token? → yes/no) that a flowchart argues best."*
 
-#### 2. Find free space
+#### 2. Build the section to a temp file and measure
 
-Run canvas-inspect to see what is already on the canvas and where free space is:
+**Always build standalone first, then measure.** Never guess sizes.
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/canvas-inspect.js <canvas.excalidraw>
+# Build to temp file (no --merge yet)
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
+  --prefix <section_prefix> \
+  --output /tmp/<prefix>-sizing.excalidraw
+
+# Measure the VISIBLE bbox (excludes arrows which inflate mermaid output)
+node -e "
+const { measureVisibleBbox } = require('${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js');
+const canvas = JSON.parse(require('fs').readFileSync('/tmp/<prefix>-sizing.excalidraw','utf8'));
+const bbox = measureVisibleBbox(canvas.elements);
+console.log(JSON.stringify(bbox));
+"
 ```
 
-Parse the output for:
-- Existing element bounding boxes
-- Available free-space regions with coordinates
-- Element count and prefix groups
+Record `w` and `h` — you need these for layout and frame sizing.
 
-If this is the first section on a new canvas, start at `0,0`.
+#### 3. Compute position
 
-#### 3. Generate the diagram section
+**First section:** Place at `(0, 0)`.
 
-Choose the appropriate tool based on diagram type (read `references/diagram-type-rubric.md` if unsure), then run it with merge flags:
+**Subsequent sections:** Use `flexboxLayout()` to compute positions for ALL sections (existing + new) based on their measured sizes:
+
+```javascript
+const { flexboxLayout } = require('${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js');
+const layout = flexboxLayout({
+  sections: [/* {w, h} for each section in reading order */],
+  canvasWidth: /* widest section's width */,
+  rowGap: 300,
+  rowAssignments: [/* group sections into rows thematically */]
+});
+```
+
+**Row assignment rules:**
+- First section alone in row 1 (establishing shot)
+- Related pairs share a row (e.g., architecture + sequence for same subsystem)
+- Concluding/summary section alone in last row
+- When only 2-3 sections, stack vertically (each in its own row)
+
+**If repositioning existing sections is too complex** (e.g., 2nd section being added), use a simpler approach: place 300px below the previous section's bottom edge, horizontally offset if the new section is narrower.
+
+#### 4. Assemble into canvas with --frame-id
+
+Build the section into the canvas with `--frame-id` so frame containment is baked in:
 
 ```bash
+# First section — creates the canvas
+node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
+  --prefix <section_prefix> \
+  --position <x>,<y> \
+  --frame-id <frame_id> \
+  --output <canvas.excalidraw>
+
+# Subsequent sections — merge into existing canvas
 node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
   --merge <canvas.excalidraw> \
-  --position <x>,<y> \
   --prefix <section_prefix> \
+  --position <x>,<y> \
+  --frame-id <frame_id> \
   --output <canvas.excalidraw>
 ```
 
-Flags:
-- `--merge <canvas>` — add to the existing canvas instead of overwriting
-- `--position <x>,<y>` — place the section in free space (from step 2)
-- `--prefix <str>` — ID namespace for this section. Derive from the section name, max 8 chars. Examples: "auth" -> `auth_`, "data-layer" -> `dl_`, "api-gateway" -> `apigw_`
-- `--output <canvas>` — write back to the same canvas file
+**CRITICAL flags:**
+- `--frame-id <frame_id>` — ALL elements get `frameId` baked in at creation. Format: `frame_<prefix>` (e.g., `frame_auth`). This is what makes content move with the frame.
+- `--prefix <str>` — ID namespace. Max 8 chars.
+- `--position <x>,<y>` — from step 3
 
-#### 4. Add annotations
+For mermaid diagrams, use `mermaid-convert.js` with the same flags:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/mermaid-convert.js <input.mmd> \
+  --merge <canvas.excalidraw> \
+  --prefix <section_prefix> \
+  --position <x>,<y> \
+  --frame-id <frame_id> \
+  --output <canvas.excalidraw>
+```
 
-After the tool writes, add local annotations near the diagram section:
+#### 5. Add composition via library-resolve.js
 
-1. Read the canvas JSON
-2. Add text elements at coordinates near the section (offset 10-20px from the section bounding box edge)
-3. Write the canvas back
+After assembling the section, add composition elements. Create a JSON file with components and merge:
 
-**Annotation style:**
-- Font size: 14px
-- Font family: hand-drawn (Virgil) to match Excalidraw default
-- Color: `#6b7280` (gray-500)
-- Position: just below or beside the relevant section
-- Content: short reasoning phrases — "Chose X because Y", "This connects to Z via..."
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js <composition.json> \
+  --merge <canvas.excalidraw> \
+  --output <canvas.excalidraw>
+```
 
-#### 5. Update sidecar
+The composition JSON includes whichever of these are needed for this turn:
+
+**a) Canvas title** (first section only):
+```json
+{"type": "canvas-title", "title": "CANVAS NAME", "subtitle": "description", "x": 30, "y": -80}
+```
+
+**b) Section frame** (every section):
+Size from measured bbox + 40px padding each side.
+```json
+{"type": "section-frame", "name": "① Section Name", "x": bbox.x-40, "y": bbox.y-40, "width": bbox.w+80, "height": bbox.h+80, "id": "frame_<prefix>"}
+```
+
+**c) Spine arrow** (from second section onwards):
+Connect the previous frame to this frame. Use frame center coordinates — Excalidraw's binding system recalculates to frame borders in the editor. **Always 2-point straight lines** — no curves, no L-shapes.
+```json
+{"type": "spine-arrow", "fromX": prev_cx, "fromY": prev_bottom, "toX": this_cx, "toY": this_top, "label": "transition text", "fromId": "frame_prev", "toId": "frame_this"}
+```
+
+**d) Post-it notes** (when there's an insight to capture):
+Place in the 300px gap between frames, outside all frames.
+```json
+{"type": "postit", "text": "key insight or decision", "x": gap_x, "y": gap_y}
+```
+
+**e) Margin notes** (optional, for quiet meta-observations):
+```json
+{"type": "margin-note", "text": "quiet observation", "x": right_margin, "y": some_y}
+```
+
+**The library-resolve.js post-merge pass automatically handles:**
+- Frame containment: assigns `frameId` to elements inside frame bounds (for primitives.js which doesn't support `--frame-id`)
+- Arrow binding: registers `boundElements` on frames for all arrows with `startBinding`/`endBinding`
+- Sub-frame groupIds: assigns sub-frame group to contained elements
+
+#### 6. Update sidecar
 
 Write or update the `.excalibrain.json` file with the new section info (see Sidecar Management below).
 
-#### 6. Explain
+#### 7. Explain
 
 Brief chat message about what was drawn and why. Keep it to 2-3 sentences. Reference specific nodes or connections if helpful.
 
-#### 6.5. Composition pass (when 3+ sections exist)
-
-After the third section is placed (and on every subsequent section), add canvas-level composition. Strip any existing `comp_` prefixed elements first, then regenerate.
-
-**Philosophy:** Only add elements that are either truly bound to frames (arrows) or explicitly independent (floating notes). Never add static grouping elements (bands, cards, dividers) that imply dynamic relationships they can't deliver — they break when frames move.
-
-**a) Frames:**
-
-Wrap each section in a named Excalidraw frame element:
-
-```json
-{
-  "type": "frame",
-  "name": "① Section Name",
-  "x": bbox.x - 40,
-  "y": bbox.y - 40,
-  "width": bbox.w + 80,
-  "height": bbox.h + 80
-}
-```
-
-- 40px padding around section content
-- Numbered names (①②③...) matching reading order
-- All section elements get `frameId` pointing to their containing frame
-- Frames enable navigation in Excalidraw's UI
-
-**b) Spine arrows (bound to frames):**
-
-Connect frames in reading order using `library-resolve.js`'s `spineArrow` component:
-
-```bash
-node /Users/bhushan/Documents/excalibrain/tools/library-resolve.js spine-arrow \
-  --fromX <frame_right> --fromY <frame_cy> \
-  --toX <next_frame_left> --toY <next_frame_cy> \
-  --label "transition text" \
-  --fromId <frame_id> --toId <next_frame_id>
-```
-
-Rules:
-- Arrows use `startBinding`/`endBinding` to bind to frames — they move when frames move
-- Arrow + label are grouped via `groupIds` — they move as one unit
-- Only curve when there's a directional change (diagonal paths). Straight for vertical/horizontal.
-- Curves use perpendicular bulge: control points pushed sideways off the straight-line path
-- Transition labels are 20px Virgil in deep indigo (#4f46e5) — they guide the reading flow and should be the most prominent text after section titles
-- Start/end arrows at frame edges, not centers
-
-**c) Margin notes (post-it style):**
-
-Add contextual annotations in the gaps between frames using `library-resolve.js`'s `postit` component:
-
-```bash
-node /Users/bhushan/Documents/excalibrain/tools/library-resolve.js postit \
-  --text "reasoning or insight" --x <gap_x> --y <gap_y>
-```
-
-Rules:
-- Cascadia monospace font (fontFamily 3), 13px — distinct from Virgil diagram content
-- Yellow background (#fef9c3) with amber stroke (#e5be47), roughness 1
-- Background + text grouped via `groupIds` — they move as one
-- Placed OUTSIDE frames (frameId: null) — they're marginalia, not content
-- Check for collisions with arrows and other notes before placing
-- Content: reasoning phrases, key decisions, insights — not descriptions of what's shown
-
-**d) Canvas title:**
-
-Add a title above all frames using `library-resolve.js`'s `canvasTitle` component:
-
-```bash
-node /Users/bhushan/Documents/excalibrain/tools/library-resolve.js canvas-title \
-  --title "CANVAS NAME" --subtitle "description" --x 30 --y -80
-```
-
-- 32px Helvetica title, 15px Virgil subtitle, grouped
-- Placed above and outside all frames
-
-**e) Layout algorithm (flexbox-inspired):**
-
-When positioning sections, use CSS flexbox mental model:
-
-```
-Canvas width = max section width (set by widest section)
-
-For paired rows (2 sections side by side):
-  - justify-content: space-evenly
-  - total_space = canvas_width - section1_width - section2_width
-  - gap = total_space / 3  (equal space left, middle, right)
-  - Vertically center shorter section within row height
-
-For single-section rows (bookends):
-  - Full width or centered
-
-Row gaps: 300px minimum (infinite canvas — let arrows breathe)
-```
-
-**f) What NOT to add:**
-
-- No phase bands / background rectangles (they don't move with frames)
-- No cards / header bars around sections (visual noise)
-- No styled pills for transition labels (over-designed)
-- No static divider lines (imply structure they can't deliver)
-- No badge-banners (plain frame names are sufficient)
-
-**g) Visual hierarchy (font stack):**
-
-| Role | Font | Size | Color |
-|------|------|------|-------|
-| Spine arrow labels | Virgil (1) | 20px | #4f46e5 (deep indigo) |
-| Diagram content | Virgil (1) | 14-16px | varies |
-| Post-it notes | Cascadia (3) | 13px | #1e293b on #fef9c3 |
-| Canvas title | Helvetica (2) | 32px | #0f172a |
-| Canvas subtitle | Virgil (1) | 15px | #94a3b8 |
-
-**When NOT to run this pass:**
-- Fewer than 3 sections on the canvas
-- The user explicitly asks to skip composition
-- The canvas is in architect, storyboard, wireframe, or compare mode (those have their own composition strategies)
-
-#### 7. Check in
+#### 8. Check in
 
 Ask the user what to do next:
 
@@ -252,6 +215,39 @@ Ask the user what to do next:
 - *Redo — I'll redo this section differently*
 - *Export — generate a PNG or SVG*
 - *Done — wrap up the session"*
+
+### Composition Rules (all modes)
+
+**What TO add:**
+- Frames (named, navigable)
+- Spine arrows (2-point straight, bound to frames via fromId/toId)
+- Post-it notes (yellow bg, monospace text, grouped bg+text)
+- Canvas title (grouped title+subtitle)
+- Margin notes (muted floating text)
+
+**What NOT to add:**
+- No phase bands / background rectangles (don't move with frames)
+- No cards / header bars (visual noise)
+- No styled pills (over-designed)
+- No static divider lines (false structure)
+- No curved or L-shaped arrows (pin to canvas, don't move with frames)
+- No badge-banners (frame names are sufficient)
+
+**Visual hierarchy (font stack):**
+
+| Role | Font | Size | Color |
+|------|------|------|-------|
+| Spine arrow labels | Virgil (1) | 20px | #4f46e5 (deep indigo) |
+| Diagram content | Virgil (1) | 14-16px | varies |
+| Post-it notes | Cascadia (3) | 13px | #1e293b on #fef9c3 |
+| Canvas title | Helvetica (2) | 32px | #0f172a |
+| Canvas subtitle | Virgil (1) | 15px | #94a3b8 |
+
+**Layout rules:**
+- 300px minimum gap between rows
+- Use `flexboxLayout()` for multi-section positioning (space-evenly distribution)
+- Canvas is infinite — spread out, optimize for SVG navigability not PNG compactness
+- `measureVisibleBbox()` for frame sizing — excludes arrows that inflate mermaid output
 
 ---
 
