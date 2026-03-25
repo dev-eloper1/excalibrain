@@ -68,19 +68,86 @@ Repeat for each turn:
 
 Tell the user what you will draw and which diagram type, before touching any tool.
 
-*"Next I'll add the authentication flow as a flowchart — it has branching logic (valid token? → yes/no) that a flowchart argues best."*
+*"Next I'll add the auth flow as a sequence diagram — it involves Client, Gateway, Auth Service, and Token Store exchanging messages over time, so a sequence diagram argues the interaction best."*
+
+#### 1.5. Select diagram type
+
+**Before choosing a tool, classify the content.** Check the top rows first — sequence and ER are the types most likely to be incorrectly defaulted to dagre.
+
+| Ask yourself... | If yes → | Tool |
+|-----------------|----------|------|
+| Are multiple participants exchanging messages over time? | **Sequence diagram** | `mermaid-convert.js` |
+| Are entities related by foreign keys / cardinality? | **ER diagram** | `mermaid-convert.js` |
+| Is there branching logic WITHIN a single service/process? | **Flowchart** | `dagre-layout.js` |
+| Is it components and their static connections? | **Architecture** | `dagre-layout.js` |
+| Is it states and transitions? | **State diagram** | `dagre-layout.js` |
+| Is it a concept hierarchy or exploration? | **Mindmap** | `dagre-layout.js` |
+| Are there time-bound tasks with durations? | **Gantt chart** | `gantt-layout.js` |
+| Does position encode meaning, or no auto-layout fits? | **Freeform** | `primitives.js` |
+
+Read `references/diagram-type-rubric.md` if uncertain.
+
+**When to use freeform** (the last row):
+- Comparison tables / side-by-side columns with aligned rows
+- Geographic or spatial layouts where position IS the argument (region maps, deployment zones)
+- Legends, keys, or reference panels
+- Mixed compositions that combine shapes, text, and arrows at precise coordinates
+- Anything where auto-layout would fight the intended spatial meaning
+
+**Common misclassifications to watch for:**
+- "How a request flows through services" → **sequence** (multiple participants over time), NOT flowchart
+- "How services relate to each other" → **architecture** (static topology), NOT sequence
+- "What happens inside one service" → **flowchart** (branching logic), NOT sequence
+- "Compare options side by side" → **freeform** (position encodes comparison), NOT architecture
 
 #### 2. Build the section to a temp file and measure
 
-**Always build standalone first, then measure.** Never guess sizes.
+**Always build standalone first, then measure.** Never guess sizes. Use the tool selected in step 1.5.
 
+**For dagre diagrams** (architecture, flowchart, state, mindmap):
 ```bash
-# Build to temp file (no --merge yet)
 node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
   --prefix <section_prefix> \
   --output /tmp/<prefix>-sizing.excalidraw
+```
 
-# Measure the VISIBLE bbox (excludes arrows which inflate mermaid output)
+**For mermaid diagrams** (sequence, ER):
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/mermaid-convert.js <input.mmd> \
+  --prefix <section_prefix> \
+  --output /tmp/<prefix>-sizing.excalidraw
+```
+
+**For gantt charts:**
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/gantt-layout.js <input.json> \
+  --prefix <section_prefix> \
+  --output /tmp/<prefix>-sizing.excalidraw
+```
+
+**For freeform layouts** (manual positioning with generic shapes):
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/primitives.js <input.json> \
+  --output /tmp/<prefix>-sizing.excalidraw
+```
+
+Freeform input uses `primitives.js` with generic shape types. You control all coordinates:
+```json
+{
+  "primitives": [
+    {"type": "rectangle", "x": 0, "y": 0, "width": 200, "height": 80, "label": "Box A", "fill": "#bfdbfe", "stroke": "#1e40af", "rounded": true},
+    {"type": "ellipse", "x": 250, "y": 10, "width": 120, "height": 60, "label": "Node", "fill": "#bbf7d0", "stroke": "#15803d"},
+    {"type": "arrow", "fromX": 200, "fromY": 40, "toX": 250, "toY": 40, "label": "calls", "stroke": "#1e1e1e"},
+    {"type": "text-block", "x": 0, "y": 100, "text": "Annotation text", "fontSize": 14, "color": "#6b7280"},
+    {"type": "line", "x": 0, "y": 90, "points": [[0, 0], [400, 0]], "stroke": "#e5e7eb"}
+  ]
+}
+```
+
+Available generic types: `rectangle` (with optional `label`, `fill`, `stroke`, `rounded`), `ellipse` (same opts), `text-block` (freestanding text), `arrow` (`fromX/Y`, `toX/Y`, optional `label`, `style`), `line` (`points` array). All wireframe types (`screen`, `button`, `input`, `card`, etc.) also work in freeform sections.
+
+**Then measure** (same for all tools):
+```bash
 node -e "
 const { measureVisibleBbox } = require('${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js');
 const canvas = JSON.parse(require('fs').readFileSync('/tmp/<prefix>-sizing.excalidraw','utf8'));
@@ -93,66 +160,96 @@ Record `w` and `h` — you need these for layout and frame sizing.
 
 #### 3. Compute layout and rebuild canvas
 
-**Every time a section is added, recompute the ENTIRE canvas layout.** Do not just stack below — the canvas should always have the best possible layout for however many sections exist.
+**Every time a section is added, recompute the canvas layout using `organicLayout`.** The layout is driven by relationships between sections — dagre positions sections based on their connections, so spatial proximity = conceptual proximity.
 
 **Process:**
 
-1. **Collect all section sizes** — the new section (just measured in step 2) plus all existing sections from the sidecar. If existing section sizes aren't in the sidecar, re-measure them with `canvas-inspect.js --summary` (get bbox per prefix group, use `measureVisibleBbox` for mermaid sections).
+1. **Collect all section sizes** — the new section (just measured in step 2) plus all existing sections from the sidecar.
 
-2. **Determine row assignments** — group sections thematically:
-   - 1 section: single row, centered
-   - 2 sections: two rows, each centered (or side-by-side if both are narrow)
-   - 3 sections: row 1 (establishing), row 2 (pair or single), row 3
-   - 4+ sections: row 1 (establishing wide), row 2+ (paired by theme), last row (concluding wide)
-   - Related sections share a row (e.g., overview + detail, structure + behavior)
+2. **Define connections** — what is the relationship between this new section and existing ones? Each connection becomes an edge that drives the layout:
+   - "zooms into" → parent above, detail below
+   - "feeds into" / "routes to" → upstream above, downstream below
+   - "alternative to" / "compared with" → side by side (same rank)
+   - No connection → dagre places it independently
 
-3. **Compute positions with `flexboxLayout()`:**
+3. **Compute positions with `organicLayout()`:**
 
 ```javascript
-const { flexboxLayout } = require('${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js');
-const layout = flexboxLayout({
-  sections: [/* {w, h} for each section in reading order */],
-  canvasWidth: /* widest section's width */,
-  rowGap: 300,
-  rowAssignments: [/* e.g., [[0], [1,2], [3]] */]
+const { organicLayout } = require('${CLAUDE_PLUGIN_ROOT}/tools/library-resolve.js');
+const result = organicLayout({
+  sections: [
+    { id: 'edge', w: 800, h: 400 },
+    { id: 'gateway', w: 600, h: 700 },
+    // ... all sections with measured sizes
+  ],
+  connections: [
+    { from: 'edge', to: 'gateway', label: 'enters infrastructure' },
+    // ... relationships between sections
+  ],
+  direction: 'TB',  // top-to-bottom reading flow
+  gap: 300,          // minimum gap between sections
 });
-// layout.positions = [{x, y}, ...] for each section
+// result.positions = { edge: {x, y}, gateway: {x, y}, ... }
 ```
 
-4. **Rebuild the entire canvas** from source JSON files at the computed positions:
+The connections array is also stored in the sidecar and used to generate spine arrows — the same data drives both layout AND visual connections.
+
+4. **Rebuild the entire canvas** from source JSON files at the computed positions. Use the correct tool for each section's type (determined in step 1.5):
 
 ```bash
 # Strip composition elements from previous layout
 node ${CLAUDE_PLUGIN_ROOT}/tools/canvas-edit.js <canvas> strip-prefix comp_
 
-# Section 1 — creates canvas (no --merge)
+# Section 1 — creates canvas (no --merge). Use the tool matching its type:
+# dagre (architecture, flowchart, state, mindmap):
 node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <section1.json> \
   --prefix <prefix1> --position <x1>,<y1> --frame-id frame_<prefix1> \
   --output <canvas>
+# mermaid (sequence, ER):
+node ${CLAUDE_PLUGIN_ROOT}/tools/mermaid-convert.js <section1.mmd> \
+  --prefix <prefix1> --position <x1>,<y1> --frame-id frame_<prefix1> \
+  --output <canvas>
+# freeform (manual positioning):
+node ${CLAUDE_PLUGIN_ROOT}/tools/primitives.js <section1.json> \
+  --position <x1>,<y1> \
+  --output <canvas>
 
-# Sections 2-N — merge
-node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <sectionN.json> \
+# Sections 2-N — merge (same pattern, add --merge flag)
+node ${CLAUDE_PLUGIN_ROOT}/tools/<dagre-layout.js|mermaid-convert.js|primitives.js> <input> \
   --merge <canvas> --prefix <prefixN> --position <xN>,<yN> --frame-id frame_<prefixN> \
   --output <canvas>
 ```
 
-**This means keeping all section input JSON files** (graph JSON, .mmd files) in `/tmp/` for the duration of the session so sections can be rebuilt at new positions. Track input file paths in the sidecar.
+**This means keeping all section input files** (graph JSON, .mmd files) in `/tmp/` for the duration of the session so sections can be rebuilt at new positions. Track input file paths in the sidecar.
 
-**Why rebuild instead of moving?** Moving individual elements is error-prone (arrows, zones, annotations have complex coordinate relationships). Rebuilding from source JSON at new positions is atomic and correct — dagre/mermaid handles all internal layout.
+**Why rebuild instead of moving?** Moving individual elements is error-prone (arrows, zones, annotations have complex coordinate relationships). Rebuilding from source at new positions is atomic and correct — dagre/mermaid handles all internal layout.
 
 #### 4. *(merged into step 3 above)*
 
-The assembly step is now part of step 3's rebuild process. Every section is built with:
+The assembly step is now part of step 3's rebuild process. Every section is built with the tool matching its type:
 
 ```bash
+# dagre sections:
 node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
   --prefix <section_prefix> \
   --position <x>,<y> \
   --frame-id <frame_id> \
   --output <canvas.excalidraw>
 
-# Subsequent sections — merge into existing canvas
-node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
+# mermaid sections:
+node ${CLAUDE_PLUGIN_ROOT}/tools/mermaid-convert.js <input.mmd> \
+  --prefix <section_prefix> \
+  --position <x>,<y> \
+  --frame-id <frame_id> \
+  --output <canvas.excalidraw>
+
+# freeform sections:
+node ${CLAUDE_PLUGIN_ROOT}/tools/primitives.js <input.json> \
+  --position <x>,<y> \
+  --output <canvas.excalidraw>
+
+# Subsequent sections — merge into existing canvas (add --merge flag)
+node ${CLAUDE_PLUGIN_ROOT}/tools/<tool> <input> \
   --merge <canvas.excalidraw> \
   --prefix <section_prefix> \
   --position <x>,<y> \
@@ -164,16 +261,6 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/dagre-layout.js <input.json> \
 - `--frame-id <frame_id>` — ALL elements get `frameId` baked in at creation. Format: `frame_<prefix>` (e.g., `frame_auth`). This is what makes content move with the frame.
 - `--prefix <str>` — ID namespace. Max 8 chars.
 - `--position <x>,<y>` — from step 3
-
-For mermaid diagrams, use `mermaid-convert.js` with the same flags:
-```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/mermaid-convert.js <input.mmd> \
-  --merge <canvas.excalidraw> \
-  --prefix <section_prefix> \
-  --position <x>,<y> \
-  --frame-id <frame_id> \
-  --output <canvas.excalidraw>
-```
 
 #### 5. Add composition via library-resolve.js
 

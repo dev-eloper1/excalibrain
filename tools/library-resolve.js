@@ -311,6 +311,77 @@ function flexboxLayout({ sections, canvasWidth, rowGap = 300, rowAssignments }) 
   return { positions, totalHeight: currentY - rowGap };
 }
 
+// ── Utility: Organic Layout ──────────────────────────────────────────────────
+// Uses dagre to position SECTIONS on the canvas based on their relationships.
+// Each section is a node (with its measured size), relationships are edges.
+// The layout emerges from meaning — spatial proximity = conceptual proximity.
+//
+// Usage:
+//   const result = organicLayout({
+//     sections: [
+//       { id: 'edge', w: 800, h: 400, label: 'Client & Edge' },
+//       { id: 'gateway', w: 600, h: 700, label: 'API Gateway' },
+//     ],
+//     connections: [
+//       { from: 'edge', to: 'gateway', label: 'enters infrastructure' },
+//     ],
+//     direction: 'TB',  // optional, default TB
+//     gap: 300,          // optional, min gap between sections
+//   });
+//   // result.positions = { edge: {x, y}, gateway: {x, y} }
+
+function organicLayout({ sections, connections = [], direction = 'TB', gap = 300 }) {
+  const dagre = require('@dagrejs/dagre');
+  const g = new dagre.graphlib.Graph();
+
+  g.setGraph({
+    rankdir: direction,
+    ranksep: gap,
+    nodesep: gap,
+    marginx: 40,
+    marginy: 40,
+  });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  // Add sections as nodes with their measured dimensions + frame padding
+  const PAD = 80; // 40px frame padding on each side
+  for (const s of sections) {
+    g.setNode(s.id, {
+      width: s.w + PAD,
+      height: s.h + PAD,
+      label: s.label || s.id,
+    });
+  }
+
+  // Add relationships as edges
+  for (const c of connections) {
+    g.setEdge(c.from, c.to, { label: c.label || '' });
+  }
+
+  // Run dagre layout
+  dagre.layout(g);
+
+  // Extract positions — dagre gives center coordinates, convert to top-left
+  const positions = {};
+  for (const s of sections) {
+    const node = g.node(s.id);
+    positions[s.id] = {
+      x: Math.round(node.x - (s.w + PAD) / 2),
+      y: Math.round(node.y - (s.h + PAD) / 2),
+    };
+  }
+
+  // Compute canvas bounds
+  let maxX = 0, maxY = 0;
+  for (const s of sections) {
+    const p = positions[s.id];
+    maxX = Math.max(maxX, p.x + s.w + PAD);
+    maxY = Math.max(maxY, p.y + s.h + PAD);
+  }
+
+  return { positions, canvasWidth: maxX, canvasHeight: maxY };
+}
+
 // ── Component: Sub-Frame (Virtual Nested Frame) ─────────────────────────────
 // Excalidraw doesn't support nested frames (frameId on a frame is always null).
 // A "sub-frame" simulates nested frame behavior using:
@@ -616,4 +687,4 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
 
 // ── Exports ─────────────────────────────────────────────────────────────────
 
-module.exports = { resolve, resolveMany, COMPONENTS, postit, spineArrow, sectionFrame, canvasTitle, marginNote, subFrame, flexboxLayout, measureVisibleBbox };
+module.exports = { resolve, resolveMany, COMPONENTS, postit, spineArrow, sectionFrame, canvasTitle, marginNote, subFrame, flexboxLayout, organicLayout, measureVisibleBbox };
