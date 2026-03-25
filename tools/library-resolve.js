@@ -34,6 +34,21 @@ let seedCounter = 50000;
 function nextSeed() { return seedCounter++; }
 function groupId() { return crypto.randomBytes(10).toString('hex'); }
 
+// Measure visible bbox of elements, excluding arrows (whose bounding boxes
+// often extend far beyond visible content, especially in mermaid output).
+function measureVisibleBbox(elements) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const e of elements) {
+    if (e.type === 'arrow') continue; // arrows inflate bbox beyond visible content
+    const w = e.width || 0, h = e.height || 0;
+    if (e.x < minX) minX = e.x;
+    if (e.y < minY) minY = e.y;
+    if (e.x + w > maxX) maxX = e.x + w;
+    if (e.y + h > maxY) maxY = e.y + h;
+  }
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+
 function baseElement(id, type, x, y, w, h, overrides = {}) {
   return {
     type, id, x, y, width: w, height: h,
@@ -312,11 +327,11 @@ function flexboxLayout({ sections, canvasWidth, rowGap = 300, rowAssignments }) 
 function subFrame({ name, x, y, width, height, frameId, id,
                     borderColor, backgroundColor, labelColor, labelFontSize }) {
   const prefix = id ?? `subframe_${nextSeed()}`;
+  const gid = groupId();
 
-  // Sub-frames are purely visual — a rounded rectangle + label text.
-  // They share the parent's frameId so they move with the parent frame.
-  // No groupId tricks — elements inside frames already move with the frame.
-  // The sub-frame border is just a visual boundary, not a structural container.
+  // Sub-frames work like post-it notes: border + label + ALL content inside
+  // share the same groupId. Click any element → whole sub-frame selects.
+  // Same principle that makes post-it bg+text move together.
 
   const containerEl = baseElement(`${prefix}_border`, 'rectangle',
     x, y, width, height, {
@@ -326,6 +341,7 @@ function subFrame({ name, x, y, width, height, frameId, id,
       fillStyle: 'solid',
       roughness: 0,
       opacity: 40,
+      groupIds: [gid],
       frameId: frameId ?? null,
       extra: { roundness: { type: 3, value: 12 } },
     });
@@ -337,6 +353,7 @@ function subFrame({ name, x, y, width, height, frameId, id,
       fontSize: labelFontSize ?? 12,
       fontFamily: 2,
       color: labelColor ?? '#9ca3af',
+      groupIds: [gid],
       frameId: frameId ?? null,
     });
     elements.push(labelEl);
@@ -344,6 +361,7 @@ function subFrame({ name, x, y, width, height, frameId, id,
 
   return {
     elements,
+    groupId: gid,  // Content elements inside should add this to their groupIds
     contentArea: {
       x: x + 10,
       y: y + 28,
@@ -505,11 +523,35 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
       }
     }
 
-    // Post-merge: z-order fix — sub-frame borders must render BEHIND content
-    // Move sub-frame elements (border + label) before their contained content
+    // Post-merge: sub-frame groupId assignment
+    // Same principle as post-it notes: border + content share a groupId → move as one
     const subFrameBorders = canvas.elements.filter(e =>
       e.id && e.id.endsWith('_border') && e.id.includes('subframe') &&
       e.type === 'rectangle');
+
+    for (const sf of subFrameBorders) {
+      const sfGroupId = sf.groupIds && sf.groupIds[0];
+      if (!sfGroupId) continue;
+
+      for (const el of canvas.elements) {
+        if (el === sf) continue;
+        // Skip the sub-frame's own label
+        if (el.id && el.id.endsWith('_label') && el.id.startsWith(sf.id.replace('_border', ''))) continue;
+        // Skip if already in this group
+        if (el.groupIds && el.groupIds.includes(sfGroupId)) continue;
+
+        // Check if element center is inside sub-frame bounds
+        const cx = el.x + (el.width || 0) / 2;
+        const cy = el.y + (el.height || 0) / 2;
+        if (cx >= sf.x && cx <= sf.x + sf.width &&
+            cy >= sf.y && cy <= sf.y + sf.height) {
+          if (!el.groupIds) el.groupIds = [];
+          el.groupIds.push(sfGroupId);
+        }
+      }
+    }
+
+    // Post-merge: z-order fix — sub-frame borders must render BEHIND content
 
     for (const sf of subFrameBorders) {
       const sfPrefix = sf.id.replace('_border', '');
@@ -574,4 +616,4 @@ Components: ${Object.keys(COMPONENTS).join(', ')}`);
 
 // ── Exports ─────────────────────────────────────────────────────────────────
 
-module.exports = { resolve, resolveMany, COMPONENTS, postit, spineArrow, sectionFrame, canvasTitle, marginNote, subFrame, flexboxLayout };
+module.exports = { resolve, resolveMany, COMPONENTS, postit, spineArrow, sectionFrame, canvasTitle, marginNote, subFrame, flexboxLayout, measureVisibleBbox };
